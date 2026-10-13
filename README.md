@@ -72,20 +72,25 @@ git add -A; git commit -m "…"; git push
 
 ## Style « Safari macOS 26 » (teinte, coins, défilement)
 
-- **Barre teintée (comme Safari 26)** : `teinte-child.sys.mjs` (dans la page) copie les règles décrites par des
-  développeurs pour Safari 26 (analyse de `LocalFrameView::fixedContainerEdges`, mesures publiées ; pas relues dans le code de WebKit) : un élément `fixed` ou `sticky` au bord haut (touché
-  à 8 px sous le bord, large d'au moins 90 % de la fenêtre, haut d'au moins 3 px, fond uni, pas de `backdrop-filter`), sinon le fond
-  de `<body>`, sinon celui de `<html>`, sinon blanc. La balise `theme-color`, les dégradés et les images de fond sont ignorés.
-  `urlbar-domaine.uc.js` publie la couleur dans `--uc-teinte` ; `userChrome.css` l'applique aux barres, au creux de la bande d'onglets
-  et du champ d'adresse (`--uc-creux`, 76 % de la barre + 24 % de noir, comme le #1b1f22 mesuré sur Safari). Barre claire : luma
-  Rec. 709 > 127,5 (la règle de Safari pour le texte foncé) → attribut `uc-clair` : `color-scheme: light` sur les barres, icônes
-  inversées, texte des onglets foncé. Piège : un acteur doit déclarer `safeForUntrustedWebProcess: true` à la racine de ses options,
-  sinon `getActor` répond « doesn't match remote type » ; et `browser.ownerGlobal` peut revenir `undefined` : utiliser
-  `ownerDocument.defaultView`. Sources (aucune n'est la documentation d'Apple ; seul `PageColorSampler.cpp`, l'ancien échantillonneur, a été lu dans WebKit) : dépôts
-  `andesco/safari-color-tinting` et `parob/homecast-web` (PR 199), https://1ar.io/updates/safari-26-liquid-glass-web/.
-  Non vérifié (l'interface de Safari n'est pas open source) : l'aspect exact de la bande d'onglets teintée et de l'onglet actif, et
-  qu'une page BLANCHE donne bien une barre blanche sur Mac (indices seulement : repli « blanc » décrit par 1ar.io et andesco, un message
-  du forum Apple où les libellés blancs des favoris disparaissent sur une page blanche). À confirmer par une capture de Safari.
+- **Barre teintée (comme Safari 26 / 27)** : `teinte-child.sys.mjs` (dans la page) porte le code de WebKit (branche `main`, lue le
+  2026-10-14) : `LocalFrameView::fixedContainerEdges` (bord haut : élément fixe ou collant touché au milieu du bord, à 4 px sous
+  le bord ; largeur d'au moins 90 % de la fenêtre ; boîte de plus de 10 px ; opacité, boîte vide et `backdrop-filter` écartés ;
+  couleur de fond unie, mélangée au fond de la page si son alpha est sous 0,75, sinon rendue opaque ; sans fond uni, échantillon de
+  29 pixels dont 20 identiques ; figée après le premier défilement), `documentBackgroundColor` (fond de page = `<html>` puis
+  `<body>` sur du blanc, images de fond ignorées) et `WKWebView._updateFixedColorExtensionViews` (couleur de l'arête haute, sinon
+  `underPageBackgroundColor`, c'est-à-dire le fond de la page). `theme-color` n'est pas utilisé. `urlbar-domaine.uc.js` publie la
+  couleur dans `--uc-teinte` ; `userChrome.css` l'applique aux barres, au creux de la bande d'onglets et du champ d'adresse
+  (`--uc-creux`, 76 % de la barre + 24 % de noir, comme le #1b1f22 mesuré sur Safari). Barre claire : luma Rec. 709 > 127,5 (règle
+  décrite par le dépôt andesco/safari-color-tinting, pas lue dans WebKit) → attribut `uc-clair` : `color-scheme: light` sur les
+  barres, icônes inversées, texte des onglets foncé. Piège : un acteur doit déclarer `safeForUntrustedWebProcess: true` à la racine
+  de ses options, sinon `getActor` répond « doesn't match remote type » ; et `browser.ownerGlobal` peut revenir `undefined` :
+  utiliser `ownerDocument.defaultView`. 17 pages de test (fond, en-tête fixe, dégradé, flou, voile, collant, 8 px…) donnent la couleur
+  attendue.
+  **Non vérifiable** (le code de l'application Safari n'est pas public) : comment Safari choisit sa couleur de barre à partir de ces
+  deux informations (arête haute, fond de page) et ce qu'il fait d'une page blanche (WebKit lui donne du blanc ; qu'il l'affiche en
+  blanc est probable mais non lu), l'aspect exact de la bande d'onglets et de l'onglet actif. Valeur tierce : seuil « presque
+  transparent » 0,1 (la constante n'est pas dans le fichier lu). Non porté : `::backdrop` (dialogues), filtres de couleur,
+  `pointer-events` (WebKit les ignore au premier essai, `elementsFromPoint` les respecte).
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : `scrollbar-width: thin` et couleur translucide sur toutes les pages (`userContent.css`). Windows 11
