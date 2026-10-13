@@ -177,3 +177,138 @@
     console.error("poignée barre latérale (init) :", e);
   }
 })();
+
+// ---- Barre d'outils façon Safari : boutons Partager et vue d'ensemble des onglets ----
+// #uc-share-button : bouton créé ici (CustomizableUI), qui ouvre le panneau Partager de Windows (nsIWindowsUIUtils.shareUrl).
+// #alltabs-button : le bouton « Lister tous les onglets » de Firefox, déplacé dans la barre du haut. La disposition des barres est
+// remise à zéro à chaque démarrage par user.js (browser.uiCustomization.state) : on replace donc les deux boutons à chaque
+// fois, juste avant « Nouvel onglet ». Une seule fois par session (le script tourne dans chaque fenêtre).
+(() => {
+  if (Services.__ucOutils) {
+    return;
+  }
+  Services.__ucOutils = true;
+  try {
+    const ID = "uc-share-button";
+    CustomizableUI.createWidget({
+      id: ID,
+      type: "button",
+      defaultArea: "nav-bar",
+      label: "Partager",
+      tooltiptext: "Partager cette page",
+      onCommand(evt) {
+        try {
+          const fenetre = evt.target.ownerGlobal;
+          const url = fenetre.gBrowser.currentURI.spec;
+          if (!/^https?:/i.test(url)) {
+            return;
+          }
+          Cc["@mozilla.org/windows-ui-utils;1"].getService(Ci.nsIWindowsUIUtils).shareUrl(url, fenetre.gBrowser.contentTitle || url);
+        } catch (e) {
+          console.error("partager :", e);
+        }
+      },
+    });
+    // Ordre voulu à droite, comme Safari : Partager, « + » (nouvel onglet), vue d'ensemble des onglets. Idempotent : on dresse
+    // la liste complète de la barre, on y glisse les deux boutons autour de « Nouvel onglet », puis on ne déplace que ce qui
+    // n'est pas déjà à la bonne place (deux passages ne se contredisent donc pas).
+    const placer = () => {
+      try {
+        const AIRE = "nav-bar";
+        for (const id of [ID, "alltabs-button"]) {
+          const p = CustomizableUI.getPlacementOfWidget(id);
+          if (!p || p.area !== AIRE) {
+            CustomizableUI.addWidgetToArea(id, AIRE);
+          }
+        }
+        const cible = CustomizableUI.getWidgetIdsInArea(AIRE).filter((id) => id !== ID && id !== "alltabs-button");
+        const k = cible.indexOf("new-tab-button");
+        if (k < 0) {
+          cible.push(ID, "alltabs-button");
+        } else {
+          cible.splice(k, 1, ID, "new-tab-button", "alltabs-button");
+        }
+        cible.forEach((id, i) => {
+          if (CustomizableUI.getWidgetIdsInArea(AIRE)[i] !== id) {
+            CustomizableUI.moveWidgetWithinArea(id, i);
+          }
+        });
+      } catch (e) {
+        console.error("partager / onglets (placement) :", e);
+      }
+    };
+    placer();
+    setTimeout(placer, 1500);
+  } catch (e) {
+    console.error("partager / onglets (init) :", e);
+  }
+})();
+
+// ---- Barre d'outils teintée selon le site (comme Safari) ----
+// Firefox ne lit pas la couleur déclarée par une page. On prend celle de l'icône de l'onglet (déjà une adresse data:, donc
+// lisible sans restriction de sécurité), moyenne des pixels colorés pondérée par leur saturation, et on en tire une teinte
+// SOMBRE (même clarté que le gris d'origine, #23282e) publiée dans --uc-teinte sur la racine ; userChrome.css s'en sert pour les
+// barres. Icône grise, noire, blanche, absente ou page interne : on retire la variable, retour au gris neutre.
+(() => {
+  try {
+    const XHTML = "http://www.w3.org/1999/xhtml";
+    const racine = document.documentElement;
+    const neutre = () => racine.style.removeProperty("--uc-teinte");
+    const teinter = async () => {
+      try {
+        const onglet = gBrowser.selectedTab;
+        const src = onglet && onglet.getAttribute("image");
+        if (!src || !src.startsWith("data:")) {
+          neutre();
+          return;
+        }
+        const img = document.createElementNS(XHTML, "img");
+        img.src = src;
+        await img.decode();
+        const canvas = document.createElementNS(XHTML, "canvas");
+        canvas.width = canvas.height = 16;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0, 16, 16);
+        const px = ctx.getImageData(0, 0, 16, 16).data;
+        let x = 0, y = 0, poids = 0, sat = 0;
+        for (let i = 0; i < px.length; i += 4) {
+          const r = px[i] / 255, g = px[i + 1] / 255, b = px[i + 2] / 255, a = px[i + 3] / 255;
+          const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, c = max - min;
+          if (a < 0.5 || c < 0.12 || l < 0.1 || l > 0.9) {
+            continue; // transparent, gris, presque noir ou presque blanc : ne porte pas de teinte
+          }
+          let h = max === r ? ((g - b) / c) % 6 : max === g ? (b - r) / c + 2 : (r - g) / c + 4;
+          h *= Math.PI / 3;
+          const w = a * c;
+          x += Math.cos(h) * w;
+          y += Math.sin(h) * w;
+          sat += c * w;
+          poids += w;
+        }
+        if (poids < 4) {
+          neutre();
+          return;
+        }
+        const teinte = ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+        const s = Math.min(0.32, Math.max(0.12, (sat / poids) * 0.45));
+        racine.style.setProperty("--uc-teinte", `hsl(${Math.round(teinte)} ${Math.round(s * 100)}% 16.5%)`);
+      } catch (e) {
+        neutre();
+      }
+    };
+    let minuterie = null;
+    const planifier = () => {
+      clearTimeout(minuterie);
+      minuterie = setTimeout(teinter, 120);
+    };
+    gBrowser.tabContainer.addEventListener("TabSelect", planifier);
+    gBrowser.tabContainer.addEventListener("TabAttrModified", (e) => {
+      if (e.target.selected && e.detail && e.detail.changed && e.detail.changed.includes("image")) {
+        planifier();
+      }
+    });
+    planifier();
+  } catch (e) {
+    console.error("teinte de la barre :", e);
+  }
+})();

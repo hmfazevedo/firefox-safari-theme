@@ -69,6 +69,24 @@ git add -A; git commit -m "…"; git push
 - Quand on remplace un bloc du CSS en le coupant entre deux repères, vérifier qu'on n'emporte pas d'autres règles
   (comparer la liste des sélecteurs avant et après).
 
+## Style « Safari macOS 26 » (boutons, capsules, teinte)
+
+- **Boutons de fenêtre à gauche** : la copie des boutons de `#nav-bar` passe en premier (`order: -1`), en ronds de 12 px.
+  Le symbole de Windows est le `::before` du bouton (`content: "\e8bb"`, police Segoe Fluent) : il faut le vider avec
+  `!important`, puis mettre ×, −, + au survol du groupe.
+- **Capsules** : un `::before` de 32 px derrière les boutons de la barre latérale et de précédent / suivant (`z-index: -1`).
+- **Partager et vue d'ensemble** : `#uc-share-button` est créé par `urlbar-domaine.uc.js` (`CustomizableUI.createWidget`, ouvre
+  le panneau Partager de Windows) ; `#alltabs-button` est le bouton « Lister tous les onglets » de Firefox. `user.js` remet la
+  disposition des barres à zéro à chaque démarrage : le script replace les deux boutons à chaque fois (ordre : Partager, +,
+  vue d'ensemble).
+- **Barre teintée** : le script lit l'icône de l'onglet (une adresse `data:`), calcule une teinte sombre et la publie dans
+  `--uc-teinte` ; `userChrome.css` l'utilise pour les barres (`var(--uc-teinte, #23282e)`). Page interne ou icône grise : gris
+  neutre. Ce n'est pas la couleur déclarée par la page, que Firefox ne donne pas.
+- **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
+  coins de la fenêtre elle-même sont gérés par Windows.
+- **Barres de défilement** : `scrollbar-width: thin` et couleur translucide sur toutes les pages (`userContent.css`). Windows 11
+  les rend déjà « overlay » (elles n'apparaissent qu'en défilant).
+
 ## Tester sans toucher à votre profil (profil jetable + Marionette)
 
 `outils-test/` contient ce qui a servi à tout mesurer :

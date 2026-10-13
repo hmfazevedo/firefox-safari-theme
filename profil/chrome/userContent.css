@@ -47,3 +47,13 @@
     padding-top: 14vh !important;
   }
 }
+
+/* Barres de défilement fines et discrètes sur TOUTES les pages (Safari : un fin curseur arrondi translucide, sans glissière).
+ * Windows 11 les rend déjà « overlay » (elles n'apparaissent qu'en défilant) ; on les amincit et on les grise en translucide
+ * (visible sur fond clair comme sombre, glissière transparente). !important : une page peut en poser une, la nôtre l'emporte. */
+@-moz-document regexp(".*") {
+  * {
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(142, 148, 156, 0.6) transparent !important;
+  }
+}
