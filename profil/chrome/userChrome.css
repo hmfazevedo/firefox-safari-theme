@@ -17,7 +17,7 @@
   max-height: 3em !important;
 }
 :root[sessionrestored] #PersonalToolbar {
-  transition: min-height 220ms ease-out, max-height 220ms ease-out, padding-block 220ms ease-out, visibility 220ms linear !important;
+  transition: min-height 220ms ease-out, max-height 220ms ease-out, padding-block 220ms ease-out, visibility 220ms linear, background-color 350ms ease !important;
 }
 :root[sessionrestored] #PersonalToolbar[collapsed] {
   visibility: hidden !important;
@@ -26,10 +26,25 @@
 /* Les trois barres (onglets, navigation, favoris) : un même gris-bleu foncé, mesuré sur une capture
  * de Safari en mode sombre (#23282e). Fond opaque : plus de transparence du Mica. Les variables
  * de Firefox restent intactes car l'onglet sélectionné s'en sert (--toolbar-background-color). */
+/* TEINTE (comme Safari 26) : urlbar-domaine.uc.js publie --uc-teinte (couleur de la page, mesurée par teinte-child.sys.mjs) sur la
+ * racine ; sans elle (page interne, avant la mesure) on retombe sur ce gris. --uc-creux : le « cran plus sombre » du champ
+ * d'adresse et de la bande d'onglets (#1b1f22 sur #23282e = 76 % de la barre + 24 % de noir, mesuré sur Safari) ; --uc-actif :
+ * le champ d'adresse actif (#2b3036 sur #23282e = 96 % de la barre + 4 % de blanc). Barre CLAIRE (attribut uc-clair, luma > 127,5) :
+ * le creux est à peine plus sombre que la barre et le champ actif est blanc. */
+:root {
+  --uc-creux-pct: 76%;
+  --uc-creux: color-mix(in srgb, var(--uc-teinte, #23282e) var(--uc-creux-pct), black);
+  --uc-actif-pct: 96%;
+  --uc-actif: color-mix(in srgb, var(--uc-teinte, #23282e) var(--uc-actif-pct), white);
+}
+:root[uc-clair] {
+  --uc-creux-pct: 92%;
+  --uc-actif-pct: 0%;
+}
 #TabsToolbar,
 #nav-bar,
 #PersonalToolbar {
-  background-color: #23282e !important;
+  background-color: var(--uc-teinte, #23282e) !important;
 }
 
 /* Hauteur des onglets : la bande qui les contient fait 36 px (-8 px par rapport au défaut de
@@ -133,7 +148,7 @@
 /* Champ d'adresse au repos : un cran plus sombre que la barre (#1b1f22, mesuré sur Safari). Une fois
  * la barre active, Firefox garde sa couleur de saisie, lisible. */
 #urlbar:not([focused]) > #urlbar-background {
-  background-color: #1b1f22 !important;
+  background-color: var(--uc-creux) !important;
 }
 
 /* Un seul onglet ouvert : on masque la rangée d'onglets, comme Safari. Elle revient dès qu'un
@@ -152,7 +167,7 @@
 #TabsToolbar {
   max-height: 40px !important;
   overflow: clip !important;
-  transition: max-height 220ms ease-out, padding-block 220ms ease-out, opacity 220ms ease-out, visibility 220ms linear !important;
+  transition: max-height 220ms ease-out, padding-block 220ms ease-out, opacity 220ms ease-out, visibility 220ms linear, background-color 350ms ease !important;
 }
 #TabsToolbar:has(#tabbrowser-arrowscrollbox > .tabbrowser-tab[fadein]):not(:has(#tabbrowser-arrowscrollbox > .tabbrowser-tab[fadein] ~ .tabbrowser-tab[fadein])):not(:has(#pinned-tabs-container > .tabbrowser-tab, tab-group)) {
   max-height: 0 !important;
@@ -367,7 +382,7 @@
  * inactifs (pas à côté de l'onglet actif, ni après le dernier). La bande est #tabbrowser-tabs :
  * le bouton « liste des onglets » (chevron) reste à droite, hors de la bande. */
 #tabbrowser-tabs {
-  background-color: #1b1f22 !important;
+  background-color: var(--uc-creux) !important;
   border-radius: 22px;
   padding-inline: 2px; /* les pastilles des onglets aux deux bouts ne touchent pas le bord arrondi de la bande */
 }
@@ -619,7 +634,8 @@ findbar {
  * le Mica de Windows 11 : un gris clair teinté par le fond d'écran, différent des barres du haut. On lui donne le gris
  * opaque des trois barres (#23282e), sans Mica. */
 #browser {
-  background-color: #23282e !important;
+  background-color: var(--uc-teinte, #23282e) !important;
+  transition: background-color 350ms ease;
 }
 
 /* Barre latérale : déjà une carte sombre arrondie dans la palette ; seul le contour de focus (champ de recherche
@@ -635,6 +651,47 @@ findbar {
 #trust-icon-container,
 #tracking-protection-icon-container {
   -moz-window-dragging: no-drag !important;
+}
+
+/* ===== Barre CLAIRE (attribut uc-clair posé par urlbar-domaine.uc.js : luma Rec. 709 de la couleur de la page > 127,5, la règle de
+ * Safari pour choisir du texte foncé) =====
+ * 1. color-scheme: light sur le seul bloc des barres : les couleurs de Firefox écrites en light-dark() (texte, icônes natives,
+ *    onglet actif, champ d'adresse…) passent d'elles-mêmes à leur version claire. Pas sur :root, sinon les panneaux et le
+ *    menu de l'adresse (gris foncé fixe) auraient du texte foncé sur fond foncé.
+ * 2. Les icônes dessinées par ce fichier sont des images data: au blanc FIXE (#fbfbfe), qui ne suivent pas le thème : filtre
+ *    « invert » sur CHAQUE icône, une seule fois (un filtre sur le bouton ET son icône s'annulerait). Les favicons des onglets
+ *    ne sont pas touchés.
+ * 3. Séparateurs et liserés blancs translucides : version noire. */
+:root[uc-clair] #navigator-toolbox {
+  color-scheme: light !important;
+}
+:root[uc-clair] :is(#back-button, #forward-button, #reload-button, #stop-button, #new-tab-button, #PanelUI-menu-button,
+    #unified-extensions-button, #sidebar-button, #downloads-button) .toolbarbutton-icon,
+:root[uc-clair] #downloads-indicator-icon,
+:root[uc-clair] #urlbar[uc-centre] #identity-icon,
+:root[uc-clair] #urlbar[uc-web] #permissions-granted-icon,
+:root[uc-clair] #urlbar .urlbar-go-button {
+  filter: invert(1) !important;
+}
+:root[uc-clair] #urlbar:not([focused], [popover-open]) > .urlbar-background {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12) !important;
+}
+:root[uc-clair] #tabbrowser-tabs {
+  outline-color: rgba(0, 0, 0, 0.12);
+}
+/* Texte des onglets : Firefox le pose en blanc fixe (#fbfbfe), pas en light-dark() ; actif plein, inactifs un peu plus doux.
+ * !important : userChrome.css est une feuille « utilisateur », elle perd contre les règles de Firefox sans cela. */
+:root[uc-clair] #tabbrowser-tabs .tabbrowser-tab {
+  color: rgba(21, 20, 26, 0.7) !important;
+}
+:root[uc-clair] #tabbrowser-tabs .tabbrowser-tab[selected] {
+  color: #15141a !important;
+}
+:root[uc-clair] #tabbrowser-tabs :is(.tab-label, .tab-text, .tab-label-container, .tab-content) {
+  color: inherit !important;
+}
+:root[uc-clair] #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected])::after {
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 /* Globe à gauche du texte, comme Safari : le groupe « globe + texte » est centré dans la barre, au repos (domaine seul)
@@ -704,7 +761,7 @@ findbar {
   outline-offset: 0 !important;
 }
 #urlbar:is([focused], [open]) > .urlbar-background {
-  background-color: #2b3036 !important;
+  background-color: var(--uc-actif) !important;
 }
 #urlbar-input::selection {
   background-color: #0b5bd3 !important; /* opaque : avec une transparence, Firefox peignait un turquoise terne */

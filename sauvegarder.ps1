@@ -4,7 +4,7 @@
 
 .DESCRIPTION
   À lancer après chaque modification dans le profil. Copie userChrome.css, userContent.css, urlbar-domaine.uc.js,
-  urlbar-domaine.manifest, user.js, config.js et config-prefs.js, puis affiche `git status`.
+  urlbar-domaine.manifest, teinte-child.sys.mjs, teinte-parent.sys.mjs, user.js, config.js et config-prefs.js, puis affiche `git status`.
   Lecture seule côté Firefox : rien n'est modifié dans le profil ni dans C:\Program Files.
 
 .PARAMETER Profil
@@ -35,6 +35,8 @@ $paires = @(
   @{ De = "$Profil\chrome\userContent.css";          Vers = "$racine\profil\chrome\userContent.css" },
   @{ De = "$Profil\chrome\urlbar-domaine.uc.js";     Vers = "$racine\profil\chrome\urlbar-domaine.uc.js" },
   @{ De = "$Profil\chrome\urlbar-domaine.manifest";  Vers = "$racine\profil\chrome\urlbar-domaine.manifest" },
+  @{ De = "$Profil\chrome\teinte-child.sys.mjs";     Vers = "$racine\profil\chrome\teinte-child.sys.mjs" },
+  @{ De = "$Profil\chrome\teinte-parent.sys.mjs";    Vers = "$racine\profil\chrome\teinte-parent.sys.mjs" },
   @{ De = "$Profil\user.js";                         Vers = "$racine\profil\user.js" },
   @{ De = "$DossierFirefox\config.js";               Vers = "$racine\installation\config.js" },
   @{ De = "$DossierFirefox\defaults\pref\config-prefs.js"; Vers = "$racine\installation\defaults\pref\config-prefs.js" }

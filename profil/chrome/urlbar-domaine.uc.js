@@ -177,3 +177,100 @@
     console.error("poignée barre latérale (init) :", e);
   }
 })();
+
+// ---- Barre d'outils teintée comme Safari 26 ----
+// La couleur est mesurée côté page (teinte-child.sys.mjs : élément fixe en haut, sinon fond de <body> / <html>, sinon blanc ;
+// la balise theme-color est ignorée, comme dans Safari 26). Ici : on l'enregistre par onglet, on la publie dans --uc-teinte
+// (userChrome.css s'en sert pour les barres, la rangée d'onglets et le champ d'adresse) et on pose l'attribut uc-clair quand
+// la barre est CLAIRE : Safari prend du texte foncé si la luma Rec. 709 (0,2126 R + 0,7152 G + 0,0722 B, sur 0 à 255) dépasse
+// 127,5, du texte clair sinon. Pages internes (about:, extensions) : gris neutre.
+(() => {
+  try {
+    const racine = document.documentElement;
+    if (!Services.__ucTeinteActeur) {
+      Services.__ucTeinteActeur = true;
+      try {
+        ChromeUtils.registerWindowActor("UcTeinte", {
+          parent: { esModuleURI: "chrome://urlbar-domaine/content/teinte-parent.sys.mjs" },
+          child: {
+            esModuleURI: "chrome://urlbar-domaine/content/teinte-child.sys.mjs",
+            events: {
+              DOMContentLoaded: {},
+              pageshow: {},
+              load: { capture: true },
+              scroll: { capture: true, passive: true },
+            },
+          },
+          allFrames: false,
+          matches: ["http://*/*", "https://*/*"],
+          // Sans cela Firefox refuse l'acteur dans un processus de page web (« doesn't match remote type ») : l'acteur ne lit que
+          // des couleurs de fond et n'accepte aucun ordre d'une page.
+          safeForUntrustedWebProcess: true,
+        });
+      } catch (e) {
+        console.error("teinte : enregistrement de l'acteur", e);
+      }
+    }
+    const appliquer = (c) => {
+      if (!c) {
+        racine.style.removeProperty("--uc-teinte");
+        racine.removeAttribute("uc-clair");
+        return;
+      }
+      racine.style.setProperty("--uc-teinte", `rgb(${c[0]} ${c[1]} ${c[2]})`);
+      const luma = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+      if (luma > 127.5) {
+        racine.setAttribute("uc-clair", "");
+      } else {
+        racine.removeAttribute("uc-clair");
+      }
+    };
+    const estWeb = (navigateur) => /^https?:/i.test(navigateur.currentURI?.spec || "");
+    // Demande une mesure à la page (utile quand la couleur de cet onglet n'est pas encore connue : page déjà chargée avant
+    // l'enregistrement de l'acteur, onglet restauré en arrière-plan).
+    const demander = (navigateur) => {
+      try {
+        if (estWeb(navigateur)) {
+          navigateur.browsingContext?.currentWindowGlobal?.getActor("UcTeinte").sendAsyncMessage("UcTeinte:Mesurer");
+        }
+      } catch (e) {
+        // pas encore d'acteur pour cette page
+      }
+    };
+    window.ucTeinteRecue = (navigateur, c) => {
+      navigateur._ucTeinte = c;
+      if (navigateur === gBrowser.selectedBrowser) {
+        appliquer(c);
+      }
+    };
+    const surSelection = () => {
+      const b = gBrowser.selectedBrowser;
+      if (!estWeb(b)) {
+        appliquer(null);
+        return;
+      }
+      appliquer(b._ucTeinte || null);
+      if (!b._ucTeinte) {
+        demander(b);
+      }
+    };
+    gBrowser.tabContainer.addEventListener("TabSelect", surSelection);
+    gBrowser.addTabsProgressListener({
+      onLocationChange(navigateur, webProgress) {
+        if (!webProgress.isTopLevel) {
+          return;
+        }
+        if (!estWeb(navigateur)) {
+          navigateur._ucTeinte = null;
+          if (navigateur === gBrowser.selectedBrowser) {
+            appliquer(null);
+          }
+        }
+      },
+    });
+    setTimeout(surSelection, 500);
+    setTimeout(() => demander(gBrowser.selectedBrowser), 2000);
+  } catch (e) {
+    console.error("teinte de la barre :", e);
+  }
+})();

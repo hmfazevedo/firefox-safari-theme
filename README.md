@@ -11,6 +11,7 @@ Tout repose sur quatre mécanismes, sans extension :
 | `profil/chrome/userChrome.css` | style de l'interface (barres, onglets, barre d'adresse, panneaux, icônes…) |
 | `profil/chrome/userContent.css` | style de la page « nouvel onglet » / accueil |
 | `profil/chrome/urlbar-domaine.uc.js` + `.manifest` | script d'interface : domaine seul dans la barre d'adresse, globe cliquable, centrage |
+| `profil/chrome/teinte-child.sys.mjs` + `teinte-parent.sys.mjs` | acteur de fenêtre : mesure la couleur de la page (côté page) et la transmet à l'interface (côté interface) |
 | `profil/user.js` | préférences imposées à chaque démarrage (active `userChrome.css`, disposition des barres…) |
 | `installation/config.js` + `installation/defaults/pref/config-prefs.js` | chargeur (AutoConfig) du script ci-dessus, dans **le dossier d'installation** de Firefox |
 
@@ -69,8 +70,20 @@ git add -A; git commit -m "…"; git push
 - Quand on remplace un bloc du CSS en le coupant entre deux repères, vérifier qu'on n'emporte pas d'autres règles
   (comparer la liste des sélecteurs avant et après).
 
-## Style « Safari macOS 26 » (coins, défilement)
+## Style « Safari macOS 26 » (teinte, coins, défilement)
 
+- **Barre teintée (comme Safari 26)** : `teinte-child.sys.mjs` (dans la page) copie les règles de WebKit
+  (`LocalFrameView::fixedContainerEdges`) et les mesures publiées sur Safari 26 : un élément `fixed` ou `sticky` au bord haut (touché
+  à 8 px sous le bord, large d'au moins 90 % de la fenêtre, haut d'au moins 3 px, fond uni, pas de `backdrop-filter`), sinon le fond
+  de `<body>`, sinon celui de `<html>`, sinon blanc. La balise `theme-color`, les dégradés et les images de fond sont ignorés.
+  `urlbar-domaine.uc.js` publie la couleur dans `--uc-teinte` ; `userChrome.css` l'applique aux barres, au creux de la bande d'onglets
+  et du champ d'adresse (`--uc-creux`, 76 % de la barre + 24 % de noir, comme le #1b1f22 mesuré sur Safari). Barre claire : luma
+  Rec. 709 > 127,5 (la règle de Safari pour le texte foncé) → attribut `uc-clair` : `color-scheme: light` sur les barres, icônes
+  inversées, texte des onglets foncé. Piège : un acteur doit déclarer `safeForUntrustedWebProcess: true` à la racine de ses options,
+  sinon `getActor` répond « doesn't match remote type » ; et `browser.ownerGlobal` peut revenir `undefined` : utiliser
+  `ownerDocument.defaultView`. Sources (aucune n'est la documentation d'Apple) : code WebKit `PageColorSampler.cpp`, dépôts
+  `andesco/safari-color-tinting` et `parob/homecast-web` (PR 199), https://1ar.io/updates/safari-26-liquid-glass-web/.
+  Non vérifié (l'interface de Safari n'est pas open source) : l'aspect exact de la bande d'onglets teintée et de l'onglet actif.
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : `scrollbar-width: thin` et couleur translucide sur toutes les pages (`userContent.css`). Windows 11
@@ -101,5 +114,4 @@ passent pas par la zone de déplacement de fenêtre de Windows.
 - Boutons de fenêtre en ronds rouge / jaune / vert à gauche (refusés : retour aux boutons Windows à droite).
 - Capsules de verre derrière les boutons de la barre latérale et de précédent / suivant (refusées).
 - Boutons Partager et vue d'ensemble des onglets dans la barre du haut (refusés ; le script CustomizableUI est dans l'historique git).
-- Barre teintée selon le site (couleur de l'icône, puis du fond de la page via `drawSnapshot`) : refusée, barres en gris fixe `#23282e`. Le code est dans l'historique git.
 - Mica de Windows 11 sur les barres : remplacé par un gris plein `#23282e` pour avoir exactement la même couleur partout.
