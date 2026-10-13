@@ -69,14 +69,8 @@ git add -A; git commit -m "…"; git push
 - Quand on remplace un bloc du CSS en le coupant entre deux repères, vérifier qu'on n'emporte pas d'autres règles
   (comparer la liste des sélecteurs avant et après).
 
-## Style « Safari macOS 26 » (teinte, coins)
+## Style « Safari macOS 26 » (coins, défilement)
 
-- **Barre teintée** : comme Safari 26, la couleur vient du FOND DE LA PAGE à son bord supérieur (pas de l'icône de l'onglet).
-  Le script photographie une bande de 4 px en haut de la page (`windowGlobal.drawSnapshot`), garde la couleur dominante et
-  publie dans `--uc-teinte` : page sombre (noire, grise ou colorée) = sa couleur exacte ; page colorée de clarté moyenne =
-  une teinte sombre de même ton ; `userChrome.css` l'utilise pour les barres (`var(--uc-teinte, #23282e)`). Fond blanc, clair
-  ou gris moyen, page interne : gris neutre, car Safari passerait en barre claire et il faudrait retourner toutes les couleurs
-  de l'interface.
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : `scrollbar-width: thin` et couleur translucide sur toutes les pages (`userContent.css`). Windows 11
@@ -107,4 +101,5 @@ passent pas par la zone de déplacement de fenêtre de Windows.
 - Boutons de fenêtre en ronds rouge / jaune / vert à gauche (refusés : retour aux boutons Windows à droite).
 - Capsules de verre derrière les boutons de la barre latérale et de précédent / suivant (refusées).
 - Boutons Partager et vue d'ensemble des onglets dans la barre du haut (refusés ; le script CustomizableUI est dans l'historique git).
+- Barre teintée selon le site (couleur de l'icône, puis du fond de la page via `drawSnapshot`) : refusée, barres en gris fixe `#23282e`. Le code est dans l'historique git.
 - Mica de Windows 11 sur les barres : remplacé par un gris plein `#23282e` pour avoir exactement la même couleur partout.

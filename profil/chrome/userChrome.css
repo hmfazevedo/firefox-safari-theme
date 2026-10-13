@@ -29,8 +29,7 @@
 #TabsToolbar,
 #nav-bar,
 #PersonalToolbar {
-  background-color: var(--uc-teinte, #23282e) !important;
-  transition: background-color 350ms ease;
+  background-color: #23282e !important;
 }
 
 /* Hauteur des onglets : la bande qui les contient fait 36 px (-8 px par rapport au défaut de
@@ -620,8 +619,7 @@ findbar {
  * le Mica de Windows 11 : un gris clair teinté par le fond d'écran, différent des barres du haut. On lui donne le gris
  * opaque des trois barres (#23282e), sans Mica. */
 #browser {
-  background-color: var(--uc-teinte, #23282e) !important;
-  transition: background-color 350ms ease;
+  background-color: #23282e !important;
 }
 
 /* Barre latérale : déjà une carte sombre arrondie dans la palette ; seul le contour de focus (champ de recherche
