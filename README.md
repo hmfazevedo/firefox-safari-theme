@@ -73,9 +73,10 @@ git add -A; git commit -m "…"; git push
 
 - **Barre teintée** : comme Safari 26, la couleur vient du FOND DE LA PAGE à son bord supérieur (pas de l'icône de l'onglet).
   Le script photographie une bande de 4 px en haut de la page (`windowGlobal.drawSnapshot`), garde la couleur dominante et
-  publie une teinte sombre de même ton dans `--uc-teinte` ; `userChrome.css` l'utilise pour les barres
-  (`var(--uc-teinte, #23282e)`). Fond blanc, clair, gris ou presque noir (la plupart des sites), page interne : gris neutre, car
-  Safari passerait en barre claire et il faudrait retourner toutes les couleurs de l'interface.
+  publie dans `--uc-teinte` : page sombre (noire, grise ou colorée) = sa couleur exacte ; page colorée de clarté moyenne =
+  une teinte sombre de même ton ; `userChrome.css` l'utilise pour les barres (`var(--uc-teinte, #23282e)`). Fond blanc, clair
+  ou gris moyen, page interne : gris neutre, car Safari passerait en barre claire et il faudrait retourner toutes les couleurs
+  de l'interface.
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : `scrollbar-width: thin` et couleur translucide sur toutes les pages (`userContent.css`). Windows 11

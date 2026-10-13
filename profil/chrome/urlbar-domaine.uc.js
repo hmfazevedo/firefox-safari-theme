@@ -181,10 +181,11 @@
 // ---- Barre d'outils teintée selon le site (comme Safari) ----
 // Safari 26 teinte ses barres d'après le FOND DE LA PAGE à son bord supérieur (et non d'après l'icône de l'onglet). On photographie
 // donc une bande de 4 px en haut de la page (windowGlobal.drawSnapshot, réservé au code de l'interface), on en prend la couleur
-// dominante, puis on publie une teinte SOMBRE de même ton dans --uc-teinte (même clarté que le gris d'origine, #23282e) ;
-// userChrome.css s'en sert pour les barres. Fond blanc, clair, gris ou presque noir (la majorité des sites), page interne ou
-// photographie impossible : on retire la variable, retour au gris neutre. Safari passerait en barre claire sur fond blanc ; on ne
-// le fait pas, car il faudrait retourner toutes les couleurs de texte et d'icônes de l'interface.
+// dominante, puis on publie dans --uc-teinte : page SOMBRE (noire, grise ou colorée) = sa couleur exacte ; page colorée de clarté
+// moyenne = une teinte sombre de même ton (clarté du gris d'origine, #23282e) ; userChrome.css s'en sert pour les barres. Fond
+// blanc, clair ou gris moyen, page interne ou photographie impossible : on retire la variable, retour au gris neutre. Safari
+// passerait en barre claire sur fond blanc ; on ne le fait pas, car il faudrait retourner toutes les couleurs de texte et d'icônes
+// de l'interface.
 (() => {
   try {
     const XHTML = "http://www.w3.org/1999/xhtml";
@@ -236,8 +237,13 @@
         }
         const r = best[0] / best[3] / 255, g = best[1] / best[3] / 255, bl = best[2] / best[3] / 255;
         const max = Math.max(r, g, bl), min = Math.min(r, g, bl), l = (max + min) / 2, c = max - min;
-        if (c < 0.12 || l < 0.08 || l > 0.8) {
-          neutre(); // gris, presque noir ou clair / blanc : pas de teinte à porter
+        if (l < 0.25) {
+          // page sombre (grise, noire ou colorée) : la barre prend sa couleur exacte, comme Safari
+          racine.style.setProperty("--uc-teinte", `rgb(${Math.round(r * 255)} ${Math.round(g * 255)} ${Math.round(bl * 255)})`);
+          return;
+        }
+        if (c < 0.12 || l > 0.8) {
+          neutre(); // gris moyen ou clair / blanc : une barre claire exigerait de retourner tout le texte de l'interface
           return;
         }
         let h = max === r ? ((g - bl) / c) % 6 : max === g ? (bl - r) / c + 2 : (r - g) / c + 4;
