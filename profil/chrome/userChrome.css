@@ -752,6 +752,13 @@ findbar {
 #urlbar[focused]:not([usertyping]) #urlbar-input:placeholder-shown {
   text-align: center !important;
 }
+/* ... mais le texte d'invite étant centré, le curseur de saisie (le trait vertical clignotant) tombait AU MILIEU des lettres : sur
+ * un nouvel onglet Firefox met le focus dans la barre vide. On le cache tant que le champ est vide (page « nouvel onglet » ou champ
+ * vidé : pageproxystate="invalid") ; dès qu'on tape, le texte d'invite disparaît et le curseur revient. Une page normale (adresse
+ * affichée) garde son curseur. */
+#urlbar[pageproxystate="invalid"] #urlbar-input:placeholder-shown {
+  caret-color: transparent !important;
+}
 
 /* Couleurs de la barre active, de Safari plutôt que de Firefox : contour bleu translucide de 3 px à
  * l'extérieur (Firefox : turquoise de 2 px), sélection bleue, fond gris un cran au-dessus du repos
