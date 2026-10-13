@@ -45,6 +45,11 @@
 /* Onglets VERTICAUX (barre latérale) : la règle ci-dessus rétrécissait aussi leur pastille (24 px mesurés, ligne de 33 px),
  * trop mince ; on lui rend 4 px (28 px). Seulement en vertical : la rangée horizontale garde ses 28 px. Spécificité plus
  * haute que .tab-background seul, donc cette règle l'emporte. */
+/* Onglets VERTICAUX : la première pastille était à 5 px du haut de la carte, contre 11 px de chaque côté ; on baisse la
+ * liste de 6 px pour que l'écart soit le même partout. Seulement en vertical. */
+#tabbrowser-tabs[orient="vertical"] {
+  padding-block-start: 6px;
+}
 #tabbrowser-tabs[orient="vertical"] .tab-background {
   min-height: calc(var(--tab-min-height) - 4px) !important;
 }
