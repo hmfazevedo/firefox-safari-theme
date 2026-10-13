@@ -75,9 +75,11 @@ git add -A; git commit -m "…"; git push
   le panneau Partager de Windows) ; `#alltabs-button` est le bouton « Lister tous les onglets » de Firefox. `user.js` remet la
   disposition des barres à zéro à chaque démarrage : le script replace les deux boutons à chaque fois (ordre : Partager, +,
   vue d'ensemble).
-- **Barre teintée** : le script lit l'icône de l'onglet (une adresse `data:`), calcule une teinte sombre et la publie dans
-  `--uc-teinte` ; `userChrome.css` l'utilise pour les barres (`var(--uc-teinte, #23282e)`). Page interne ou icône grise : gris
-  neutre. Ce n'est pas la couleur déclarée par la page, que Firefox ne donne pas.
+- **Barre teintée** : comme Safari 26, la couleur vient du FOND DE LA PAGE à son bord supérieur (pas de l'icône de l'onglet).
+  Le script photographie une bande de 4 px en haut de la page (`windowGlobal.drawSnapshot`), garde la couleur dominante et
+  publie une teinte sombre de même ton dans `--uc-teinte` ; `userChrome.css` l'utilise pour les barres
+  (`var(--uc-teinte, #23282e)`). Fond blanc, clair, gris ou presque noir (la plupart des sites), page interne : gris neutre, car
+  Safari passerait en barre claire et il faudrait retourner toutes les couleurs de l'interface.
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : `scrollbar-width: thin` et couleur translucide sur toutes les pages (`userContent.css`). Windows 11

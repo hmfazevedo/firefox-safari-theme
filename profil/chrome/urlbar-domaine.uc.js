@@ -245,10 +245,12 @@
 })();
 
 // ---- Barre d'outils teintée selon le site (comme Safari) ----
-// Firefox ne lit pas la couleur déclarée par une page. On prend celle de l'icône de l'onglet (déjà une adresse data:, donc
-// lisible sans restriction de sécurité), moyenne des pixels colorés pondérée par leur saturation, et on en tire une teinte
-// SOMBRE (même clarté que le gris d'origine, #23282e) publiée dans --uc-teinte sur la racine ; userChrome.css s'en sert pour les
-// barres. Icône grise, noire, blanche, absente ou page interne : on retire la variable, retour au gris neutre.
+// Safari 26 teinte ses barres d'après le FOND DE LA PAGE à son bord supérieur (et non d'après l'icône de l'onglet). On photographie
+// donc une bande de 4 px en haut de la page (windowGlobal.drawSnapshot, réservé au code de l'interface), on en prend la couleur
+// dominante, puis on publie une teinte SOMBRE de même ton dans --uc-teinte (même clarté que le gris d'origine, #23282e) ;
+// userChrome.css s'en sert pour les barres. Fond blanc, clair, gris ou presque noir (la majorité des sites), page interne ou
+// photographie impossible : on retire la variable, retour au gris neutre. Safari passerait en barre claire sur fond blanc ; on ne
+// le fait pas, car il faudrait retourner toutes les couleurs de texte et d'icônes de l'interface.
 (() => {
   try {
     const XHTML = "http://www.w3.org/1999/xhtml";
@@ -256,58 +258,88 @@
     const neutre = () => racine.style.removeProperty("--uc-teinte");
     const teinter = async () => {
       try {
-        const onglet = gBrowser.selectedTab;
-        const src = onglet && onglet.getAttribute("image");
-        if (!src || !src.startsWith("data:")) {
+        const b = gBrowser.selectedBrowser;
+        if (!/^https?:/i.test(b.currentURI.spec)) {
           neutre();
           return;
         }
-        const img = document.createElementNS(XHTML, "img");
-        img.src = src;
-        await img.decode();
+        const wg = b.browsingContext && b.browsingContext.currentWindowGlobal;
+        const larg = Math.round(b.getBoundingClientRect().width);
+        if (!wg || larg < 50) {
+          neutre();
+          return;
+        }
+        const bmp = await wg.drawSnapshot(new DOMRect(0, 0, larg, 4), 0.25, "rgb(255,255,255)");
+        if (gBrowser.selectedBrowser !== b) {
+          return; // l'onglet a changé pendant la photographie : un autre calcul est en route
+        }
         const canvas = document.createElementNS(XHTML, "canvas");
-        canvas.width = canvas.height = 16;
+        canvas.width = bmp.width;
+        canvas.height = bmp.height;
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
-        ctx.drawImage(img, 0, 0, 16, 16);
-        const px = ctx.getImageData(0, 0, 16, 16).data;
-        let x = 0, y = 0, poids = 0, sat = 0;
+        ctx.drawImage(bmp, 0, 0);
+        const px = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        // couleur dominante : on regroupe par 4 bits par canal et on garde le groupe le plus fréquent (un logo ou un menu ne comptent pas)
+        const groupes = new Map();
         for (let i = 0; i < px.length; i += 4) {
-          const r = px[i] / 255, g = px[i + 1] / 255, b = px[i + 2] / 255, a = px[i + 3] / 255;
-          const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, c = max - min;
-          if (a < 0.5 || c < 0.12 || l < 0.1 || l > 0.9) {
-            continue; // transparent, gris, presque noir ou presque blanc : ne porte pas de teinte
-          }
-          let h = max === r ? ((g - b) / c) % 6 : max === g ? (b - r) / c + 2 : (r - g) / c + 4;
-          h *= Math.PI / 3;
-          const w = a * c;
-          x += Math.cos(h) * w;
-          y += Math.sin(h) * w;
-          sat += c * w;
-          poids += w;
+          const cle = (px[i] >> 4) * 256 + (px[i + 1] >> 4) * 16 + (px[i + 2] >> 4);
+          const g = groupes.get(cle) || [0, 0, 0, 0];
+          g[0] += px[i];
+          g[1] += px[i + 1];
+          g[2] += px[i + 2];
+          g[3]++;
+          groupes.set(cle, g);
         }
-        if (poids < 4) {
+        let best = null;
+        for (const g of groupes.values()) {
+          if (!best || g[3] > best[3]) {
+            best = g;
+          }
+        }
+        if (!best) {
           neutre();
           return;
         }
-        const teinte = ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
-        const s = Math.min(0.32, Math.max(0.12, (sat / poids) * 0.45));
-        racine.style.setProperty("--uc-teinte", `hsl(${Math.round(teinte)} ${Math.round(s * 100)}% 16.5%)`);
+        const r = best[0] / best[3] / 255, g = best[1] / best[3] / 255, bl = best[2] / best[3] / 255;
+        const max = Math.max(r, g, bl), min = Math.min(r, g, bl), l = (max + min) / 2, c = max - min;
+        if (c < 0.12 || l < 0.08 || l > 0.8) {
+          neutre(); // gris, presque noir ou clair / blanc : pas de teinte à porter
+          return;
+        }
+        let h = max === r ? ((g - bl) / c) % 6 : max === g ? (bl - r) / c + 2 : (r - g) / c + 4;
+        h = (h * 60 + 360) % 360;
+        const sHsl = c / (1 - Math.abs(2 * l - 1));
+        const s = Math.min(0.32, Math.max(0.12, sHsl * 0.4));
+        racine.style.setProperty("--uc-teinte", `hsl(${Math.round(h)} ${Math.round(s * 100)}% 16.5%)`);
       } catch (e) {
         neutre();
       }
     };
-    let minuterie = null;
-    const planifier = () => {
-      clearTimeout(minuterie);
-      minuterie = setTimeout(teinter, 120);
+    // La page peint après la fin du chargement : on photographie à 150 ms, 900 ms et 2,5 s, le dernier résultat l'emporte.
+    let minuteries = [];
+    const planifier = (delais = [150]) => {
+      minuteries.forEach(clearTimeout);
+      minuteries = delais.map((d) => setTimeout(teinter, d));
     };
-    gBrowser.tabContainer.addEventListener("TabSelect", planifier);
-    gBrowser.tabContainer.addEventListener("TabAttrModified", (e) => {
-      if (e.target.selected && e.detail && e.detail.changed && e.detail.changed.includes("image")) {
-        planifier();
-      }
+    gBrowser.tabContainer.addEventListener("TabSelect", () => planifier([150, 900]));
+    gBrowser.addTabsProgressListener({
+      onStateChange(browser, webProgress, request, flags) {
+        if (
+          browser === gBrowser.selectedBrowser &&
+          webProgress.isTopLevel &&
+          flags & Ci.nsIWebProgressListener.STATE_STOP &&
+          flags & Ci.nsIWebProgressListener.STATE_IS_WINDOW
+        ) {
+          planifier([150, 900, 2500]);
+        }
+      },
+      onLocationChange(browser, webProgress, request, location, flags) {
+        if (browser === gBrowser.selectedBrowser && webProgress.isTopLevel && flags & Ci.nsIWebProgressListener.LOCATION_CHANGE_SAME_DOCUMENT) {
+          planifier([400]);
+        }
+      },
     });
-    planifier();
+    planifier([150, 900]);
   } catch (e) {
     console.error("teinte de la barre :", e);
   }
