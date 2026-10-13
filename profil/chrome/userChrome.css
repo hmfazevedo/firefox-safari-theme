@@ -42,6 +42,12 @@
   margin-block: var(--tab-margin-block) !important;
   min-height: calc(var(--tab-min-height) - 8px) !important;
 }
+/* Onglets VERTICAUX (barre latérale) : la règle ci-dessus rétrécissait aussi leur pastille (24 px mesurés, ligne de 33 px),
+ * trop mince ; on lui rend 4 px (28 px). Seulement en vertical : la rangée horizontale garde ses 28 px. Spécificité plus
+ * haute que .tab-background seul, donc cette règle l'emporte. */
+#tabbrowser-tabs[orient="vertical"] .tab-background {
+  min-height: calc(var(--tab-min-height) - 4px) !important;
+}
 #tabbrowser-tabs[orient="horizontal"] {
   min-height: calc(var(--tabstrip-min-height) - 8px) !important;
 }
