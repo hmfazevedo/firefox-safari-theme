@@ -72,8 +72,8 @@ git add -A; git commit -m "…"; git push
 
 ## Style « Safari macOS 26 » (teinte, coins, défilement)
 
-- **Barre teintée (comme Safari 26)** : `teinte-child.sys.mjs` (dans la page) copie les règles de WebKit
-  (`LocalFrameView::fixedContainerEdges`) et les mesures publiées sur Safari 26 : un élément `fixed` ou `sticky` au bord haut (touché
+- **Barre teintée (comme Safari 26)** : `teinte-child.sys.mjs` (dans la page) copie les règles décrites par des
+  développeurs pour Safari 26 (analyse de `LocalFrameView::fixedContainerEdges`, mesures publiées ; pas relues dans le code de WebKit) : un élément `fixed` ou `sticky` au bord haut (touché
   à 8 px sous le bord, large d'au moins 90 % de la fenêtre, haut d'au moins 3 px, fond uni, pas de `backdrop-filter`), sinon le fond
   de `<body>`, sinon celui de `<html>`, sinon blanc. La balise `theme-color`, les dégradés et les images de fond sont ignorés.
   `urlbar-domaine.uc.js` publie la couleur dans `--uc-teinte` ; `userChrome.css` l'applique aux barres, au creux de la bande d'onglets
@@ -81,9 +81,11 @@ git add -A; git commit -m "…"; git push
   Rec. 709 > 127,5 (la règle de Safari pour le texte foncé) → attribut `uc-clair` : `color-scheme: light` sur les barres, icônes
   inversées, texte des onglets foncé. Piège : un acteur doit déclarer `safeForUntrustedWebProcess: true` à la racine de ses options,
   sinon `getActor` répond « doesn't match remote type » ; et `browser.ownerGlobal` peut revenir `undefined` : utiliser
-  `ownerDocument.defaultView`. Sources (aucune n'est la documentation d'Apple) : code WebKit `PageColorSampler.cpp`, dépôts
+  `ownerDocument.defaultView`. Sources (aucune n'est la documentation d'Apple ; seul `PageColorSampler.cpp`, l'ancien échantillonneur, a été lu dans WebKit) : dépôts
   `andesco/safari-color-tinting` et `parob/homecast-web` (PR 199), https://1ar.io/updates/safari-26-liquid-glass-web/.
-  Non vérifié (l'interface de Safari n'est pas open source) : l'aspect exact de la bande d'onglets teintée et de l'onglet actif.
+  Non vérifié (l'interface de Safari n'est pas open source) : l'aspect exact de la bande d'onglets teintée et de l'onglet actif, et
+  qu'une page BLANCHE donne bien une barre blanche sur Mac (indices seulement : repli « blanc » décrit par 1ar.io et andesco, un message
+  du forum Apple où les libellés blancs des favoris disparaissent sur une page blanche). À confirmer par une capture de Safari.
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : `scrollbar-width: thin` et couleur translucide sur toutes les pages (`userContent.css`). Windows 11

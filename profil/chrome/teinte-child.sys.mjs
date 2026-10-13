@@ -1,5 +1,6 @@
-// teinte-child.sys.mjs : côté PAGE (processus de contenu). Calcule la couleur que Safari 26 donnerait à ses barres, d'après les
-// règles de WebKit (LocalFrameView::fixedContainerEdges) et les mesures publiées sur Safari 26 :
+// teinte-child.sys.mjs : côté PAGE (processus de contenu). Calcule la couleur que Safari 26 donnerait à ses barres, d'après des
+// descriptions PUBLIÉES par des développeurs (analyse de LocalFrameView::fixedContainerEdges, dépôt andesco/safari-color-tinting,
+// 1ar.io) : le code de Safari lui-même n'est pas public et ces règles n'ont pas été relues dans le code de WebKit :
 //   1. un élément `position: fixed` ou `sticky` posé au bord HAUT de la fenêtre (c'est l'élément touché 8 px sous le bord, ou
 //      l'un de ses ancêtres), large d'au moins 90 % de la fenêtre (macOS ; 80 % sur iOS), haut d'au moins 3 px, avec une couleur
 //      de fond unie (pas un dégradé ni une image, pas presque transparente) et sans `backdrop-filter` : sa couleur de fond ;
