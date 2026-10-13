@@ -639,16 +639,6 @@ findbar {
   -moz-window-dragging: no-drag !important;
 }
 
-/* Partager et vue d'ensemble des onglets, deux boutons de Safari, au même trait fin blanc que les autres icônes.
- * #uc-share-button est créé par urlbar-domaine.uc.js (ouvre le panneau Partager de Windows) ; #alltabs-button est le bouton
- * « Lister tous les onglets » de Firefox, placé dans la barre du haut par le même script. */
-#uc-share-button {
-  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><path d='M5.6 6.4H4.9A1.9 1.9 0 0 0 3 8.3v4.4a1.9 1.9 0 0 0 1.9 1.9h6.2a1.9 1.9 0 0 0 1.9-1.9V8.3a1.9 1.9 0 0 0-1.9-1.9h-.7'/><path d='M8 9.6V1.9M5.6 4.3 8 1.9l2.4 2.4'/></g></svg>") !important;
-}
-#alltabs-button {
-  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><rect x='2.4' y='5.4' width='8.2' height='8.2' rx='2'/><path d='M5.4 5.4v-.2a2.2 2.2 0 0 1 2.2-2.2h3.2a2.2 2.2 0 0 1 2.2 2.2v3.2a2.2 2.2 0 0 1-2.2 2.2h-.2'/></g></svg>") !important;
-}
-
 /* Globe à gauche du texte, comme Safari : le groupe « globe + texte » est centré dans la barre, au repos (domaine seul)
  * comme barre active (adresse complète sélectionnée). Le script urlbar-domaine.uc.js pose l'attribut uc-centre
  * (adresse de site affichée, pas de frappe en cours) et la variable --uc-dw (largeur du texte affiché, en px). Le champ
