@@ -221,13 +221,17 @@
   max-width: none !important;
 }
 
+/* ----- Les règles d'onglets qui suivent ne valent que pour la rangée HORIZONTALE (#tabbrowser-tabs[orient="horizontal"]).
+ * En onglets verticaux (barre latérale), elles cassaient la mise en page : le conteneur du titre tombait à 0 px de large
+ * (titres invisibles), la croix passait à gauche par-dessus l'icône et les séparateurs devenaient de petits traits sur le
+ * bord de la barre. Les onglets verticaux gardent donc la mise en page de Firefox. ----- */
 /* Titre des onglets centré. .tab-label-container est une colonne flexible (vbox) dont l'attribut
  * XUL align="start" colle le titre à gauche : un align-items: center est ignoré (l'attribut
  * l'emporte). Des marges automatiques sur le titre, elles, passent avant l'alignement dans un
  * conteneur flexible : le titre se centre quand il y a de la place, et quand il est trop long il
  * occupe tout l'espace (marges à 0) et reste coupé avec le fondu habituel à la fin.
  * L'icône du site reste à gauche et la croix à droite : le titre est centré entre les deux. */
-.tab-label {
+#tabbrowser-tabs[orient="horizontal"] .tab-label {
   margin-inline: auto !important;
   text-align: center;
 }
@@ -299,12 +303,12 @@
  * Safari). Dans .tab-content (rangée flexible) : l'icône, le titre puis la croix. Le conteneur du
  * titre ne s'étire plus (max-width: max-content, il peut encore rétrécir et couper un titre long) ; les
  * groupe est centré par justify-content (plus bas). Onglets épinglés exclus. */
-.tabbrowser-tab:not([pinned]) .tab-label-container {
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned]) .tab-label-container {
   flex: 0 1 auto !important;
   max-width: max-content !important; /* l'attribut XUL flex="1" l'emporte sur le flex ci-dessus : ce plafond garantit qu'il ne dépasse pas la largeur du titre */
 }
 /* Le groupe « icône + titre » se centre dans l'onglet (la croix n'est plus dans la rangée, voir plus bas). */
-.tabbrowser-tab:not([pinned]) .tab-content {
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned]) .tab-content {
   justify-content: center !important;
   /* Réserve des deux côtés (symétrique, pour que le groupe reste centré) : la croix, à gauche au
    * survol, ne recouvre ainsi jamais le favicon d'un titre long. */
@@ -315,14 +319,14 @@
  * Elle sort de la rangée (position absolue dans l'onglet, qui est en position relative plus haut)
  * pour ne pas décaler le titre centré ; visibility: hidden la rend aussi non cliquable hors
  * survol. Le clic du milieu ferme toujours l'onglet. Onglets épinglés exclus (pas de croix). */
-.tabbrowser-tab:not([pinned]) .tab-close-button {
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned]) .tab-close-button {
   position: absolute !important;
   inset-inline-start: 2px; /* rond de survol de 24 px dans une pastille de 28 px : 2 px d'air à gauche comme en haut et en bas, donc concentrique avec l'extrémité arrondie (à 0 px il était 2 px trop à gauche) */
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
 }
-.tabbrowser-tab:not([pinned]):not(:hover) .tab-close-button {
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned]):not(:hover) .tab-close-button {
   visibility: hidden !important;
 }
 
@@ -349,10 +353,10 @@
   border-radius: 22px;
   padding-inline: 2px; /* les pastilles des onglets aux deux bouts ne touchent pas le bord arrondi de la bande */
 }
-.tabbrowser-tab:not([pinned]) {
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned]) {
   position: relative;
 }
-.tabbrowser-tab:not([pinned], [selected])::after {
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected])::after {
   content: "";
   position: absolute;
   inset-inline-end: 0;
@@ -364,8 +368,8 @@
   pointer-events: none;
 }
 /* Pas de séparateur : après le dernier onglet, ni juste avant l'onglet actif (son voisin de gauche). */
-.tabbrowser-tab:last-of-type::after,
-.tabbrowser-tab:has(+ .tabbrowser-tab[selected])::after {
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:last-of-type::after,
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:has(+ .tabbrowser-tab[selected])::after {
   display: none;
 }
 
@@ -377,19 +381,19 @@
  * posée à 2 px du bord de l'onglet, suit le bord de la pastille (7 px) quand celle-ci a perdu 5 px à gauche ; le titre, centré
  * dans l'onglet, est recentré sur la pastille en ajoutant 5 px de remplissage du côté où elle a rétréci (rien si c'est
  * symétrique). */
-.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) .tab-background {
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) .tab-background {
   margin-inline-end: 5px !important;
 }
-.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab:not([pinned]) .tab-background {
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab:not([pinned]) .tab-background {
   margin-inline-start: 5px !important;
 }
-.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab:not([pinned]) .tab-close-button {
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab:not([pinned]) .tab-close-button {
   inset-inline-start: 7px;
 }
-.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])):not(.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab) .tab-content {
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])):not(.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab) .tab-content {
   padding-inline: 28px 33px !important;
 }
-.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab:not([pinned]):not(.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected]))) .tab-content {
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab:not([pinned]):not(.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected]))) .tab-content {
   padding-inline: 33px 28px !important;
 }
 
