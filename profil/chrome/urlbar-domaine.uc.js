@@ -141,3 +141,39 @@
   }
   synchroniser();
 })();
+
+// ---- Barre latérale repliée : retirer la petite poignée blanche sous la carte des onglets ----
+// Le séparateur #sidebar-tools-and-extensions-splitter (poignée de 32 x 2 px, dessinée par des dégradés) est dans le DOM
+// interne (shadow DOM) de <sidebar-main> : le CSS du profil n'y accède pas. On y ajoute une feuille de style, avec
+// quelques nouvelles tentatives si l'élément n'est pas encore prêt au chargement de la fenêtre. Le séparateur garde son
+// rôle (redimensionnement entre onglets et outils) : seul son dessin disparaît.
+(() => {
+  const appliquer = () => {
+    const racine = document.querySelector("sidebar-main")?.shadowRoot;
+    if (!racine) {
+      return false;
+    }
+    if (!racine.getElementById("uc-poignee")) {
+      const feuille = document.createElementNS("http://www.w3.org/1999/xhtml", "style");
+      feuille.id = "uc-poignee";
+      feuille.textContent = "#sidebar-tools-and-extensions-splitter { background-image: none !important; }";
+      racine.appendChild(feuille);
+    }
+    return true;
+  };
+  try {
+    if (!appliquer()) {
+      for (const ms of [300, 1000, 3000, 8000]) {
+        setTimeout(() => {
+          try {
+            appliquer();
+          } catch (e) {
+            console.error("poignée barre latérale :", e);
+          }
+        }, ms);
+      }
+    }
+  } catch (e) {
+    console.error("poignée barre latérale (init) :", e);
+  }
+})();

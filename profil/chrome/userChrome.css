@@ -50,6 +50,13 @@
 #tabbrowser-tabs[orient="vertical"] {
   padding-block-start: 6px;
 }
+/* Barre latérale REPLIÉE (icônes seules) : la carte des onglets (#tabbrowser-tabs) faisait 54 px de large dans une barre de
+ * 50 px (la marge intérieure de 2 px de chaque côté, posée pour la rangée horizontale, s'ajoutait à la largeur) : elle
+ * débordait de 4 px et les icônes paraissaient décalées de 2 px vers la droite. Sans cette marge, la carte fait 50 px
+ * et les icônes sont centrées. Dépliée, la carte tient déjà dans la barre : rien à changer. */
+#tabbrowser-tabs[orient="vertical"]:not([expanded]) {
+  padding-inline: 0;
+}
 #tabbrowser-tabs[orient="vertical"] .tab-background {
   min-height: calc(var(--tab-min-height) - 4px) !important;
 }
