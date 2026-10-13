@@ -86,6 +86,10 @@ git add -A; git commit -m "…"; git push
   de ses options, sinon `getActor` répond « doesn't match remote type » ; et `browser.ownerGlobal` peut revenir `undefined` :
   utiliser `ownerDocument.defaultView`. 17 pages de test (fond, en-tête fixe, dégradé, flou, voile, collant, 8 px…) donnent la couleur
   attendue.
+  **Délai de 500 ms** (`DELAI_TEINTE_MS` dans `urlbar-domaine.uc.js`) : une page qui se charge passe souvent par le blanc du fond par
+  défaut avant de devenir sombre ; une nouvelle couleur n'est appliquée qu'après 500 ms sans autre mesure, donc la couleur d'attente est
+  remplacée et la barre ne passe pas par le blanc (page blanche puis sombre à 300 ms : plus de blanc ; sombre à 900 ms : le blanc
+  passe encore, valeur à allonger). Le changement d'onglet reste immédiat (4 ms mesurés).
   **Non vérifiable** (le code de l'application Safari n'est pas public) : comment Safari choisit sa couleur de barre à partir de ces
   deux informations (arête haute, fond de page) et ce qu'il fait d'une page blanche (WebKit lui donne du blanc ; qu'il l'affiche en
   blanc est probable mais non lu), l'aspect exact de la bande d'onglets et de l'onglet actif. Valeur tierce : seuil « presque

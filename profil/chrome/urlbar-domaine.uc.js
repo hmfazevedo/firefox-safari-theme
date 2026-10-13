@@ -184,6 +184,10 @@
 // (userChrome.css s'en sert pour les barres, la rangée d'onglets et le champ d'adresse) et on pose l'attribut uc-clair quand
 // la barre est CLAIRE : Safari prend du texte foncé si la luma Rec. 709 (0,2126 R + 0,7152 G + 0,0722 B, sur 0 à 255) dépasse
 // 127,5, du texte clair sinon. Pages internes (about:, extensions) : gris neutre.
+// DÉLAI : une page qui se charge passe souvent par le blanc (fond par défaut) avant de devenir sombre, et la barre suivait ce blanc.
+// Une nouvelle couleur n'est donc appliquée qu'après DELAI_TEINTE_MS sans autre mesure : si la page change de couleur dans l'intervalle,
+// la couleur d'attente est remplacée et la barre ne passe jamais par la première. Un changement d'onglet reste immédiat (couleur déjà
+// connue). Une page qui reste blanche plus longtemps que ce délai fait encore passer la barre par le blanc : allonger la valeur.
 (() => {
   try {
     const racine = document.documentElement;
@@ -211,7 +215,16 @@
         console.error("teinte : enregistrement de l'acteur", e);
       }
     }
+    const DELAI_TEINTE_MS = 500;
+    let minuterie = null;
+    let appliqueeCle = "";
+    const annuler = () => {
+      clearTimeout(minuterie);
+      minuterie = null;
+    };
     const appliquer = (c) => {
+      annuler();
+      appliqueeCle = c ? c.join(",") : "";
       if (!c) {
         racine.style.removeProperty("--uc-teinte");
         racine.removeAttribute("uc-clair");
@@ -239,9 +252,20 @@
     };
     window.ucTeinteRecue = (navigateur, c) => {
       navigateur._ucTeinte = c;
-      if (navigateur === gBrowser.selectedBrowser) {
-        appliquer(c);
+      if (navigateur !== gBrowser.selectedBrowser) {
+        return;
       }
+      // Chaque mesure remplace la couleur en attente ; revenir à la couleur déjà affichée annule l'attente.
+      annuler();
+      if ((c ? c.join(",") : "") === appliqueeCle) {
+        return;
+      }
+      minuterie = setTimeout(() => {
+        minuterie = null;
+        if (navigateur === gBrowser.selectedBrowser) {
+          appliquer(navigateur._ucTeinte || null);
+        }
+      }, DELAI_TEINTE_MS);
     };
     const surSelection = () => {
       const b = gBrowser.selectedBrowser;
