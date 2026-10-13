@@ -93,8 +93,14 @@ git add -A; git commit -m "…"; git push
   `pointer-events` (WebKit les ignore au premier essai, `elementsFromPoint` les respecte).
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
-- **Barres de défilement** : `scrollbar-width: thin` et couleur translucide sur toutes les pages (`userContent.css`). Windows 11
-  les rend déjà « overlay » (elles n'apparaissent qu'en défilant).
+- **Barres de défilement** : fines et translucides partout (`scrollbar-width: thin`, gris moyen, `userContent.css`). La barre de la PAGE
+  (le viewport) suit son fond, comme WebKit (`LocalFrameView::recalculateScrollbarOverlayStyle`, `Color::lightness`) : fond de luminosité
+  HSL `(max + min) / 2` de 0,5 ou moins → curseur clair `rgba(255, 255, 255, 0.5)`, sinon curseur sombre `rgba(0, 0, 0, 0.5)`.
+  `teinte-child.sys.mjs` charge pour cela une feuille utilisateur par page (`windowUtils.loadSheetUsingURIString`, règle `:root`, qui
+  l'emporte sur la règle `*` de `userContent.css`) ; les zones de défilement internes d'une page gardent le gris moyen. Une page qui
+  déclare `color-scheme: dark` sans fond compte comme sombre (`#1c1b22`, le fond de Firefox). Vérifié sur 6 pages de test avec les
+  barres classiques (`ui.useOverlayScrollbars` = 0) : seuil 127 / 128 compris. Windows 11 les rend « overlay » (visibles seulement en
+  défilant).
 
 ## Tester sans toucher à votre profil (profil jetable + Marionette)
 

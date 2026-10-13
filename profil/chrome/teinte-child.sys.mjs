@@ -6,6 +6,8 @@
 //   - PageColorSampler::predominantColor (Source/WebCore/page/PageColorSampler.cpp) : 29 échantillons, 20 identiques au moins
 //   - Page::updateFixedContainerEdges : le bord haut n'est échantillonné qu'avant le premier défilement
 //   - WKWebView._updateFixedColorExtensionViews : couleur de l'arête haute, sinon underPageBackgroundColor (= fond de la page)
+//   - LocalFrameView::recalculateScrollbarOverlayStyle + Color::lightness : barre de défilement de la page CLAIRE si le fond a une
+//     luminosité HSL (max + min) / 2 de 0,5 ou moins, sinon SOMBRE (ScrollbarOverlayStyle::Light / Default)
 // Ce qui n'est PAS dans le code de WebKit : la manière dont l'application Safari (fermée) choisit sa couleur de barre à partir de
 // ces deux informations. On suit les descriptions publiées : arête haute si elle existe, sinon fond de la page.
 // Non porté : l'élément « ::backdrop » (dialogues modaux), les filtres de couleur, pointer-events (elementsFromPoint ignore déjà
@@ -17,6 +19,12 @@ const MARGE = 4; // sampleRectMargin : le point touché est à 4 px du bord de l
 const BORDURE_FINE = 10; // thinBorderWidth : une boîte de 10 px ou moins n'a pas de couleur
 const OPACITE_PRESQUE_NULLE = 0.1;
 const OPACITE_MIN_OPAQUE = 0.75; // minimumOpacityThresholdToClampToSolidColor
+// Barre de défilement de la PAGE (le viewport) seulement : :root l'emporte sur la règle « * » de userContent.css, les zones de
+// défilement internes de la page gardent le gris moyen (leur fond n'est pas celui de la page). WebKit fait de même : un style par vue.
+const feuille = (couleur) => "data:text/css," + encodeURIComponent(`:root{scrollbar-color:${couleur} transparent !important}`);
+const BARRE_PAGE_CLAIRE = feuille("rgba(0, 0, 0, 0.5)"); // ScrollbarOverlayStyle::Default : curseur sombre sur page claire
+const BARRE_PAGE_SOMBRE = feuille("rgba(255, 255, 255, 0.5)"); // ScrollbarOverlayStyle::Light : curseur clair sur page sombre
+const CANVAS_SOMBRE = [28, 27, 34]; // fond d'une page sans couleur quand son color-scheme est sombre (système « Canvas » de Firefox)
 const ELEMENTS_REMPLACES = /^(img|video|canvas|iframe|svg|object|embed|picture|input|textarea|select)$/i;
 
 export class UcTeinteChild extends JSWindowActorChild {
@@ -25,6 +33,7 @@ export class UcTeinteChild extends JSWindowActorChild {
   #observateur = null;
   #aDefile = false; // Page::updateFixedContainerEdges : plus d'échantillonnage du bord haut après le premier défilement
   #bord = undefined; // dernier résultat du bord haut : { couleur, conteneur, genre }
+  #feuille = null; // feuille de barre de défilement actuellement chargée dans cette page
 
   handleEvent(evt) {
     if (evt.type === "DOMContentLoaded") {
@@ -122,13 +131,15 @@ export class UcTeinteChild extends JSWindowActorChild {
     if (!win || !doc || !doc.documentElement || !/html/i.test(doc.contentType)) {
       return null;
     }
-    // Fond de la page (documentBackgroundColor) : <html> puis <body> posés l'un sur l'autre, sur du blanc.
-    let fond = [255, 255, 255];
+    // Fond de la page (documentBackgroundColor) : <html> puis <body> posés l'un sur l'autre, sur du blanc (sur le fond sombre de
+    // Firefox si la page demande un color-scheme sombre : sans couleur de fond, c'est lui que l'on voit).
+    let fond = this.#canvasSombre(win, doc) ? CANVAS_SOMBRE : [255, 255, 255];
     for (const el of [doc.documentElement, doc.body]) {
       if (el) {
         fond = this.#poser(this.#analyser(win.getComputedStyle(el).backgroundColor), fond);
       }
     }
+    this.#barres(win, fond);
     if (win.scrollY > 0) {
       this.#aDefile = true;
     }
@@ -138,6 +149,39 @@ export class UcTeinteChild extends JSWindowActorChild {
     }
     const couleur = this.#bord && this.#bord.couleur;
     return couleur ? couleur : fond;
+  }
+
+  // color-scheme utilisé par la page (propriété CSS de <html>, à défaut balise <meta name="color-scheme">) : « dark », ou
+  // « light dark » quand Firefox est en thème sombre.
+  #canvasSombre(win, doc) {
+    let v = (win.getComputedStyle(doc.documentElement).colorScheme || "normal").toLowerCase();
+    if (v === "normal") {
+      const meta = doc.querySelector('meta[name="color-scheme"]');
+      v = ((meta && meta.content) || "normal").toLowerCase();
+    }
+    if (!v.includes("dark")) {
+      return false;
+    }
+    return !v.includes("light") || win.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+
+  // recalculateScrollbarOverlayStyle : lightness = (max + min) / 2 sur les canaux sRGB de 0 à 1 ; 0,5 ou moins = page sombre = barre claire.
+  #barres(win, fond) {
+    const lightness = (0.5 * (Math.max(...fond) + Math.min(...fond))) / 255;
+    const voulue = lightness <= 0.5 ? BARRE_PAGE_SOMBRE : BARRE_PAGE_CLAIRE;
+    if (voulue === this.#feuille) {
+      return;
+    }
+    try {
+      const wu = win.windowUtils;
+      if (this.#feuille) {
+        wu.removeSheetUsingURIString(this.#feuille, wu.USER_SHEET);
+      }
+      wu.loadSheetUsingURIString(voulue, wu.USER_SHEET);
+      this.#feuille = voulue;
+    } catch (e) {
+      this.sendAsyncMessage("UcTeinte:Erreur", "barres : " + e);
+    }
   }
 
   #vide(el) {
