@@ -1,0 +1,682 @@
+/* userChrome.css : Firefox 157 */
+
+/* Barre de favoris plus aérée : 2 px en haut et en bas. Firefox l'ouvre / la ferme en la faisant glisser
+ * verticalement (max-height animé de 0 à une limite de 4em, 170 ms). Cette limite doit rester proche de
+ * la hauteur réelle (32 px = 2,7em) : à 8em (96 px, valeur d'avant) l'animation n'était visible que sur
+ * le premier tiers de sa durée, donc quasi invisible. 3em (36 px) laisse la marge des 2 + 2 px de
+ * padding et suit la taille de la police. Le padding est animé lui aussi (sinon saut de 4 px) et la durée
+ * passe à 220 ms comme les onglets. Pas de règle de limite quand la barre est repliée ([collapsed]),
+ * sinon elle ne se refermerait plus.
+ * Firefox pose la classe .instant (pas de transition, visibility: collapse) quand la barre apparaît ou
+ * disparaît à cause d'un changement de page (réglage « seulement sur la page de nouvel onglet ») : c'est
+ * exactement le cas courant, mesuré sans animation du tout. On ignore donc .instant une fois la session
+ * restaurée (au démarrage, rien ne glisse). visibility passe à hidden à la FIN du repli : rien n'est
+ * atteignable au clavier une fois la barre repliée, comme avec le collapse d'origine. */
+#PersonalToolbar:not([collapsed]) {
+  padding-block: 2px !important;
+  max-height: 3em !important;
+}
+:root[sessionrestored] #PersonalToolbar {
+  transition: min-height 220ms ease-out, max-height 220ms ease-out, padding-block 220ms ease-out, visibility 220ms linear !important;
+}
+:root[sessionrestored] #PersonalToolbar[collapsed] {
+  visibility: hidden !important;
+}
+
+/* Les trois barres (onglets, navigation, favoris) : un même gris-bleu foncé, mesuré sur une capture
+ * de Safari en mode sombre (#23282e). Fond opaque : plus de transparence du Mica. Les variables
+ * de Firefox restent intactes car l'onglet sélectionné s'en sert (--toolbar-background-color). */
+#TabsToolbar,
+#nav-bar,
+#PersonalToolbar {
+  background-color: #23282e !important;
+}
+
+/* Hauteur des onglets : la bande qui les contient fait 36 px (-8 px par rapport au défaut de
+ * Firefox, 44 px) et chaque pastille 28 px (--tab-min-height - 8 px ; défaut 36 px), soit 4 px de
+ * marge au-dessus et en dessous (= --tab-margin-block). La BARRE des onglets fait 40 px : la bande
+ * est centrée dedans par le padding de #TabsToolbar (2 px haut et bas). Pour une pastille plus
+ * grande ou plus petite : changer les deux « 8px » ensemble (bande = pastille + 2 x marge de 4 px)
+ * et ajuster le padding de #TabsToolbar pour garder 40 px. */
+.tab-background {
+  margin-block: var(--tab-margin-block) !important;
+  min-height: calc(var(--tab-min-height) - 8px) !important;
+}
+#tabbrowser-tabs[orient="horizontal"] {
+  min-height: calc(var(--tabstrip-min-height) - 8px) !important;
+}
+
+/* Barre d'adresse en capsule. Deux variables : le fond lit --urlbarview-border-radius (calculée
+ * par Firefox à partir du rayon des boutons, pas de --urlbar-border-radius), le conteneur
+ * interne lit --urlbar-border-radius. 20px > demi-hauteur (≈ 16 px) : le navigateur plafonne
+ * tout seul au rayon maximal, donc les bords sont complètement ronds. Pas de valeur énorme :
+ * les coins du panneau de suggestions, plus haut, deviendraient ovales. */
+:root {
+  --urlbar-border-radius: 20px !important;
+  --urlbarview-border-radius: 20px !important;
+}
+
+/* Espace vide à gauche des onglets : Firefox y met un espacement de 40 px (zone de
+ * déplacement de la fenêtre, .titlebar-spacer). On le masque ; il reste de la place pour
+ * déplacer la fenêtre à droite des onglets. */
+#TabsToolbar > .titlebar-spacer[type="pre-tabs"] {
+  display: none !important;
+}
+
+/* Favoris centrés dans la barre. */
+#PlacesToolbarItems {
+  justify-content: center;
+}
+
+/* ===== Safari léger : barre du haut (boutons + adresse centrée + boutons de fenêtre), onglets
+ * dessous. Pas de cercles ni de bande grise : seulement l'ordre des barres, l'adresse centrée
+ * et des onglets plus doux. #nav-bar et #TabsToolbar sont frères dans #navigator-toolbox ;
+ * on inverse leur ordre (`order`, flex en colonne). Les boutons de fenêtre sont rattachés à
+ * #TabsToolbar : on les y masque et on affiche la copie que Firefox garde dans #nav-bar. ===== */
+#navigator-toolbox {
+  display: flex !important;
+  flex-direction: column;
+}
+#toolbar-menubar { order: 0; }
+#nav-bar { order: 1; }
+#TabsToolbar { order: 2; }
+#PersonalToolbar { order: 3; }
+
+:root[customtitlebar]:not([inFullscreen], [popup-window], [taskbartab]) {
+  #TabsToolbar > .titlebar-buttonbox-container {
+    display: none !important;
+  }
+  #navigator-toolbox:not([tabs-hidden]) > #nav-bar > .titlebar-buttonbox-container {
+    display: flex !important;
+  }
+  /* La rangée d'onglets n'est plus la barre de titre : la barre du haut sert à déplacer la fenêtre. */
+  #nav-bar {
+    -moz-window-dragging: drag;
+    border-top: none !important;
+  }
+}
+
+/* Onglets : bords complètement arrondis (capsule), largeur égale qui remplit la rangée */
+#TabsToolbar {
+  padding: 2px 8px !important; /* 2 + bande de 36 + 2 = 40 px, la hauteur d'avant ; !important : le style de Firefox pour les barres d'outils (padding: 0) l'emporte sinon */
+}
+:root {
+  --tab-border-radius: 20px !important; /* > demi-hauteur d'un onglet (~16 px) : bords complètement ronds, en capsule */
+}
+#tabbrowser-tabs[orient="horizontal"] {
+  --tab-max-width: 10000px !important; /* plafond hors d'atteinte : 1000 px laissait un vide à droite sur un écran de 2560 px */
+}
+
+/* Adresse : texte centré tant qu'on ne la modifie pas */
+#urlbar:not([focused]) #urlbar-input {
+  text-align: center !important;
+}
+
+/* Champ d'adresse au repos : un cran plus sombre que la barre (#1b1f22, mesuré sur Safari). Une fois
+ * la barre active, Firefox garde sa couleur de saisie, lisible. */
+#urlbar:not([focused]) > #urlbar-background {
+  background-color: #1b1f22 !important;
+}
+
+/* Un seul onglet ouvert : on masque la rangée d'onglets, comme Safari. Elle revient dès qu'un
+ * deuxième onglet s'ouvre. :has() regarde le contenu de la rangée : un seul <tab> directement
+ * dans la zone des onglets normaux. Exceptions pour ne pas cacher à tort : un onglet épinglé
+ * (conteneur séparé) ou un groupe d'onglets (<tab-group>). Les boutons de fenêtre sont dans la
+ * barre du haut, ils restent donc visibles. Nouvel onglet : Ctrl+T. */
+/* La rangée se REPLIE en hauteur (et s'ouvre de même) au lieu de disparaître d'un coup : display: none
+ * ne s'anime pas. Hauteur fixe de 40 px = 2 + bande de 36 + 2 (voir plus haut) : un max-height doit
+ * avoir une valeur chiffrée pour être animé. overflow: clip permanent, sinon le contenu déborde pendant
+ * l'ouverture (la règle d'ouverture est celle de l'état « ouvert »). On ne compte que les onglets
+ * [fadein] : un onglet qui se ferme perd cet attribut dès le début de son animation mais reste dans
+ * le DOM jusqu'à la fin (l'attribut closing, lui, n'arrive qu'à la fin : testé, le repli partait 220 ms
+ * trop tard). La rangée commence donc à se replier en même temps que l'onglet rétrécit. visibility
+ * passe à hidden à la FIN du repli (donc rien n'est cliquable ni atteignable au clavier une fois repliée). */
+#TabsToolbar {
+  max-height: 40px !important;
+  overflow: clip !important;
+  transition: max-height 220ms ease-out, padding-block 220ms ease-out, opacity 220ms ease-out, visibility 220ms linear !important;
+}
+#TabsToolbar:has(#tabbrowser-arrowscrollbox > .tabbrowser-tab[fadein]):not(:has(#tabbrowser-arrowscrollbox > .tabbrowser-tab[fadein] ~ .tabbrowser-tab[fadein])):not(:has(#pinned-tabs-container > .tabbrowser-tab, tab-group)) {
+  max-height: 0 !important;
+  min-height: 0 !important;
+  padding-block: 0 !important;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Icônes dans la barre d'adresse : aucune à droite sauf le bouton « Actualiser ». Les boutons
+ * d'action (mode lecture, « Ajouter l'onglet à la barre des tâches », traduction, image dans
+ * l'image…) sont masqués, ainsi que l'étoile des favoris. L'étoile n'est PAS supprimée : elle reste
+ * en place, transparente et non cliquable (opacity: 0). Ni display: none ni visibility: hidden : avec
+ * l'un ou l'autre, Firefox n'ouvre plus le panneau « Marque-page ajouté » (où l'on choisit le dossier)
+ * quand on appuie sur Ctrl+D, car ce panneau s'accroche à l'étoile et refuse un point d'ancrage
+ * caché. Il s'ouvre donc à son emplacement, à gauche du bouton « Actualiser ». L'icône d'identité (cadenas /
+ * permissions) n'est pas masquée : elle ne montre rien sur une page normale, mais signale une
+ * permission accordée (caméra, position). */
+#page-action-buttons > :not(#star-button-box) {
+  display: none !important;
+}
+#star-button-box {
+  position: absolute;
+  inset-inline-end: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Bouclier sorti de la barre d'adresse, à sa gauche. Firefox en a deux selon la fonction « confiance » :
+ * #trust-icon-container (bouclier à coche, actif sur ce profil) et #tracking-protection-icon-container. Firefox rogne tout ce qui dépasse du
+ * conteneur interne (overflow: clip) : on lève ce rognage (classe .urlbar-input-container : l'élément n'a pas d'identifiant).
+ * Le bouclier est ensuite posé juste à gauche du bord de la barre (100 % de la largeur + 6 px
+ * d'écart). Il occupe l'espace libre qui sépare la barre des boutons précédent / suivant. */
+.urlbar-input-container {
+  overflow: visible !important;
+}
+#trust-icon-container,
+#tracking-protection-icon-container {
+  position: absolute;
+  inset-inline-end: calc(100% + 6px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Barre d'adresse plus courte et centrée sur la FENÊTRE (comme Safari : ~40 % de la largeur).
+ * Dans la barre de navigation elle occupe l'espace libre entre les boutons de gauche et ceux de
+ * droite, donc son centre dépend de la largeur de ces boutons. On la sort de ce flux
+ * (position: absolute, repère = #nav-bar qui couvre toute la fenêtre) et on la centre avec des
+ * marges automatiques (left/right 0 + largeur fixe) : PAS de transform, car Firefox ancre le
+ * panneau de suggestions sur la barre et un transform le décalait (barre et panneau désalignés à
+ * l'ouverture). top/bottom 0 : la barre prend la hauteur de la rangée (40 px) et centre son champ.
+ * Largeur : 40 % de la fenêtre, entre 320 et 800 px. */
+/* LARGEUR de la barre d'adresse : un seul endroit à modifier (la hauteur n'est jamais touchée).
+ * clamp(minimum, part de la fenêtre, maximum). Le bouton « Actualiser » plus bas la reprend. */
+:root {
+  --uc-urlbar-width: clamp(320px, 30vw, 600px);
+}
+#urlbar-container {
+  position: absolute;
+  inset: 0 0;
+  margin-inline: auto !important; /* centrage ; remplace aussi les 5 px de marge de Firefox */
+  width: var(--uc-urlbar-width) !important; /* !important : Firefox fixe sa propre largeur avec des règles plus prioritaires */
+  min-width: 0 !important;
+  max-width: none !important;
+}
+/* Hauteur de la rangée inchangée. Hors du flux, la barre d'adresse ne dimensionne plus la rangée,
+ * qui rétrécissait (~8 px) : on lui rend sa hauteur d'origine = hauteur de la barre + son
+ * espacement haut et bas (32 + 2 x 4 = 40 px), calculée avec les variables de Firefox. */
+#nav-bar {
+  min-height: calc(var(--urlbar-height) + 2 * var(--urlbar-padding-block)) !important;
+}
+/* La barre d'adresse ne remplit plus l'espace libre : c'est maintenant la zone des boutons
+ * (#nav-bar-customization-target) qui doit s'étendre, sinon les boutons de droite remontent
+ * au milieu de la barre au lieu de rester à droite. */
+#nav-bar-customization-target {
+  flex: 1 1 auto !important;
+}
+/* Firefox limite chaque espaceur flexible (toolbarspring) à ~112 px : avec la barre d'adresse
+ * sortie du flux, ils ne repoussent plus les boutons de droite jusqu'au bord de la fenêtre. */
+#nav-bar toolbarspring {
+  max-width: none !important;
+}
+
+/* Titre des onglets centré. .tab-label-container est une colonne flexible (vbox) dont l'attribut
+ * XUL align="start" colle le titre à gauche : un align-items: center est ignoré (l'attribut
+ * l'emporte). Des marges automatiques sur le titre, elles, passent avant l'alignement dans un
+ * conteneur flexible : le titre se centre quand il y a de la place, et quand il est trop long il
+ * occupe tout l'espace (marges à 0) et reste coupé avec le fondu habituel à la fin.
+ * L'icône du site reste à gauche et la croix à droite : le titre est centré entre les deux. */
+.tab-label {
+  margin-inline: auto !important;
+  text-align: center;
+}
+
+/* Le « + » de la rangée d'onglets est masqué : le bouton « Nouvel onglet » est maintenant dans la
+ * barre du haut (réglage browser.uiCustomization.state de user.js), comme dans Safari. Il reste donc
+ * disponible quand la rangée d'onglets est cachée (un seul onglet). */
+#tabs-newtab-button,
+#vertical-tabs-newtab-button {
+  display: none !important;
+}
+
+/* Plus de vide à droite des onglets après en avoir fermé un. À la fermeture d'un onglet à la souris,
+ * Firefox fige le max-width de chaque onglet restant (style de l'élément, en !important) pour que
+ * la croix du suivant reste sous le curseur, et ne le libère que quand la souris quitte la rangée :
+ * les onglets ne remplissent plus la rangée. Une règle utilisateur en !important l'emporte même sur
+ * ce style de l'élément. [fadein] : les onglets en cours de fermeture gardent leur animation de
+ * rétrécissement. Contrepartie : la croix du suivant ne reste plus sous le curseur. */
+.tabbrowser-tab[fadein]:not([pinned]) {
+  max-width: var(--tab-max-width) !important;
+}
+.closing-tabs-spacer {
+  width: 0 !important;
+}
+
+/* Ouverture / fermeture d'un onglet : l'onglet grandit depuis son bord gauche vers la droite à l'ouverture
+ * et rétrécit de la même façon à la fermeture, les voisins glissant avec lui (220 ms).
+ * Pourquoi : Firefox anime min-width / max-width, mais le plafond --tab-max-width: 10000px posé plus haut
+ * (pour remplir la rangée) fait que max-width, animé de 0,1 px à 10000 px en 100 ms, dépasse la largeur
+ * réelle en quelques millisecondes : l'animation existait mais était invisible. On anime donc flex-grow
+ * (la part de largeur de l'onglet, flex: 100 100 dans Firefox) et on garde max-width comme simple minuterie :
+ * il saute tout de suite à l'ouverture (step-start) et à la FIN à la fermeture (step-end), ce qui conserve
+ * l'évènement transitionend de max-width que Firefox attend avant de retirer l'onglet fermé. */
+.tabbrowser-tab:not([pinned]) {
+  transition: flex-grow 220ms ease-out, min-width 220ms ease-out, max-width 220ms step-start !important;
+}
+.tabbrowser-tab:not([pinned]):not([fadein]) {
+  flex-grow: 0 !important;
+  transition: flex-grow 220ms ease-out, min-width 220ms ease-out, max-width 220ms step-end !important;
+}
+
+/* Bouton « Nouvel onglet » de la barre du haut : un simple « + » (au lieu de l'icône onglet + plus
+ * de Firefox). SVG intégré en forme pleine, couleur fixe #fbfbfe = celle des autres icônes de la
+ * barre (Firefox ne transmet pas sa couleur aux images data:). */
+#new-tab-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path fill='%23fbfbfe' d='M7.25 2.5h1.5v4.75h4.75v1.5H8.75v4.75h-1.5V8.75H2.5v-1.5h4.75z'/></svg>") !important;
+}
+
+/* Bouton « Actualiser » à l'extrémité droite de la barre d'adresse, comme Safari. Firefox n'en a
+ * pas à cet endroit : on garde son bouton (#stop-reload-button, réactualiser / arrêter pendant un
+ * chargement, placé dans la barre via user.js) et on le positionne par-dessus la barre. La barre
+ * est centrée sur la fenêtre : son bord droit est à 50 % + (largeur / 2) du bord de la barre de
+ * navigation. La largeur vient de --uc-urlbar-width, définie plus haut : rien d'autre à changer. */
+#stop-reload-button {
+  position: absolute !important;
+  left: calc(50% + var(--uc-urlbar-width) / 2 - 32px) !important; /* bouton de 32 px (rond de survol de 28 px + 2 px de marge de chaque côté) : -32 px = rond à 2 px du bord droit de la barre (1 px de liseré + 1 px d'air) */
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  margin: 0 !important;
+}
+/* Le texte de l'adresse ne passe pas sous le bouton. Les réserves gauche et droite sont choisies
+ * pour que le texte soit centré dans la barre (mesuré : 42 px de chaque côté de la zone de texte). */
+.urlbar-input-box {
+  margin-inline: 12px 40px !important; /* 40 px à droite pour le bouton ; 12 px à gauche : Firefox réserve déjà ~28 px d'éléments invisibles, mesurés */
+}
+
+/* Favicon collé à gauche du titre, le groupe « icône + titre » étant centré dans l'onglet (comme
+ * Safari). Dans .tab-content (rangée flexible) : l'icône, le titre puis la croix. Le conteneur du
+ * titre ne s'étire plus (max-width: max-content, il peut encore rétrécir et couper un titre long) ; les
+ * groupe est centré par justify-content (plus bas). Onglets épinglés exclus. */
+.tabbrowser-tab:not([pinned]) .tab-label-container {
+  flex: 0 1 auto !important;
+  max-width: max-content !important; /* l'attribut XUL flex="1" l'emporte sur le flex ci-dessus : ce plafond garantit qu'il ne dépasse pas la largeur du titre */
+}
+/* Le groupe « icône + titre » se centre dans l'onglet (la croix n'est plus dans la rangée, voir plus bas). */
+.tabbrowser-tab:not([pinned]) .tab-content {
+  justify-content: center !important;
+  /* Réserve des deux côtés (symétrique, pour que le groupe reste centré) : la croix, à gauche au
+   * survol, ne recouvre ainsi jamais le favicon d'un titre long. */
+  padding-inline: 28px !important;
+}
+
+/* Croix de fermeture comme Safari : invisible, elle n'apparaît qu'au survol de l'onglet, à GAUCHE.
+ * Elle sort de la rangée (position absolue dans l'onglet, qui est en position relative plus haut)
+ * pour ne pas décaler le titre centré ; visibility: hidden la rend aussi non cliquable hors
+ * survol. Le clic du milieu ferme toujours l'onglet. Onglets épinglés exclus (pas de croix). */
+.tabbrowser-tab:not([pinned]) .tab-close-button {
+  position: absolute !important;
+  inset-inline-start: 2px; /* rond de survol de 24 px dans une pastille de 28 px : 2 px d'air à gauche comme en haut et en bas, donc concentrique avec l'extrémité arrondie (à 0 px il était 2 px trop à gauche) */
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+.tabbrowser-tab:not([pinned]):not(:hover) .tab-close-button {
+  visibility: hidden !important;
+}
+
+/* Site non sécurisé (http) : même présentation que le sécurisé. Firefox affiche un bouclier barré,
+ * le texte « Non sécurisé » et une pastille de fond, qui dépasse de la barre. On met le bouclier
+ * de la famille du « sécurisé » mais avec un « ! » (trust-icon-warning.svg, même dessin et même
+ * couleur que la coche), sans texte ni pastille. Le « ! » évite qu'un site non sécurisé ait la
+ * même icône qu'un site sûr. */
+#trust-icon-container.insecure {
+  list-style-image: url("chrome://browser/skin/trust-icon-warning.svg") !important;
+  background-color: transparent !important;
+}
+#trust-label {
+  display: none !important;
+}
+
+/* Rangée d'onglets façon Safari : les onglets vivent dans une bande en capsule plus sombre
+ * (#1b1f22, le même gris que le champ d'adresse, mesuré sur Safari), l'onglet actif est une
+ * pastille plus claire inscrite dedans, et de fins séparateurs verticaux séparent les onglets
+ * inactifs (pas à côté de l'onglet actif, ni après le dernier). La bande est #tabbrowser-tabs :
+ * le bouton « liste des onglets » (chevron) reste à droite, hors de la bande. */
+#tabbrowser-tabs {
+  background-color: #1b1f22 !important;
+  border-radius: 22px;
+  padding-inline: 2px; /* les pastilles des onglets aux deux bouts ne touchent pas le bord arrondi de la bande */
+}
+.tabbrowser-tab:not([pinned]) {
+  position: relative;
+}
+.tabbrowser-tab:not([pinned], [selected])::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: 0;
+  top: 50%;
+  height: 16px;
+  width: 1px;
+  transform: translateY(-50%);
+  background-color: rgba(255, 255, 255, 0.18);
+  pointer-events: none;
+}
+/* Pas de séparateur : après le dernier onglet, ni juste avant l'onglet actif (son voisin de gauche). */
+.tabbrowser-tab:last-of-type::after,
+.tabbrowser-tab:has(+ .tabbrowser-tab[selected])::after {
+  display: none;
+}
+
+/* Respiration des pastilles par rapport aux séparateurs : 5 px d'écart, seulement du côté d'un séparateur. Les séparateurs
+ * restent au bord de chaque onglet, seules les pastilles rétrécissent. Un onglet porte un séparateur à son bord droit sauf
+ * s'il est actif, dernier, ou juste avant l'onglet actif (la même condition que les règles ::after plus haut) : la pastille de
+ * cet onglet perd alors 5 px à droite, et celle de son voisin de droite 5 px à gauche. Sans séparateur entre deux onglets
+ * (à côté de l'onglet actif, après le dernier), aucune marge en plus. Deux conséquences compensées : la croix de fermeture,
+ * posée à 2 px du bord de l'onglet, suit le bord de la pastille (7 px) quand celle-ci a perdu 5 px à gauche ; le titre, centré
+ * dans l'onglet, est recentré sur la pastille en ajoutant 5 px de remplissage du côté où elle a rétréci (rien si c'est
+ * symétrique). */
+.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) .tab-background {
+  margin-inline-end: 5px !important;
+}
+.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab:not([pinned]) .tab-background {
+  margin-inline-start: 5px !important;
+}
+.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab:not([pinned]) .tab-close-button {
+  inset-inline-start: 7px;
+}
+.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])):not(.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab) .tab-content {
+  padding-inline: 28px 33px !important;
+}
+.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab:not([pinned]):not(.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected]))) .tab-content {
+  padding-inline: 33px 28px !important;
+}
+
+/* ===== Hauteur de la barre d'adresse et liserés (comme Safari) ===== */
+/* Liseré fin autour de la barre d'adresse (au repos, quand elle n'est pas en cours de saisie). Le fond
+ * de la barre n'a pas d'identifiant, seulement la classe .urlbar-background. */
+#urlbar:not([focused], [popover-open]) > .urlbar-background {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.13) !important;
+}
+/* ... et autour de la bande d'onglets. outline avec un décalage négatif : le trait est dessiné
+ * à l'intérieur du bord, sans rien décaler ni changer la hauteur, et suit le coin arrondi. */
+#tabbrowser-tabs {
+  outline: 1px solid rgba(255, 255, 255, 0.13);
+  outline-offset: -1px;
+}
+
+/* Icône « Actualiser » façon Safari (« arrow.clockwise ») : un anneau fin qui part de la droite (3 h),
+ * descend dans le sens horaire et finit en haut par une pointe, avec une grande ouverture (~95°)
+ * entre la pointe et le départ, en blanc. Mesuré sur une capture de Safari : ouverture ~90°, pointe
+ * dans le sens de la marche. SVG intégré (data:) à trait fin : Firefox ne transmet pas sa couleur aux
+ * images data:, la couleur est donc fixée ici (#fbfbfe, le blanc des autres icônes de la barre).
+ * Anneau de 5 px de rayon dans une icône de 16 px, trait de 1,25 px. */
+/* Survol / appui des boutons Actualiser et Arrêter : un ROND de 28 px au lieu du carré de 32 px de
+ * Firefox, dont les coins dépassaient du bout arrondi de la barre d'adresse (32 px de haut, liseré de
+ * 1 px). 28 px = 2 px d'air en haut et en bas. L'icône reste de 16 px (padding de 6 px). */
+#stop-reload-button > .toolbarbutton-1 > .toolbarbutton-icon {
+  width: 28px !important;
+  height: 28px !important;
+  padding: 6px !important;
+  border-radius: 50% !important;
+}
+
+#reload-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><path d='M12.98 7.56A5 5 0 1 1 7.13 3.08'/><path d='M6.77 1.27 8.9 2.76 7.41 4.89'/></g></svg>") !important;
+}
+
+/* Précédent / Suivant : chevrons fins blancs comme Safari. Blanc fixé dans le dessin (#fbfbfe) :
+ * Firefox ne transmet pas sa couleur aux images data:. L'état grisé (pas d'historique) reste géré par Firefox. */
+#back-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M10 2.8 4.8 8 10 13.2' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/></svg>") !important;
+}
+#forward-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M6 2.8 11.2 8 6 13.2' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/></svg>") !important;
+}
+
+/* Menu déroulant de l'adresse, comme Safari : un panneau FLOTTANT, arrondi, translucide et flou, détaché
+ * de la barre. Firefox (version « nova ») peint le menu ouvert comme UNE surface en deux moitiés : la barre
+ * s'agrandit (débord de 8 px, coins du bas carrés, prolongée de 24 px sous elle) et .urlbarView-background
+ * (le fond du panneau, élément à part) remonte dessous ; un clip-path les rogne à la jonction. On redonne à la
+ * barre sa capsule exacte (inset 0, coins ronds, liseré de repos) et on fait commencer le panneau sous elle,
+ * sur tous ses coins arrondis, sans rognage, avec un voile sombre translucide, un flou du contenu derrière
+ * (backdrop-filter) et un liseré clair. */
+#urlbar[popover-open] > .urlbar-background {
+  inset: 0 !important;
+  clip-path: none !important; /* Firefox rogne ici les 24 px du bas de la barre (jonction avec le panneau) */
+  border: none !important;
+  border-radius: var(--urlbar-border-radius) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.13) !important;
+}
+/* Panneau (fond + lignes) descendu de 10 px : l'écart avec la capsule passe de 4 à 14 px. translate plutôt qu'une
+ * marge : le panneau est ancré à la barre par Firefox (position-area), une marge changerait aussi sa hauteur maximale. */
+#urlbar > .urlbarView {
+  translate: 0 10px;
+}
+/* Le trait fin tout en haut du panneau : bordure haute de .urlbarView-body-inner, qui séparait la barre de la
+ * liste quand les deux étaient soudées. Détachées, elle ne sépare plus rien et coupe les coins arrondis. */
+#urlbar .urlbarView-body-inner {
+  border-top: none !important;
+}
+#urlbar > .urlbarView > .urlbarView-background {
+  inset-block-start: 0 !important;
+  clip-path: none !important;
+  border: none !important;
+  border-radius: 16px !important;
+  background-color: rgba(38, 42, 48, 0.94) !important; /* quasi opaque : le flou (backdrop-filter) n'agit pas toujours sur le contenu de la page, et à 0,78 on lisait le texte du site à travers les lignes */
+  backdrop-filter: blur(24px) saturate(1.5) !important;
+  box-shadow: 0 16px 24px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) !important; /* spread négatif + décalage vers le bas : l'ombre ne remonte pas sous la capsule (une ombre de 30 px la noircissait) */
+}
+
+/* Menu et extensions : même trait fin (1,25) que les autres icônes. Le bouclier de l'adresse n'est pas
+ * redessiné : Firefox en change selon l'état (sécurisé, erreur de certificat…) et le sien a déjà un trait voisin. */
+#PanelUI-menu-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M2.8 4.5h10.4M2.8 8h10.4M2.8 11.5h10.4' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round'/></svg>") !important;
+}
+#unified-extensions-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M1.8 5.5H4.9a1.6 1.6 0 1 1 2.4 0H11.6V8.1a1.6 1.6 0 1 1 0 2.4V13.1H1.8Z' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/></svg>") !important;
+}
+
+/* Barre latérale : l'icône de Safari (rectangle arrondi, volet à gauche avec trois petits traits), en blanc. */
+#sidebar-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><rect x='1.6' y='2.6' width='12.8' height='10.8' rx='2.6'/><path d='M6.7 2.9v10.2M3.6 5.6h.8M3.6 8h.8M3.6 10.4h.8'/></g></svg>") !important;
+}
+
+/* Téléchargements : cercle avec flèche vers le bas, comme Safari, en blanc. Le dessin est celui du
+ * bouton ET de #downloads-indicator-icon (Firefox le lui redonne par héritage). Les animations de début
+ * et de fin de téléchargement gardent les leurs. */
+#downloads-button,
+#downloads-indicator-icon {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><circle cx='8' cy='8' r='6.4'/><path d='M8 4.7v5.9M5.5 8.3 8 10.8l2.5-2.5'/></g></svg>") !important;
+}
+
+/* Bouton « Arrêter » (il prend la place d'Actualiser pendant un chargement) : croix fine et plus petite
+ * (7 px de côté au lieu des 16 px pleins de la croix de Firefox, jugée trop grande), même trait que les autres icônes. */
+#stop-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M4.9 4.9l6.2 6.2M11.1 4.9l-6.2 6.2' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round'/></svg>") !important;
+}
+
+/* Pendant la frappe, Firefox affiche le bouton « Aller » (flèche) à droite dans la barre, EXACTEMENT là où
+ * j'ai posé le bouton Actualiser (position absolue, plus haut) : les deux icônes se superposaient en un rond
+ * barré d'une flèche. On masque donc Actualiser pendant la frappe (il n'a plus de sens : la page va changer) et
+ * on garde le bouton « Aller », redessiné en flèche fine blanche dans un rond de 28 px comme le survol des autres. */
+#nav-bar:has(#urlbar[usertyping]) #stop-reload-button {
+  visibility: hidden !important;
+}
+/* Page « nouvel onglet » (et page vide) : la barre est vide et Firefox la marque pageproxystate="invalid" (l'adresse
+ * affichée n'est celle d'aucune page) ; actualiser n'y sert à rien, le bouton y est masqué et seulement là. */
+#nav-bar:has(#urlbar[pageproxystate="invalid"]) #stop-reload-button {
+  visibility: hidden !important;
+}
+#urlbar .urlbar-go-button {
+  content: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M3.4 8h9.2M8.8 4.2 12.6 8l-3.8 3.8' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/></svg>") !important;
+  width: 16px !important;
+  height: 16px !important;
+  padding: 6px !important;
+  border-radius: 50% !important;
+}
+
+/* Panneaux et menus (menu principal, téléchargements, bouclier, permissions, extensions…) : EXACTEMENT la carte du menu
+ * déroulant de l'adresse — gris #262a30, coins de 16 px, liseré clair de 1 px, ombre portée vers le bas — et, comme lui,
+ * décalés d'une dizaine de pixels sous leur bouton. Une variable commande le fond de tous les panneaux (--panel-background-color), d'autres
+ * le rayon, la bordure et l'ombre ; Firefox les pose sur :root et sur les panneaux eux-mêmes, d'où les trois cibles.
+ * L'ombre déborde du contenu : la zone transparente autour (--panel-box-shadow-margin) passe à 20 px pour la contenir.
+ * Pour décaler : la marge du panneau vaut déjà -1 x cette zone (elle la compense) ; on y ajoute 14 px en haut.
+ * Menus contextuels (menupopup) : mêmes couleurs, sans ombre élargie ni décalage (ils s'ouvrent sous le curseur). */
+:root,
+panel,
+menupopup {
+  --panel-background-color: rgba(38, 42, 48, 0.94) !important; /* même voile translucide que le menu de l'adresse (rgba(38, 42, 48, 0.94)) : la page se devine au travers. Pas de flou du fond ici : un panneau est une fenêtre à part, backdrop-filter n'y voit pas la page. */
+  --panel-border-radius: 16px !important;
+  --panel-border-color: rgba(255, 255, 255, 0.1) !important;
+  /* Intérieur des panneaux (champs, boutons principaux, cases, interrupteurs, liens) : le bleu de Safari à la place du
+   * turquoise de Firefox, et des champs plus sombres que la carte (au lieu du gris-violet --background-color-box). */
+  --color-accent-primary: #0a84ff !important;
+  --color-accent-primary-hover: #2b95ff !important;
+  --color-accent-primary-active: #0067d6 !important;
+  --color-accent-primary-selected: #0a84ff !important;
+  --button-text-color-primary: #fff !important;
+  --background-color-box: #1b1f22 !important;
+}
+panel {
+  --input-text-background-color: #1b1f22 !important; /* champs de saisie des panneaux (nom d'un marque-page…) ; seulement dans les panneaux : la barre d'adresse lit la même variable */
+  --panel-box-shadow: 0 16px 24px -12px rgba(0, 0, 0, 0.5) !important;
+  --panel-box-shadow-margin: 20px !important;
+}
+panel[type="arrow"] {
+  margin-top: calc(-1 * var(--panel-box-shadow-margin) + 14px) !important; /* mesuré : +10 px donnait ~6 px sous le bouton du menu, alors que le menu de l'adresse est à 10 px sous la barre ; +14 px aligne les cartes sur le même niveau */
+}
+
+/* Loupe + flèche à gauche de l'adresse quand elle est vide : c'est le sélecteur de moteur de recherche (choisir
+ * Google, Wikipédia… pour UNE recherche). Safari n'en a pas ; masqué. Les raccourcis tapés dans la barre (@wiki,
+ * @google…) font la même chose. */
+#urlbar .searchmode-switcher {
+  display: none !important; /* un moz-button à classe, sans identifiant : le premier essai visait #urlbar-searchmode-switcher, qui n'existe pas */
+}
+
+/* Recherche dans la page (Ctrl+F), comme Safari : une pilule flottante en haut à droite de la page, au lieu d'une
+ * barre pleine largeur collée en bas. .browserContainer est déjà en position: relative. Pas de display ici : il
+ * doit rester masquable par l'attribut hidden de Firefox. */
+findbar {
+  position: absolute !important;
+  grid-area: 1 / 1 !important; /* .browserContainer est une GRILLE : sans cela la barre va dans une 2e ligne implicite, sous la page, et top/right se comptent depuis là */
+  inset-block: 12px auto !important;
+  inset-inline: auto 18px !important;
+  width: 460px !important;
+  max-width: calc(100% - 36px) !important;
+  padding: 4px 6px !important;
+  background: rgba(38, 42, 48, 0.94) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45) !important;
+  z-index: 10;
+}
+
+/* Barre de favoris : survol en pilule arrondie (Firefox : petit rectangle) */
+#PersonalToolbar .bookmark-item:not(.subviewbutton) {
+  border-radius: 9px !important;
+  padding-inline: 8px !important;
+}
+
+/* Adresse du lien survolé (en bas à gauche de la page) : pilule sombre arrondie au lieu du rectangle de Firefox */
+#statuspanel-label {
+  background: rgba(38, 42, 48, 0.94) !important;
+  color: #f5f5f7 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 10px !important;
+  padding: 4px 11px !important;
+  margin: 0 10px 10px !important;
+}
+
+/* Bande d'outils de la barre latérale (horloge, étoile, réglages…) et cadre autour de la page : Firefox n'y met pas de
+ * couleur, la bande est transparente et laisse voir #browser, qui porte un voile blanc de 20 % (oklch(1 0 0 / 0.2)) posé sur
+ * le Mica de Windows 11 : un gris clair teinté par le fond d'écran, différent des barres du haut. On lui donne le gris
+ * opaque des trois barres (#23282e), sans Mica. */
+#browser {
+  background-color: #23282e !important;
+}
+
+/* Barre latérale : déjà une carte sombre arrondie dans la palette ; seul le contour de focus (champ de recherche
+ * des marque-pages, onglets, boutons) passe du turquoise de Firefox au bleu de Safari, pour toute la fenêtre. */
+:root {
+  --focus-outline-color: #0a84ff !important;
+}
+
+/* Bouclier (et protection contre le pistage) posé HORS de la barre d'adresse : toute la barre du haut est une zone de
+ * déplacement de la fenêtre (-moz-window-dragging: drag, plus haut) et Firefox ne retire ce statut qu'à l'intérieur de
+ * la barre d'adresse. Un vrai clic sur le bouclier, qui est à l'extérieur, était donc pris pour un début de
+ * déplacement de la fenêtre et n'ouvrait rien (des clics simulés, eux, passaient). no-drag lui rend ses clics. */
+#trust-icon-container,
+#tracking-protection-icon-container {
+  -moz-window-dragging: no-drag !important;
+}
+
+/* Globe à gauche du texte, comme Safari : le groupe « globe + texte » est centré dans la barre, au repos (domaine seul)
+ * comme barre active (adresse complète sélectionnée). Le script urlbar-domaine.uc.js pose l'attribut uc-centre
+ * (adresse de site affichée, pas de frappe en cours) et la variable --uc-dw (largeur du texte affiché, en px). Le champ
+ * réserve 22 px à gauche du texte (16 px de globe + 6 px d'air), ce qui le décale de 11 px vers la droite : le groupe
+ * entier est donc centré ; sur une adresse longue qui remplit le champ, le globe reste simplement collé à gauche.
+ * Blanc fixé dans le dessin (#fbfbfe) : Firefox ne transmet pas sa couleur aux images data:. Rien de tout cela sur
+ * une page interne ni pendant la frappe d'une recherche.
+ *
+ * Le globe est un VRAI bouton de Firefox, donc cliquable : #identity-icon-box (qui ouvre le panneau du site) quand
+ * le site n'a aucune permission, ou #identity-permission-box (qui ouvre le panneau des permissions) quand il en a
+ * (l'autre est alors masqué : un seul globe). #identity-box est placé à l'endroit du globe par le script (--uc-gx). */
+:root {
+  --uc-globe: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.1' stroke-linecap='round'><circle cx='8' cy='8' r='6.2'/><ellipse cx='8' cy='8' rx='2.7' ry='6.2'/><path d='M1.9 8h12.2M2.8 4.7h10.4M2.8 11.3h10.4'/></g></svg>");
+}
+#urlbar[uc-centre] #urlbar-input {
+  padding-inline-start: 22px !important;
+  text-align: center !important;
+}
+#urlbar[uc-centre] #identity-box {
+  position: absolute;
+  inset-inline-start: var(--uc-gx, calc(50% - 17px - var(--uc-dw) / 2)); /* posé par le script d'après la position réelle du texte (bouton de 28 px, icône de 16 px à 6 px du bord) ; repli en % de la barre */
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3; /* le champ de saisie est après lui dans le DOM : sans cela il le recouvre et le clic n'arrive jamais au bouton */
+}
+#urlbar[uc-centre] #identity-icon-box {
+  display: flex !important; /* Firefox le masque quand il n'y a rien à signaler ; ici c'est le globe */
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+}
+#urlbar[uc-centre] #identity-icon {
+  list-style-image: var(--uc-globe) !important;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+#urlbar[uc-centre]:has(#identity-permission-box[hasPermissions]) #identity-icon-box {
+  display: none !important;
+}
+#urlbar[uc-web] #permissions-granted-icon {
+  list-style-image: var(--uc-globe) !important; /* aussi en dehors du centrage : sans cela l'icône « réglages » de Firefox revenait */
+}
+
+/* Texte d'invite de la barre vide (« Rechercher avec Google ou saisir une adresse ») centré lui aussi */
+#urlbar[focused]:not([usertyping]) #urlbar-input:placeholder-shown {
+  text-align: center !important;
+}
+
+/* Couleurs de la barre active, de Safari plutôt que de Firefox : contour bleu translucide de 3 px à
+ * l'extérieur (Firefox : turquoise de 2 px), sélection bleue, fond gris un cran au-dessus du repos
+ * (Firefox : gris-violet #42414d). Le bleu est le bleu système de macOS (#0a84ff). */
+#urlbar[focused] > .urlbar-background {
+  outline: 3px solid rgba(10, 132, 255, 0.55) !important;
+  outline-offset: 0 !important;
+}
+#urlbar:is([focused], [open]) > .urlbar-background {
+  background-color: #2b3036 !important;
+}
+#urlbar-input::selection {
+  background-color: #0b5bd3 !important; /* opaque : avec une transparence, Firefox peignait un turquoise terne */
+  color: #fff !important;
+}
