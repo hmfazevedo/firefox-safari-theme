@@ -69,9 +69,8 @@ git add -A; git commit -m "…"; git push
 - Quand on remplace un bloc du CSS en le coupant entre deux repères, vérifier qu'on n'emporte pas d'autres règles
   (comparer la liste des sélecteurs avant et après).
 
-## Style « Safari macOS 26 » (capsules, teinte)
+## Style « Safari macOS 26 » (Partager, teinte, coins)
 
-- **Capsules** : un `::before` de 32 px derrière les boutons de la barre latérale et de précédent / suivant (`z-index: -1`).
 - **Partager et vue d'ensemble** : `#uc-share-button` est créé par `urlbar-domaine.uc.js` (`CustomizableUI.createWidget`, ouvre
   le panneau Partager de Windows) ; `#alltabs-button` est le bouton « Lister tous les onglets » de Firefox. `user.js` remet la
   disposition des barres à zéro à chaque démarrage : le script replace les deux boutons à chaque fois (ordre : Partager, +,
@@ -107,4 +106,5 @@ passent pas par la zone de déplacement de fenêtre de Windows.
 
 - Grille « Favoris » sur la page « nouvel onglet » (marque-pages épinglés, dossiers via un faux lien intercepté).
 - Boutons de fenêtre en ronds rouge / jaune / vert à gauche (refusés : retour aux boutons Windows à droite).
+- Capsules de verre derrière les boutons de la barre latérale et de précédent / suivant (refusées).
 - Mica de Windows 11 sur les barres : remplacé par un gris plein `#23282e` pour avoir exactement la même couleur partout.
