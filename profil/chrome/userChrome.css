@@ -787,8 +787,12 @@ findbar {
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #TabsToolbar {
   position: absolute !important;
-  top: 0;
-  height: 40px;
+  top: var(--urlbar-padding-block, 4px); /* même hauteur et même ligne que le champ d'adresse (32 px, de 4 à 36 px) au lieu de la bande de 36 px dans une rangée de 40 */
+  height: var(--urlbar-height, 32px);
+  max-height: var(--urlbar-height, 32px) !important;
+  padding-block: 0 !important;
+  --tab-min-height: 32px; /* la pastille garde ses 4 px de marge : 24 px au lieu de 28 */
+  --tabstrip-min-height: 40px; /* la bande vaut ce nombre - 8 px = 32 px */
   left: calc(var(--uc-ux) + var(--uc-uw) + 12px); /* 12 px d'écart avec le champ d'adresse, pendant le glissement aussi (--uc-ux et --uc-uw sont animées) */
   right: calc(var(--uc-droite, 260px) - 4px); /* --uc-droite compte 6 px de marge et le bouton a 10 px de vide autour de son icône : 12 px d'écart visible, comme à gauche */
   padding-inline: 0 !important; /* les 8 px de la barre d'onglets s'ajoutaient à l'écart */

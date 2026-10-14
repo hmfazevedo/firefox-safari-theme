@@ -111,6 +111,8 @@ git add -A; git commit -m "…"; git push
   (`CustomizableUI.createWidget`, replacé avant « Précédent » à chaque démarrage car `user.js` remet la disposition à zéro), pose `uc-compact`,
   `uc-multi` (2 onglets ou plus : avec un seul la rangée est masquée, rien ne change) et mesure `--uc-gauche` / `--uc-droite`. `userChrome.css` pose la
   rangée d'onglets EN SUPERPOSITION de la barre de navigation (`position: absolute`, 40 px) ; seulement en onglets horizontaux (`:has(#tabbrowser-tabs[orient="horizontal"])`).
+  **Hauteur de la bande** : en mode compact la bande d'onglets fait la MÊME hauteur et la même ligne que le champ d'adresse (32 px, de 4 à 36 px : `top: var(--urlbar-padding-block)`,
+  `height: var(--urlbar-height)`, `--tab-min-height: 32px`, `--tabstrip-min-height: 40px` ; pastilles de 24 px, marge de 4 px). Mode normal inchangé (bande de 36 px, pastilles de 28 px).
   **Espacement à gauche** : le champ commence à `--uc-gauche + 17px`, soit le même écart VISIBLE (25,7 px, mesuré sur les glyphes d'une capture : bouton compact -> flèche
   de retour) entre la flèche « suivant » et le champ. Le bouclier, qui occupait cet espace à gauche du champ, passe DANS le champ en mode compact (`inset-inline: 6px auto`,
   apparition en fondu pendant `uc-anim`) ; la mention « Navigation privée » est décalée à 40 px pour ne pas passer dessous.
