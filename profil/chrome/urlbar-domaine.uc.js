@@ -304,7 +304,7 @@
 })();
 
 // ---- Mode compact : onglets et adresse sur une seule rangée (voir userChrome.css, bloc « MODE COMPACT ») ----
-// Le bouton « Mode compact » (créé ici, placé juste avant « Nouvel onglet » à chaque démarrage car user.js remet la disposition à
+// Le bouton « Mode compact » (créé ici, placé tout à gauche, avant « Précédent », à chaque démarrage car user.js remet la disposition à
 // zéro) bascule la préférence extensions.uc.compact ; chaque fenêtre l'observe et pose l'attribut uc-compact sur la racine.
 (() => {
   try {
@@ -331,7 +331,8 @@
         },
       });
     }
-    // Placement idempotent : dans la barre, juste avant « Nouvel onglet ».
+    // Placement idempotent : tout à gauche de la barre, juste avant « Précédent » (à la place du bouton de panneau latéral, masqué par
+    // userChrome.css).
     const placer = () => {
       try {
         const AIRE = "nav-bar";
@@ -340,7 +341,7 @@
           CustomizableUI.addWidgetToArea(ID, AIRE);
         }
         const ids = CustomizableUI.getWidgetIdsInArea(AIRE);
-        const k = ids.indexOf("new-tab-button");
+        const k = ids.indexOf("back-button");
         const i = ids.indexOf(ID);
         if (k >= 0 && i !== k - 1) {
           CustomizableUI.moveWidgetWithinArea(ID, i < k ? k - 1 : k);
@@ -357,7 +358,7 @@
       const suivant = document.getElementById("forward-button");
       const gauche = suivant ? Math.ceil(suivant.getBoundingClientRect().right) : 150;
       let min = Infinity;
-      for (const id of ["unified-extensions-button", ID, "new-tab-button", "PanelUI-menu-button"]) {
+      for (const id of ["unified-extensions-button", "new-tab-button", "PanelUI-menu-button"]) {
         const el = document.getElementById(id);
         const r = el && el.getBoundingClientRect();
         if (r && r.width > 0 && r.left < min) {

@@ -776,6 +776,11 @@ findbar {
   background-color: transparent !important;
 }
 
+/* Le bouton de panneau latéral (en haut à gauche) ne sert pas : le bouton « Mode compact » prend sa place (placé par urlbar-domaine.uc.js). */
+#sidebar-button {
+  display: none !important;
+}
+
 /* Le bouton « Mode compact » : deux rangées (mode normal) ou une seule (mode compact), au trait fin des autres icônes. */
 #uc-compact-button {
   list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linejoin='round'><rect x='2' y='2.8' width='12' height='4' rx='1.6'/><rect x='2' y='9.2' width='12' height='4' rx='1.6'/></g></svg>") !important;
