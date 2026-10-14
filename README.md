@@ -144,6 +144,9 @@ git add -A; git commit -m "…"; git push
   sur barre claire. Ce sont les boutons que Firefox garde en copie dans `#nav-bar`. Vérifié : mesures, survol forcé (`InspectorUtils.addPseudoClassLock`) en barre
   sombre et claire, touche du centre. NON testé : de vrais clics de souris sur la fenêtre (les clics simulés ne traversent pas la zone de déplacement de Windows) ;
   le dessin du bouton « restaurer » (fenêtre agrandie) n'a pas été photographié. Refusés avant : ronds rouge/jaune/vert à GAUCHE.
+- **Hauteur de la barre du haut** (`userChrome.css`, variable `--uc-barre-extra` = 6 px) : la rangée du champ d'adresse passe de 40 à 46 px dans les DEUX modes, le champ
+  (32 px) a donc 7 px d'air en haut comme en bas (4 px avant). En compact la bande d'onglets (36 px dans une boîte de 40) est recentrée (`top: calc(var(--uc-barre-extra) / 2)`).
+  Mesuré dans un profil jetable : barre 46,0 px, champ 7,0 / 7,0, bande 3,0 / 3,0, onglet 5,0 / 5,0, boutons de fenêtre et de gauche centrés.
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : fines et translucides partout (`scrollbar-width: thin`, gris moyen, `userContent.css`). La barre de la PAGE

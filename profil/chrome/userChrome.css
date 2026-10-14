@@ -247,6 +247,7 @@
   initial-value: 400px;
 }
 :root {
+  --uc-barre-extra: 6px; /* hauteur ajoutée à la barre du haut (40 -> 46 px) ; le champ reste centré dedans */
   --uc-ux: calc(50% - var(--uc-urlbar-width) / 2);
   --uc-uw: var(--uc-urlbar-width);
 }
@@ -265,7 +266,7 @@
  * qui rétrécissait (~8 px) : on lui rend sa hauteur d'origine = hauteur de la barre + son
  * espacement haut et bas (32 + 2 x 4 = 40 px), calculée avec les variables de Firefox. */
 #nav-bar {
-  min-height: calc(var(--urlbar-height) + 2 * var(--urlbar-padding-block)) !important;
+  min-height: calc(var(--urlbar-height) + 2 * var(--urlbar-padding-block) + var(--uc-barre-extra)) !important; /* + 6 px : le champ respire autant en haut qu'en bas (7 px au lieu de 4), dans les deux modes */
 }
 /* La barre d'adresse ne remplit plus l'espace libre : c'est maintenant la zone des boutons
  * (#nav-bar-customization-target) qui doit s'étendre, sinon les boutons de droite remontent
@@ -787,7 +788,7 @@ findbar {
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #TabsToolbar {
   position: absolute !important;
-  top: 0;
+  top: calc(var(--uc-barre-extra) / 2); /* centrée dans la barre élargie */
   height: 40px; /* la bande garde sa taille normale (36 px dans une rangée de 40) ; c'est le CHAMP d'adresse qui grandit pour l'égaler, voir plus haut */
   left: calc(var(--uc-ux) + var(--uc-uw) + 25px); /* 25 px d'écart avec le champ d'adresse = l'écart visible entre la flèche « suivant » et le champ (25,4 px mesurés) ; pendant le glissement aussi (--uc-ux et --uc-uw sont animées) */
   right: calc(var(--uc-droite, 260px) + 9px); /* --uc-droite compte 6 px de marge et le bouton a 10 px de vide autour de son icône : 25 px d'écart visible, comme à gauche */
