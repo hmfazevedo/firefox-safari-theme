@@ -113,6 +113,11 @@ git add -A; git commit -m "…"; git push
   rangée d'onglets EN SUPERPOSITION de la barre de navigation (`position: absolute`, 40 px) ; seulement en onglets horizontaux (`:has(#tabbrowser-tabs[orient="horizontal"])`).
   **Écarts de la bande** : 25 px entre le champ et le premier onglet (= l'écart visible flèche « suivant » -> champ, 25,4 px) et 25 px entre la bande et l'icône du premier bouton
   de droite (mesurés dans le Firefox de test : 25 / 25). Formules : `left: calc(var(--uc-ux) + var(--uc-uw) + 25px)`, `right: calc(var(--uc-droite) + 9px)`.
+  **Hauteur** : en mode compact c'est le CHAMP d'adresse qui grandit pour égaler la bande d'onglets (36 px, de 2 à 38 px dans la barre de 40 px) : `--urlbar-height: 36px !important`
+  et `--urlbar-padding-block: 2px !important` sur la racine (sans `!important` Firefox, qui les pose dans une règle d'auteur, l'emporte). La bande garde sa taille normale
+  (pastilles de 28 px). La boîte d'identité (globe) grandit avec le champ : `align-items: center` pour garder le globe centré. Mode normal inchangé (champ de 32 px).
+  **Écarts de la bande** : 25 px entre le champ et le premier onglet (= l'écart visible flèche « suivant » -> champ, 25,4 px) et 25 px entre la bande et l'icône du premier bouton
+  de droite (mesurés dans le Firefox de test : 25 / 25). Formules : `left: calc(var(--uc-ux) + var(--uc-uw) + 25px)`, `right: calc(var(--uc-droite) + 9px)`.
   **Hauteur de la bande** : en mode compact la bande d'onglets fait la MÊME hauteur et la même ligne que le champ d'adresse (32 px, de 4 à 36 px : `top: var(--urlbar-padding-block)`,
   `height: var(--urlbar-height)`, `--tab-min-height: 32px`, `--tabstrip-min-height: 40px` ; pastilles de 24 px, marge de 4 px). Mode normal inchangé (bande de 36 px, pastilles de 28 px).
   **Espacement à gauche** : le champ commence à `--uc-gauche + 17px`, soit le même écart VISIBLE (25,7 px, mesuré sur les glyphes d'une capture : bouton compact -> flèche

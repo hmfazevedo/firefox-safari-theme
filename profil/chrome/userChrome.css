@@ -773,6 +773,8 @@ findbar {
  * est posée EN SUPERPOSITION de la barre de navigation (position: absolute, même hauteur de 40 px) ; seulement en onglets horizontaux. ===== */
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) {
   --uc-champ: clamp(220px, 22vw, 380px);
+  --urlbar-height: 36px !important; /* le champ passe de 32 à 36 px, la hauteur de la bande d'onglets (la barre reste à 40 px : 2 px de marge au lieu de 4) ; !important : Firefox pose ces variables dans une règle d'auteur */
+  --urlbar-padding-block: 2px !important;
   --uc-ux: calc(var(--uc-gauche, 150px) + 17px); /* 17 px après le bord de « suivant » = même écart VISIBLE (25,7 px, mesuré sur les glyphes) qu'entre le bouton compact et la flèche de retour */
   --uc-uw: var(--uc-champ);
 }
@@ -787,12 +789,8 @@ findbar {
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #TabsToolbar {
   position: absolute !important;
-  top: var(--urlbar-padding-block, 4px); /* même hauteur et même ligne que le champ d'adresse (32 px, de 4 à 36 px) au lieu de la bande de 36 px dans une rangée de 40 */
-  height: var(--urlbar-height, 32px);
-  max-height: var(--urlbar-height, 32px) !important;
-  padding-block: 0 !important;
-  --tab-min-height: 32px; /* la pastille garde ses 4 px de marge : 24 px au lieu de 28 */
-  --tabstrip-min-height: 40px; /* la bande vaut ce nombre - 8 px = 32 px */
+  top: 0;
+  height: 40px; /* la bande garde sa taille normale (36 px dans une rangée de 40) ; c'est le CHAMP d'adresse qui grandit pour l'égaler, voir plus haut */
   left: calc(var(--uc-ux) + var(--uc-uw) + 25px); /* 25 px d'écart avec le champ d'adresse = l'écart visible entre la flèche « suivant » et le champ (25,4 px mesurés) ; pendant le glissement aussi (--uc-ux et --uc-uw sont animées) */
   right: calc(var(--uc-droite, 260px) + 9px); /* --uc-droite compte 6 px de marge et le bouton a 10 px de vide autour de son icône : 25 px d'écart visible, comme à gauche */
   padding-inline: 0 !important; /* les 8 px de la barre d'onglets s'ajoutaient à l'écart */
@@ -948,6 +946,9 @@ findbar {
    * restent collées à gauche du texte, dans l'ordre globe puis icône bloquée. Sans icône en plus : 28 px - 100 % = 0. */
   translate: calc(28px - 100%) 0;
   z-index: 3; /* le champ de saisie est après lui dans le DOM : sans cela il le recouvre et le clic n'arrive jamais au bouton */
+}
+#urlbar[uc-centre] #identity-box {
+  align-items: center; /* en mode compact le champ fait 36 px : la boîte d'identité (hauteur du champ - 4 px) dépasse les 28 px du bouton, qui restait collé en haut */
 }
 #urlbar[uc-centre] #identity-icon-box {
   display: flex !important; /* Firefox le masque quand il n'y a rien à signaler ; ici c'est le globe */
