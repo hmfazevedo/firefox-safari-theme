@@ -3,7 +3,7 @@
 /* Barre de favoris plus aérée : 2 px en haut et en bas. Firefox l'ouvre / la ferme en la faisant glisser
  * verticalement (max-height animé de 0 à une limite de 4em, 170 ms). Cette limite doit rester proche de
  * la hauteur réelle (32 px = 2,7em) : à 8em (96 px, valeur d'avant) l'animation n'était visible que sur
- * le premier tiers de sa durée, donc quasi invisible. 3em (36 px) laisse la marge des 2 + 2 px de
+ * le premier tiers de sa durée, donc quasi invisible. 3em (36 px, + 7 px sous les favoris) laisse la marge des 2 + 2 px de
  * padding et suit la taille de la police. Le padding est animé lui aussi (sinon saut de 4 px) et la durée
  * passe à 220 ms comme les onglets. Pas de règle de limite quand la barre est repliée ([collapsed]),
  * sinon elle ne se refermerait plus.
@@ -13,8 +13,8 @@
  * restaurée (au démarrage, rien ne glisse). visibility passe à hidden à la FIN du repli : rien n'est
  * atteignable au clavier une fois la barre repliée, comme avec le collapse d'origine. */
 #PersonalToolbar:not([collapsed]) {
-  padding-block: 2px !important;
-  max-height: 3em !important;
+  padding-block: 2px calc(2px + var(--uc-barre-bas)) !important; /* en bas 2 + 7 px : au-dessus des favoris il y a 7 px (bas de la barre du haut ou de la bande d'onglets) + 2, la page ne doit pas être collée dessous */
+  max-height: calc(3em + var(--uc-barre-bas)) !important;
 }
 :root[sessionrestored] #PersonalToolbar {
   transition: min-height 220ms ease-out, max-height 220ms ease-out, padding-block 220ms ease-out, visibility 220ms linear, background-color 350ms ease !important;
