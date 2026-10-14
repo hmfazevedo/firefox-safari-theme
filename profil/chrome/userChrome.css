@@ -669,6 +669,9 @@ findbar {
  * color-scheme: light et son texte passait en noir sur ce fond foncé. */
 :root[uc-clair] #urlbar .urlbarView {
   color-scheme: dark !important;
+  /* Les lignes d'historique et de marque-pages n'ont pas de couleur propre : elles héritent de celle de #urlbar, déjà calculée en
+   * NOIR (thème clair) ; color-scheme ne la recalcule pas, d'où ce blanc explicite. */
+  color: #fbfbfe !important;
 }
 /* Les boutons d'action du menu (« Rechercher avec Wikipédia ») ont un texte noir fixe de Firefox : noir sur gris foncé. */
 #urlbar .urlbarView-action-btn {
