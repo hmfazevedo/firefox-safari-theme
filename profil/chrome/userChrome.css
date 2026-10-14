@@ -684,7 +684,7 @@ findbar {
   color: #fbfbfe !important;
 }
 :root[uc-clair] :is(#back-button, #forward-button, #reload-button, #stop-button, #new-tab-button, #PanelUI-menu-button,
-    #unified-extensions-button, #sidebar-button, #downloads-button) .toolbarbutton-icon,
+    #unified-extensions-button, #sidebar-button, #downloads-button, #uc-compact-button) .toolbarbutton-icon,
 :root[uc-clair] #downloads-indicator-icon,
 :root[uc-clair] #urlbar[uc-centre] #identity-icon,
 :root[uc-clair] #urlbar[uc-web] #permissions-granted-icon,
@@ -738,6 +738,44 @@ findbar {
   font-size: 11px;
   color: #b9a3ff;
   pointer-events: none;
+}
+
+/* ===== MODE COMPACT (bouton « Mode compact » de la barre du haut) : onglets et champ d'adresse sur UNE seule rangée, comme la
+ * disposition « Compact » de Safari. Le choix est mémorisé dans la préférence extensions.uc.compact ; urlbar-domaine.uc.js pose
+ * l'attribut uc-compact sur la racine (préférence vraie), uc-multi (deux onglets ou plus : avec un seul, la rangée d'onglets est de
+ * toute façon masquée et rien ne change) et mesure --uc-gauche (bord droit du bouton « suivant ») et --uc-droite (largeur des boutons
+ * de droite). Disposition : [panneau latéral, précédent, suivant] [champ d'adresse] [onglets] [boutons de droite]. La rangée d'onglets
+ * est posée EN SUPERPOSITION de la barre de navigation (position: absolute, même hauteur de 40 px) ; seulement en onglets horizontaux. ===== */
+:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) {
+  --uc-champ: clamp(220px, 22vw, 380px);
+}
+:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #navigator-toolbox {
+  position: relative;
+}
+:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #urlbar-container {
+  inset: 0 auto 0 calc(var(--uc-gauche, 150px) + 30px) !important; /* 30 px : la place du bouclier, posé à gauche du champ */
+  margin: 0 !important;
+  width: var(--uc-champ) !important;
+}
+:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #stop-reload-button {
+  left: calc(var(--uc-gauche, 150px) + 30px + var(--uc-champ) - 32px) !important; /* même règle que plus haut, depuis le bord gauche du champ */
+}
+:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #TabsToolbar {
+  position: absolute !important;
+  top: 0;
+  height: 40px;
+  left: calc(var(--uc-gauche, 150px) + 30px + var(--uc-champ) + 20px);
+  right: var(--uc-droite, 260px);
+  z-index: 3;
+  background-color: transparent !important;
+}
+
+/* Le bouton « Mode compact » : deux rangées (mode normal) ou une seule (mode compact), au trait fin des autres icônes. */
+#uc-compact-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linejoin='round'><rect x='2' y='2.8' width='12' height='4' rx='1.6'/><rect x='2' y='9.2' width='12' height='4' rx='1.6'/></g></svg>") !important;
+}
+:root[uc-compact] #uc-compact-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linejoin='round'><rect x='2' y='6' width='12' height='4' rx='1.6'/></g></svg>") !important;
 }
 
 /* Globe à gauche du texte, comme Safari : le groupe « globe + texte » est centré dans la barre, au repos (domaine seul)

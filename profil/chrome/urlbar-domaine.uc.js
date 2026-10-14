@@ -302,3 +302,105 @@
     console.error("teinte de la barre :", e);
   }
 })();
+
+// ---- Mode compact : onglets et adresse sur une seule rangée (voir userChrome.css, bloc « MODE COMPACT ») ----
+// Le bouton « Mode compact » (créé ici, placé juste avant « Nouvel onglet » à chaque démarrage car user.js remet la disposition à
+// zéro) bascule la préférence extensions.uc.compact ; chaque fenêtre l'observe et pose l'attribut uc-compact sur la racine.
+(() => {
+  try {
+    const CLE = "extensions.uc.compact";
+    const ID = "uc-compact-button";
+    const racine = document.documentElement;
+    const actif = () => {
+      try {
+        return Services.prefs.getBoolPref(CLE, false);
+      } catch (e) {
+        return false;
+      }
+    };
+    if (!Services.__ucCompactBouton) {
+      Services.__ucCompactBouton = true;
+      CustomizableUI.createWidget({
+        id: ID,
+        type: "button",
+        defaultArea: "nav-bar",
+        label: "Mode compact",
+        tooltiptext: "Mode compact : onglets et adresse sur une seule rangée",
+        onCommand() {
+          Services.prefs.setBoolPref(CLE, !actif());
+        },
+      });
+    }
+    // Placement idempotent : dans la barre, juste avant « Nouvel onglet ».
+    const placer = () => {
+      try {
+        const AIRE = "nav-bar";
+        const p = CustomizableUI.getPlacementOfWidget(ID);
+        if (!p || p.area !== AIRE) {
+          CustomizableUI.addWidgetToArea(ID, AIRE);
+        }
+        const ids = CustomizableUI.getWidgetIdsInArea(AIRE);
+        const k = ids.indexOf("new-tab-button");
+        const i = ids.indexOf(ID);
+        if (k >= 0 && i !== k - 1) {
+          CustomizableUI.moveWidgetWithinArea(ID, i < k ? k - 1 : k);
+        }
+      } catch (e) {
+        console.error("mode compact (placement) :", e);
+      }
+    };
+    placer();
+    setTimeout(placer, 1500);
+
+    // Bord droit du bouton « suivant » et largeur des boutons de droite, en pixels CSS.
+    const mesurer = () => {
+      const suivant = document.getElementById("forward-button");
+      const gauche = suivant ? Math.ceil(suivant.getBoundingClientRect().right) : 150;
+      let min = Infinity;
+      for (const id of ["unified-extensions-button", ID, "new-tab-button", "PanelUI-menu-button"]) {
+        const el = document.getElementById(id);
+        const r = el && el.getBoundingClientRect();
+        if (r && r.width > 0 && r.left < min) {
+          min = r.left;
+        }
+      }
+      const droite = isFinite(min) ? Math.ceil(window.innerWidth - min) + 6 : 260;
+      racine.style.setProperty("--uc-gauche", gauche + "px");
+      racine.style.setProperty("--uc-droite", droite + "px");
+    };
+    const appliquer = () => {
+      if (actif()) {
+        racine.setAttribute("uc-compact", "");
+      } else {
+        racine.removeAttribute("uc-compact");
+      }
+      mesurer();
+    };
+    const observateur = { observe: appliquer };
+    Services.prefs.addObserver(CLE, observateur);
+    window.addEventListener("unload", () => Services.prefs.removeObserver(CLE, observateur), { once: true });
+
+    // Deux onglets ou plus : seul cas où la disposition change.
+    const compter = () => {
+      const n = gBrowser.visibleTabs.filter((t) => !t.closing).length;
+      if (n > 1) {
+        racine.setAttribute("uc-multi", "");
+      } else {
+        racine.removeAttribute("uc-multi");
+      }
+    };
+    for (const ev of ["TabOpen", "TabClose", "TabPinned", "TabUnpinned", "TabHide", "TabShow"]) {
+      gBrowser.tabContainer.addEventListener(ev, () => {
+        setTimeout(compter, 0);
+        setTimeout(compter, 400);
+      });
+    }
+    compter();
+    appliquer();
+    setTimeout(appliquer, 800);
+    setTimeout(appliquer, 2500);
+    window.addEventListener("resize", mesurer);
+  } catch (e) {
+    console.error("mode compact :", e);
+  }
+})();
