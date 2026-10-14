@@ -789,6 +789,70 @@ findbar {
   list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linejoin='round'><rect x='2' y='6' width='12' height='4' rx='1.6'/></g></svg>") !important;
 }
 
+/* Boutons de fenêtre : trois RONDS de 30 px (90 px de large au lieu de 138), aux glyphes fins arrondis comme les autres icônes ; le survol
+ * est un rond clair, rouge pour fermer. Ce sont les boutons que Firefox garde en copie dans #nav-bar (celle qu'affiche le bloc
+ * « Safari léger » plus haut). Le symbole de Windows est le ::before du bouton (content: "\e8bb", police Segoe Fluent Icons) : on le
+ * remplace par un dessin, !important partout (règle de Firefox, origine « auteur »). « Restaurer » et « agrandir » (un seul visible à la fois)
+ * ont chacun leur dessin. Barre claire : dessins inversés (règle plus bas). */
+#nav-bar > .titlebar-buttonbox-container {
+  align-items: center;
+  margin-inline: 4px 8px;
+}
+#nav-bar .titlebar-buttonbox {
+  align-items: center;
+}
+#nav-bar .titlebar-button {
+  flex: none !important;
+  width: 30px !important;
+  min-width: 0 !important;
+  height: 30px !important;
+  padding: 0 !important;
+  margin: 0 2px !important;
+  border-radius: 50% !important;
+  appearance: none !important;
+  background-color: transparent !important;
+  position: relative;
+}
+#nav-bar .titlebar-button:hover {
+  background-color: rgba(255, 255, 255, 0.16) !important;
+}
+#nav-bar .titlebar-button:hover:active {
+  background-color: rgba(255, 255, 255, 0.24) !important;
+}
+#nav-bar .titlebar-close:hover {
+  background-color: #e5484d !important;
+}
+#nav-bar .titlebar-close:hover:active {
+  background-color: #c93a3f !important;
+}
+#nav-bar .titlebar-button > .toolbarbutton-icon {
+  display: none !important;
+}
+#nav-bar .titlebar-button::before {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  pointer-events: none !important;
+}
+#nav-bar .titlebar-min::before { content: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><path d='M3.5 8h9'/></g></svg>") !important; }
+#nav-bar .titlebar-max::before { content: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><rect x='3.5' y='3.5' width='9' height='9' rx='2.2'/></g></svg>") !important; }
+#nav-bar .titlebar-restore::before { content: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><path d='M5.5 5.5v-.7a1.8 1.8 0 0 1 1.8-1.8h4a1.8 1.8 0 0 1 1.8 1.8v4a1.8 1.8 0 0 1-1.8 1.8h-.7'/><rect x='2.9' y='5.5' width='7.6' height='7.6' rx='2'/></g></svg>") !important; }
+#nav-bar .titlebar-close::before { content: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><path d='M4 4l8 8M12 4l-8 8'/></g></svg>") !important; }
+:root[uc-clair] #nav-bar .titlebar-button::before {
+  filter: invert(1);
+}
+:root[uc-clair] #nav-bar .titlebar-button:hover {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+:root[uc-clair] #nav-bar .titlebar-close:hover {
+  background-color: #e5484d !important;
+}
+:root[uc-clair] #nav-bar .titlebar-close:hover::before {
+  filter: none;
+}
+
 /* Globe à gauche du texte, comme Safari : le groupe « globe + texte » est centré dans la barre, au repos (domaine seul)
  * comme barre active (adresse complète sélectionnée). Le script urlbar-domaine.uc.js pose l'attribut uc-centre
  * (adresse de site affichée, pas de frappe en cours) et la variable --uc-dw (largeur du texte affiché, en px). Le champ

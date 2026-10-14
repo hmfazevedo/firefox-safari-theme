@@ -112,6 +112,11 @@ git add -A; git commit -m "…"; git push
   `uc-multi` (2 onglets ou plus : avec un seul la rangée est masquée, rien ne change) et mesure `--uc-gauche` / `--uc-droite`. `userChrome.css` pose la
   rangée d'onglets EN SUPERPOSITION de la barre de navigation (`position: absolute`, 40 px) ; seulement en onglets horizontaux (`:has(#tabbrowser-tabs[orient="horizontal"])`).
   Testé : bascule dans les deux sens, fenêtre de 885 px, 10 onglets (la bande défile avec ses flèches), retour à la disposition normale avec un seul onglet.
+- **Boutons de fenêtre en ronds** (`userChrome.css`) : réduire / agrandir / fermer en ronds de 30 px (90 px de large au lieu de 138), glyphes fins arrondis dessinés en SVG
+  dans le `::before` du bouton (le symbole de Windows est une police : `content: "\e8bb"`), survol rond clair, rouge `#e5484d` pour fermer, dessins inversés
+  sur barre claire. Ce sont les boutons que Firefox garde en copie dans `#nav-bar`. Vérifié : mesures, survol forcé (`InspectorUtils.addPseudoClassLock`) en barre
+  sombre et claire, touche du centre. NON testé : de vrais clics de souris sur la fenêtre (les clics simulés ne traversent pas la zone de déplacement de Windows) ;
+  le dessin du bouton « restaurer » (fenêtre agrandie) n'a pas été photographié. Refusés avant : ronds rouge/jaune/vert à GAUCHE.
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : fines et translucides partout (`scrollbar-width: thin`, gris moyen, `userContent.css`). La barre de la PAGE
