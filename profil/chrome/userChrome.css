@@ -966,6 +966,19 @@ findbar {
 #urlbar[uc-centre]:has(#identity-permission-box[hasPermissions]) #identity-icon-box {
   display: none !important;
 }
+/* Page non sécurisée (http) : Firefox donne au globe un FOND CLAIR (pastille d'avertissement) et affiche à côté le texte « Non sécurisé »,
+ * que la barre étroite coupe en « … ». Le globe reste comme les autres (rond transparent, fond au survol seulement), sans texte ; c'est le
+ * bouclier à gauche du champ qui signale la page non sécurisée (« ! », règle .insecure plus haut). */
+#urlbar[uc-centre] #identity-icon-label {
+  display: none !important;
+}
+#urlbar[uc-centre] #identity-box.notSecureText #identity-icon-box {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+#urlbar[uc-centre] #identity-box.notSecureText #identity-icon-box:hover {
+  background-color: color-mix(in srgb, currentColor 22%, transparent) !important;
+}
 /* Le bouton des permissions (site qui en a : YouTube…) était une PILULE (globe + icône de blocage, 8 px de marge de chaque côté, coins de
  * 19 px) : même rond de 28 px que l'autre globe et que « Actualiser ». Les icônes de permission BLOQUÉE (lecture automatique, fenêtres…)
  * ne s'affichent plus à côté (elles feraient redevenir une pilule) : elles restent dans le panneau qui s'ouvre au clic. Les icônes de

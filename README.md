@@ -167,6 +167,9 @@ git add -A; git commit -m "…"; git push
   à côté (elles restent dans le panneau au clic) ; les icônes de PARTAGE en cours (caméra, micro) restent visibles et élargissent la zone. Mesuré : 28 x 28, rayon 14 px, avec et sans permission, normal et compact.
 - **Écart du bouclier en compact** : champ à `--uc-gauche + 47px`, bouclier à `inset-inline-end: calc(100% + 13px)`. Mesuré sur capture, pixels réels : flèche « suivant » -> bouclier 39 px (écart
   VALIDÉ par l'utilisateur : ne plus y toucher), bouclier -> bord du champ 32 px (essais : 24 px = « pas bon », 40 px = « trop grand »). En mode normal le bouclier reste à 6 px du champ (inchangé).
+- **Globe sur une page non sécurisée (http)** : Firefox (classe `notSecureText` sur `#identity-box`) lui donnait un fond CLAIR et affichait « Non sécurisé » (`#identity-icon-label`), coupé en « … » par
+  la barre étroite. Fond transparent (survol 22 % de la couleur du texte), texte masqué ; la page non sécurisée est signalée par le bouclier à gauche du champ, qui passe en « ! » (règle `.insecure`,
+  plus ancienne). Reproduit avec `http://192.168.86.206:8766/` (serveur de test sur le réseau local), corrigé et revérifié sur capture.
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : fines et translucides partout (`scrollbar-width: thin`, gris moyen, `userContent.css`). La barre de la PAGE
