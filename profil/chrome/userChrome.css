@@ -712,6 +712,34 @@ findbar {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
+/* Boîtes de dialogue des pages (alert, confirm, prompt, « quitter cette page ? ») en « feuille » comme Safari : accrochée en haut de
+ * la page au lieu d'être centrée, coins du bas arrondis, ombre douce vers le bas. Structure de Firefox (content-area.css) :
+ * .dialogStack > … > .dialogOverlay (grille centrée) > .dialogBox > .dialogFrame (le dialogue lui-même). */
+.content-prompt-dialog > .dialogOverlay {
+  align-content: start !important;
+}
+.dialogBox:not(.spotlightBox) {
+  border-radius: 0 0 22px 22px !important;
+  box-shadow: 0 16px 24px -12px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Fenêtre PRIVÉE reconnaissable, comme Safari : barres plus noires (la teinte de la page est coupée dans ces fenêtres par
+ * urlbar-domaine.uc.js) et la mention « Navigation privée » en violet doux à gauche du champ d'adresse au repos, seulement quand une page est affichée (sur un nouvel onglet vide le texte d'invite, long et
+ * centré, l'aurait recouverte). */
+:root[privatebrowsingmode] {
+  --uc-teinte: #161618;
+}
+:root[privatebrowsingmode] #urlbar[pageproxystate="valid"]:not([focused]) .urlbar-input-container::before {
+  content: "Navigation privée";
+  position: absolute;
+  inset-inline-start: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: #b9a3ff;
+  pointer-events: none;
+}
+
 /* Globe à gauche du texte, comme Safari : le groupe « globe + texte » est centré dans la barre, au repos (domaine seul)
  * comme barre active (adresse complète sélectionnée). Le script urlbar-domaine.uc.js pose l'attribut uc-centre
  * (adresse de site affichée, pas de frappe en cours) et la variable --uc-dw (largeur du texte affiché, en px). Le champ

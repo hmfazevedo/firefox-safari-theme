@@ -57,3 +57,14 @@
     scrollbar-color: rgba(142, 148, 156, 0.6) transparent !important;
   }
 }
+
+/* Anneau de focus façon Safari sur les champs et boutons des pages : un halo bleu translucide de 3 px, collé à l'élément et arrondi
+ * comme lui (le même que celui de la barre d'adresse). SANS !important : un site qui dessine son propre contour (ou le retire) garde
+ * le sien, car une règle d'auteur l'emporte sur une règle utilisateur non importante ; elle ne remplace que le contour par défaut de
+ * Firefox. */
+@-moz-document regexp(".*") {
+  :focus-visible {
+    outline: 3px solid rgba(10, 132, 255, 0.5);
+    outline-offset: 0;
+  }
+}

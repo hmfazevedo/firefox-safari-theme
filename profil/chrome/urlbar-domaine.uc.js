@@ -191,6 +191,7 @@
 (() => {
   try {
     const racine = document.documentElement;
+    const fenetrePrivee = !!(window.PrivateBrowsingUtils && window.PrivateBrowsingUtils.isWindowPrivate(window));
     if (!Services.__ucTeinteActeur) {
       Services.__ucTeinteActeur = true;
       try {
@@ -214,6 +215,9 @@
       } catch (e) {
         console.error("teinte : enregistrement de l'acteur", e);
       }
+    }
+    if (fenetrePrivee) {
+      return; // fenêtre privée : barres noires fixes (userChrome.css), pas de teinte de la page
     }
     const DELAI_TEINTE_MS = 500;
     let minuterie = null;

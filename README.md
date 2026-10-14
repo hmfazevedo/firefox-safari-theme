@@ -95,6 +95,16 @@ git add -A; git commit -m "…"; git push
   blanc est probable mais non lu), l'aspect exact de la bande d'onglets et de l'onglet actif. Valeur tierce : seuil « presque
   transparent » 0,1 (la constante n'est pas dans le fichier lu). Non porté : `::backdrop` (dialogues), filtres de couleur,
   `pointer-events` (WebKit les ignore au premier essai, `elementsFromPoint` les respecte).
+- **Anneau de focus** (`userContent.css`) : `:focus-visible { outline: 3px solid rgba(10, 132, 255, 0.5); outline-offset: 0 }` sur toutes les pages,
+  SANS `!important` : un site qui dessine ou retire son contour garde le sien (testé : un champ au contour vert reste vert).
+- **Boîtes de dialogue des pages en « feuille »** (`userChrome.css`) : `.content-prompt-dialog > .dialogOverlay { align-content: start }` (accrochées en
+  haut au lieu d'être centrées) et `.dialogBox` aux coins du bas arrondis (22 px) avec ombre douce. Structure de Firefox 157 : `stack.dialogStack.
+  content-prompt-dialog > div.dialogTemplate.dialogOverlay[topmost] > div.dialogBox > browser.dialogFrame`. Vérifié sur une structure SYNTHÉTIQUE
+  aux vraies classes : Marionette ferme toute vraie boîte `confirm()` dès la commande suivante et la capture ne la montre pas, donc l'aspect
+  d'une vraie boîte n'a pas été photographié.
+- **Fenêtre privée reconnaissable** : `:root[privatebrowsingmode]` barres `#161618` ; `urlbar-domaine.uc.js` n'y active pas la teinte de la page ;
+  mention « Navigation privée » en violet (`#b9a3ff`) à gauche du champ, seulement quand une page est affichée (`pageproxystate="valid"`) : sur
+  un nouvel onglet vide le texte d'invite centré la recouvrait. Mention et couleurs inspirées de Safari, non vérifiées sur votre Safari 27.
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : fines et translucides partout (`scrollbar-width: thin`, gris moyen, `userContent.css`). La barre de la PAGE
