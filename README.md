@@ -165,8 +165,8 @@ git add -A; git commit -m "…"; git push
   `--uc-gx` du script n'est plus lue) ; le texte seul est centré dans le champ (`padding-inline-end: 4px` : mesuré, centre du texte = centre du champ). Le bouton des permissions (site qui en a, YouTube
   par exemple) était une pilule de 52 px (globe + icône de lecture automatique bloquée, marges de 8 px) : même rond de 28 px, les icônes de permission BLOQUÉE (`#blocked-permissions-container`) ne s'affichent plus
   à côté (elles restent dans le panneau au clic) ; les icônes de PARTAGE en cours (caméra, micro) restent visibles et élargissent la zone. Mesuré : 28 x 28, rayon 14 px, avec et sans permission, normal et compact.
-- **Écart du bouclier en compact** : même espace de chaque côté du bouclier (champ à `--uc-gauche + 52px`, bouclier à `inset-inline-end: calc(100% + 18px)`). Mesuré sur capture, pixels réels :
-  flèche « suivant » -> bouclier 39 px, bouclier -> bord du champ 40 px. En mode normal le bouclier reste à 6 px du champ (inchangé).
+- **Écart du bouclier en compact** : champ à `--uc-gauche + 47px`, bouclier à `inset-inline-end: calc(100% + 13px)`. Mesuré sur capture, pixels réels : flèche « suivant » -> bouclier 39 px (écart
+  VALIDÉ par l'utilisateur : ne plus y toucher), bouclier -> bord du champ 32 px (essais : 24 px = « pas bon », 40 px = « trop grand »). En mode normal le bouclier reste à 6 px du champ (inchangé).
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : fines et translucides partout (`scrollbar-width: thin`, gris moyen, `userContent.css`). La barre de la PAGE
