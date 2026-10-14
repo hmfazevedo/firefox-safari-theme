@@ -782,17 +782,11 @@ findbar {
  * est posée EN SUPERPOSITION de la barre de navigation (position: absolute, même hauteur de 40 px) ; seulement en onglets horizontaux. ===== */
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) {
   --uc-champ: clamp(220px, 22vw, 380px);
-  --uc-ux: calc(var(--uc-gauche, 150px) + 17px); /* 17 px après le bord de « suivant » = même écart VISIBLE (25,7 px, mesuré sur les glyphes) qu'entre le bouton compact et la flèche de retour */
+  --uc-ux: calc(var(--uc-gauche, 150px) + 40px); /* le bouclier (32 px, symbole de 16 px) est posé à GAUCHE du champ, comme en mode normal : son symbole est au même écart VISIBLE de la flèche « suivant » (25,7 px, mesuré sur les glyphes de la capture : 39 px réels) que le bouton compact l'est de la flèche de retour ; le conteneur du bouclier finit 5,3 px avant le champ */
   --uc-uw: var(--uc-champ);
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #navigator-toolbox {
   position: relative;
-}
-:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) :is(#trust-icon-container, #tracking-protection-icon-container) {
-  inset-inline: 6px auto; /* le bouclier passe DANS le champ, à gauche : dehors il serait sur la flèche « suivant », le champ étant plus près */
-}
-:root[privatebrowsingmode][uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #urlbar[pageproxystate="valid"]:not([focused]) .urlbar-input-container::before {
-  inset-inline-start: 40px; /* après le bouclier, sinon la mention « Navigation privée » passe dessous */
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #TabsToolbar {
   position: absolute !important;
@@ -813,13 +807,6 @@ findbar {
 @keyframes uc-onglets-compact {
   from { opacity: 0; }
   to { opacity: 1; }
-}
-@keyframes uc-fondu {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-:root[uc-anim] :is(#trust-icon-container, #tracking-protection-icon-container) {
-  animation: uc-fondu 420ms cubic-bezier(0.4, 0, 0.2, 1) both; /* le bouclier change de place (dehors <-> dans le champ) : il apparaît en fondu au lieu de sauter */
 }
 @keyframes uc-onglets-normal {
   from { opacity: 0; transform: translateY(-10px); }
@@ -856,6 +843,9 @@ findbar {
 /* Le bouton « Mode compact » : deux rangées (mode normal) ou une seule (mode compact), au trait fin des autres icônes. */
 #uc-compact-button {
   list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linejoin='round'><rect x='2' y='2.8' width='12' height='4' rx='1.6'/><rect x='2' y='9.2' width='12' height='4' rx='1.6'/></g></svg>") !important;
+}
+#uc-compact-button {
+  margin-inline-start: 15px !important; /* le bouton tout à gauche ne doit pas coller le bord : écart symbole-bord de la fenêtre = écart symbole-flèche « précédent » (25,7 px visibles, 11 px avant) ; tout ce qui suit est poussé d'autant */
 }
 :root[uc-compact] #uc-compact-button {
   list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linejoin='round'><rect x='2' y='6' width='12' height='4' rx='1.6'/></g></svg>") !important;

@@ -158,6 +158,9 @@ git add -A; git commit -m "…"; git push
   Le 36 px avait été refusé plus tôt en compact (« j'aime pas comme ça », barre de 40 px, 2 px d'air) : si ce n'est pas la hauteur mais l'air qui gênait, ne changer que la variable.
   **Contour de focus bleu à l'INTÉRIEUR** (`outline-offset: -3px` sur `#urlbar[focused] > .urlbar-background`) : il ne déborde plus du champ ; mesuré, champ identique au repos et pris
   en focus (448,5 / 7 / 384,4 x 36).
+- **Bouclier hors du champ en compact aussi** (demandé) : il reste à gauche du champ comme en mode normal (plus de règle qui le rentrait dans le champ, ni de décalage de la mention
+  « Navigation privée », ni de fondu) ; le champ commence à `--uc-gauche + 40px`. **Bouton compact** décalé de 15 px (`margin-inline-start`) : mesuré sur capture, bord de la fenêtre -> symbole
+  = 40 px, symbole -> flèche « précédent » = 39 px, flèche « suivant » -> bouclier = 39 px (pixels réels). Valable aussi en mode normal (même bouton).
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : fines et translucides partout (`scrollbar-width: thin`, gris moyen, `userContent.css`). La barre de la PAGE
