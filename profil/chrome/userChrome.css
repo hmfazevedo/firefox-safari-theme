@@ -773,11 +773,17 @@ findbar {
  * est posée EN SUPERPOSITION de la barre de navigation (position: absolute, même hauteur de 40 px) ; seulement en onglets horizontaux. ===== */
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) {
   --uc-champ: clamp(220px, 22vw, 380px);
-  --uc-ux: calc(var(--uc-gauche, 150px) + 30px); /* 30 px : la place du bouclier, posé à gauche du champ */
+  --uc-ux: calc(var(--uc-gauche, 150px) + 17px); /* 17 px après le bord de « suivant » = même écart VISIBLE (25,7 px, mesuré sur les glyphes) qu'entre le bouton compact et la flèche de retour */
   --uc-uw: var(--uc-champ);
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #navigator-toolbox {
   position: relative;
+}
+:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) :is(#trust-icon-container, #tracking-protection-icon-container) {
+  inset-inline: 6px auto; /* le bouclier passe DANS le champ, à gauche : dehors il serait sur la flèche « suivant », le champ étant plus près */
+}
+:root[privatebrowsingmode][uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #urlbar[pageproxystate="valid"]:not([focused]) .urlbar-input-container::before {
+  inset-inline-start: 40px; /* après le bouclier, sinon la mention « Navigation privée » passe dessous */
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #TabsToolbar {
   position: absolute !important;
@@ -797,6 +803,13 @@ findbar {
 @keyframes uc-onglets-compact {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+@keyframes uc-fondu {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+:root[uc-anim] :is(#trust-icon-container, #tracking-protection-icon-container) {
+  animation: uc-fondu 420ms cubic-bezier(0.4, 0, 0.2, 1) both; /* le bouclier change de place (dehors <-> dans le champ) : il apparaît en fondu au lieu de sauter */
 }
 @keyframes uc-onglets-normal {
   from { opacity: 0; transform: translateY(-10px); }
