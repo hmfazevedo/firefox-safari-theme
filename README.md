@@ -111,11 +111,16 @@ git add -A; git commit -m "…"; git push
   (`CustomizableUI.createWidget`, replacé avant « Précédent » à chaque démarrage car `user.js` remet la disposition à zéro), pose `uc-compact`,
   `uc-multi` (2 onglets ou plus : avec un seul la rangée est masquée, rien ne change) et mesure `--uc-gauche` / `--uc-droite`. `userChrome.css` pose la
   rangée d'onglets EN SUPERPOSITION de la barre de navigation (`position: absolute`, 40 px) ; seulement en onglets horizontaux (`:has(#tabbrowser-tabs[orient="horizontal"])`).
-  **Animation** : le passage normal <-> compact (bouton, ou 2e onglet qui s'ouvre / se ferme en mode compact) est progressif sur 0,38 s : le champ glisse et se
-  rétrécit (variables `--uc-ux` / `--uc-uw` déclarées avec `@property`, transition seulement sous l'attribut `uc-anim` posé le temps de l'animation, sinon le champ
-  « traînerait » au redimensionnement), la bande d'onglets entre en fondu en glissant (`@keyframes`), la hauteur de la barre (80 -> 40 px) est animée par
-  `element.animate`. Pas d'animation pendant les 3 premières secondes d'une fenêtre. Mesuré toutes les 33 ms sur les quatre cas : position, largeur et opacité évoluent
-  de façon continue. Enregistrement d'écran de départ : tout apparaissait en une image.
+  **Animation** : le passage normal <-> compact (bouton, ou 2e onglet qui s'ouvre / se ferme en mode compact) est progressif sur 0,42 s, courbe symétrique
+  `cubic-bezier(0.4, 0, 0.2, 1)` (la première, très « ease-out », faisait la moitié du trajet en 35 ms : on ne voyait qu'un saut). Le champ glisse et se rétrécit
+  (variables `--uc-ux` / `--uc-uw` déclarées avec `@property`, transition seulement sous l'attribut `uc-anim`, posé APRÈS la modification dans la même tâche et
+  seulement si la disposition change, sinon le champ « traînerait » au redimensionnement et le mode normal serait touché). La bande d'onglets SUIT le bord droit du
+  champ (`left: calc(var(--uc-ux) + var(--uc-uw) + 12px)`) : plus de chevauchement, mesuré à 12 px minimum à chaque image. Pendant `uc-anim` : pas de transition propre
+  à Firefox sur la rangée d'onglets (son ouverture en hauteur laissait voir une rangée vide), boîte de la barre de la couleur des barres (sa couleur propre, plus sombre,
+  faisait une bande sous la barre des favoris), flèches de défilement des onglets masquées. La hauteur n'est animée (`element.animate`) que pour la bascule du bouton :
+  à l'ouverture d'un onglet la mesure de départ était faussée par la rangée de Firefox en train de s'ouvrir. Onglets comptés SYNCHRONEMENT à `TabOpen` / `TabClose`
+  (l'onglet qui se ferme est écarté), avec des passages différés en secours. Pas d'animation pendant les 3 premières secondes d'une fenêtre. Corrigé après un
+  enregistrement d'écran de l'utilisateur (images extraites avec ffmpeg).
   Testé : bascule dans les deux sens, fenêtre de 885 px, 10 onglets (la bande défile avec ses flèches), retour à la disposition normale avec un seul onglet.
 - **Boutons de fenêtre en ronds** (`userChrome.css`) : réduire / agrandir / fermer en ronds de 30 px (90 px de large au lieu de 138), glyphes fins arrondis dessinés en SVG
   dans le `::before` du bouton (le symbole de Windows est une police : `content: "\e8bb"`), survol rond clair, rouge `#e5484d` pour fermer, dessins inversés

@@ -251,7 +251,7 @@
   --uc-uw: var(--uc-urlbar-width);
 }
 :root[uc-anim] {
-  transition: --uc-ux 380ms cubic-bezier(0.2, 0.8, 0.2, 1), --uc-uw 380ms cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+  transition: --uc-ux 420ms cubic-bezier(0.4, 0, 0.2, 1), --uc-uw 420ms cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 #urlbar-container {
   position: absolute;
@@ -783,7 +783,7 @@ findbar {
   position: absolute !important;
   top: 0;
   height: 40px;
-  left: calc(var(--uc-gauche, 150px) + 30px + var(--uc-champ) + 12px); /* 12 px d'écart avec le champ d'adresse */
+  left: calc(var(--uc-ux) + var(--uc-uw) + 12px); /* 12 px d'écart avec le champ d'adresse, pendant le glissement aussi (--uc-ux et --uc-uw sont animées) */
   right: calc(var(--uc-droite, 260px) - 4px); /* --uc-droite compte 6 px de marge et le bouton a 10 px de vide autour de son icône : 12 px d'écart visible, comme à gauche */
   padding-inline: 0 !important; /* les 8 px de la barre d'onglets s'ajoutaient à l'écart */
   z-index: 3;
@@ -795,8 +795,8 @@ findbar {
  * (variables --uc-ux / --uc-uw plus haut) et urlbar-domaine.uc.js anime la hauteur de la barre (80 -> 40 px). La barre n'est coupée
  * que pendant ces 0,4 s. */
 @keyframes uc-onglets-compact {
-  from { opacity: 0; transform: translateX(28px); }
-  to { opacity: 1; transform: none; }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 @keyframes uc-onglets-normal {
   from { opacity: 0; transform: translateY(-10px); }
@@ -804,12 +804,20 @@ findbar {
 }
 :root[uc-anim] #navigator-toolbox {
   overflow: clip;
+  background-color: var(--uc-teinte, #23282e) !important;
+}
+:root[uc-anim] #TabsToolbar {
+  transition: none !important;
+}
+:root[uc-anim] #tabbrowser-arrowscrollbox::part(scrollbutton-up),
+:root[uc-anim] #tabbrowser-arrowscrollbox::part(scrollbutton-down) {
+  display: none !important;
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"])[uc-anim] #TabsToolbar {
-  animation: uc-onglets-compact 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: uc-onglets-compact 420ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 :root[uc-anim][uc-multi]:not([uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"])) #TabsToolbar {
-  animation: uc-onglets-normal 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: uc-onglets-normal 420ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 /* Retour à un seul onglet : la rangée disparaît tout de suite (sans cela elle réapparaissait en seconde rangée le temps de se replier). */
 :root[uc-anim]:not([uc-multi]) #TabsToolbar {

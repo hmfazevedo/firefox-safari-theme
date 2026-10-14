@@ -378,7 +378,7 @@
     // Fait la modification, et si la disposition effective change, l'ANIME : [uc-anim] active les transitions et l'entrée de la bande
     // d'onglets (userChrome.css), et la hauteur de la barre (80 -> 40 px ou l'inverse) glisse avec l'API d'animation. Posé AVANT la
     // modification : une transition prend les propriétés de transition du style d'ARRIVÉE.
-    const changer = (modifier) => {
+    const changer = (modifier, hauteur) => {
       if (!pret) {
         modifier();
         return;
@@ -386,19 +386,19 @@
       const avant = effectif();
       const boite = document.getElementById("navigator-toolbox");
       const h0 = boite.getBoundingClientRect().height;
-      racine.setAttribute("uc-anim", "");
       modifier();
       if (effectif() === avant) {
-        clearTimeout(finAnim);
-        finAnim = setTimeout(() => racine.removeAttribute("uc-anim"), 50);
-        return;
+        return; // rien ne change : aucune animation, le mode normal garde ses propres transitions
       }
+      racine.setAttribute("uc-anim", "");
+      // La hauteur de la barre ne s'anime que pour la bascule du bouton : à l'ouverture d'un onglet la rangée d'onglets de Firefox est
+      // en train de s'ouvrir, la mesure de départ serait fausse (bande sombre sous la barre des favoris).
       const h1 = boite.getBoundingClientRect().height;
-      if (h0 !== h1 && racine.hasAttribute("uc-multi")) { // un seul onglet : la rangée se replie avec sa propre transition
-        boite.animate([{ height: h0 + "px" }, { height: h1 + "px" }], { duration: 380, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" });
+      if (hauteur && h0 !== h1) {
+        boite.animate([{ height: h0 + "px" }, { height: h1 + "px" }], { duration: 420, easing: "cubic-bezier(0.4, 0, 0.2, 1)" });
       }
       clearTimeout(finAnim);
-      finAnim = setTimeout(() => racine.removeAttribute("uc-anim"), 450);
+      finAnim = setTimeout(() => racine.removeAttribute("uc-anim"), 520);
     };
     const appliquer = () => {
       changer(() => {
@@ -407,7 +407,7 @@
         } else {
           racine.removeAttribute("uc-compact");
         }
-      });
+      }, true);
       mesurer();
     };
     const observateur = { observe: appliquer };
@@ -415,8 +415,8 @@
     window.addEventListener("unload", () => Services.prefs.removeObserver(CLE, observateur), { once: true });
 
     // Deux onglets ou plus : seul cas où la disposition change.
-    const compter = () => {
-      const n = gBrowser.visibleTabs.filter((t) => !t.closing).length;
+    const compter = (exclu) => {
+      const n = gBrowser.visibleTabs.filter((t) => !t.closing && t !== exclu).length;
       if (n > 1 === racine.hasAttribute("uc-multi")) {
         return;
       }
@@ -426,10 +426,11 @@
         } else {
           racine.removeAttribute("uc-multi");
         }
-      });
+      }, false);
     };
     for (const ev of ["TabOpen", "TabClose", "TabPinned", "TabUnpinned", "TabHide", "TabShow"]) {
-      gBrowser.tabContainer.addEventListener(ev, () => {
+      gBrowser.tabContainer.addEventListener(ev, (e) => {
+        compter(e.type === "TabClose" ? e.target : null); // l'onglet qui se ferme est encore là : on l'écarte
         setTimeout(compter, 0);
         setTimeout(compter, 400);
       });
