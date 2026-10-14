@@ -95,6 +95,11 @@
 #TabsToolbar > .titlebar-spacer[type="pre-tabs"] {
   display: none !important;
 }
+/* Ressort (espace flexible) de la rangée d'onglets : il vient de la disposition enregistrée dans user.js et prenait ~28 px à droite
+ * de la bande (écart de 36 px à droite contre 8 px à gauche). Masqué : la bande va jusqu'au bord, comme à gauche. */
+#TabsToolbar toolbarspring {
+  display: none !important;
+}
 
 /* Favoris centrés dans la barre. */
 #PlacesToolbarItems {
@@ -764,8 +769,9 @@ findbar {
   position: absolute !important;
   top: 0;
   height: 40px;
-  left: calc(var(--uc-gauche, 150px) + 30px + var(--uc-champ) + 20px);
-  right: var(--uc-droite, 260px);
+  left: calc(var(--uc-gauche, 150px) + 30px + var(--uc-champ) + 12px); /* 12 px d'écart avec le champ d'adresse */
+  right: calc(var(--uc-droite, 260px) - 4px); /* --uc-droite compte 6 px de marge et le bouton a 10 px de vide autour de son icône : 12 px d'écart visible, comme à gauche */
+  padding-inline: 0 !important; /* les 8 px de la barre d'onglets s'ajoutaient à l'écart */
   z-index: 3;
   background-color: transparent !important;
 }
