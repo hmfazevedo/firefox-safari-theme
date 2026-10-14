@@ -161,6 +161,10 @@ git add -A; git commit -m "…"; git push
 - **Bouclier hors du champ en compact aussi** (demandé) : il reste à gauche du champ comme en mode normal (plus de règle qui le rentrait dans le champ, ni de décalage de la mention
   « Navigation privée », ni de fondu) ; le champ commence à `--uc-gauche + 40px`. **Bouton compact** décalé de 15 px (`margin-inline-start`) : mesuré sur capture, bord de la fenêtre -> symbole
   = 40 px, symbole -> flèche « précédent » = 39 px, flèche « suivant » -> bouclier = 39 px (pixels réels). Valable aussi en mode normal (même bouton).
+- **Globe toujours à gauche, zone ronde** (demandé) : `#identity-box` à `inset-inline-start: 2px` du champ (comme « Actualiser » est à 2 px du bord droit), plus placé d'après le texte (la variable
+  `--uc-gx` du script n'est plus lue) ; le texte seul est centré dans le champ (`padding-inline-end: 4px` : mesuré, centre du texte = centre du champ). Le bouton des permissions (site qui en a, YouTube
+  par exemple) était une pilule de 52 px (globe + icône de lecture automatique bloquée, marges de 8 px) : même rond de 28 px, les icônes de permission BLOQUÉE (`#blocked-permissions-container`) ne s'affichent plus
+  à côté (elles restent dans le panneau au clic) ; les icônes de PARTAGE en cours (caméra, micro) restent visibles et élargissent la zone. Mesuré : 28 x 28, rayon 14 px, avec et sans permission, normal et compact.
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : fines et translucides partout (`scrollbar-width: thin`, gris moyen, `userContent.css`). La barre de la PAGE

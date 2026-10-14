@@ -930,19 +930,20 @@ findbar {
   --uc-globe: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.1' stroke-linecap='round'><circle cx='8' cy='8' r='6.2'/><ellipse cx='8' cy='8' rx='2.7' ry='6.2'/><path d='M1.9 8h12.2M2.8 4.7h10.4M2.8 11.3h10.4'/></g></svg>");
 }
 #urlbar[uc-centre] #urlbar-input {
-  padding-inline-start: 22px !important;
+  padding-inline-start: 0 !important; /* plus de place réservée au globe : il est collé au bord gauche du champ, le texte seul est centré */
+  padding-inline-end: 4px !important; /* le cadre du texte (entre le globe et « Actualiser ») est 2 px à droite du centre du champ : 4 px ramènent le texte, mesuré, au centre */
   text-align: center !important;
 }
 #urlbar[uc-centre] #identity-box {
   position: absolute;
-  inset-inline-start: var(--uc-gx, calc(50% - 17px - var(--uc-dw) / 2)); /* posé par le script d'après la position réelle du texte (bouton de 28 px, icône de 16 px à 6 px du bord) ; repli en % de la barre */
+  inset-inline-start: 2px; /* globe TOUJOURS à gauche, comme « Actualiser » est à droite : rond de 28 px à 2 px du bord (le liseré compte 1 px) ; plus de position d'après le texte (--uc-gx, posée par le script, n'est plus lue) */
   top: 50%;
   transform: translateY(-50%);
   /* La zone est placée pour UN bouton de 28 px (--uc-gx). Quand Firefox ajoute l'icône d'une permission bloquée (lecture
    * automatique, fenêtre bloquée…), elle s'élargit (48 px mesurés) et débordait sur le début du texte. On la tire vers la
    * gauche de sa largeur en trop (un pourcentage de translate se compte sur la largeur de l'élément lui-même) : les icônes
    * restent collées à gauche du texte, dans l'ordre globe puis icône bloquée. Sans icône en plus : 28 px - 100 % = 0. */
-  translate: calc(28px - 100%) 0;
+  translate: none;
   z-index: 3; /* le champ de saisie est après lui dans le DOM : sans cela il le recouvre et le clic n'arrive jamais au bouton */
 }
 #urlbar[uc-centre] #identity-box {
@@ -966,6 +967,23 @@ findbar {
   margin: 0;
 }
 #urlbar[uc-centre]:has(#identity-permission-box[hasPermissions]) #identity-icon-box {
+  display: none !important;
+}
+/* Le bouton des permissions (site qui en a : YouTube…) était une PILULE (globe + icône de blocage, 8 px de marge de chaque côté, coins de
+ * 19 px) : même rond de 28 px que l'autre globe et que « Actualiser ». Les icônes de permission BLOQUÉE (lecture automatique, fenêtres…)
+ * ne s'affichent plus à côté (elles feraient redevenir une pilule) : elles restent dans le panneau qui s'ouvre au clic. Les icônes de
+ * PARTAGE en cours (caméra, micro, écran) restent visibles : c'est un indicateur de confidentialité, la zone s'élargit alors. */
+#urlbar[uc-centre] #identity-permission-box {
+  box-sizing: border-box !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 14px !important; /* !important : Firefox pose 8 px de marge et un coin de 19 px de la même façon */
+  align-items: center !important;
+  justify-content: center !important;
+}
+#urlbar[uc-centre] #blocked-permissions-container {
   display: none !important;
 }
 #urlbar[uc-web] #permissions-granted-icon {
