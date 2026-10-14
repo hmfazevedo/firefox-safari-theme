@@ -254,6 +254,7 @@
 }
 :root {
   --uc-barre-bas: 7px; /* espace sous la bande d'onglets (mode normal), entre elle et la page */
+  --urlbar-height: 36px !important; /* champ d'adresse = hauteur de la bande d'onglets (36 px) ; !important : Firefox pose sa valeur (32 px) dans une règle d'origine « auteur » */
   --uc-barre-extra: 6px; /* hauteur ajoutée à la barre du haut (40 -> 46 px) ; le champ reste centré dedans */
   --uc-ux: calc(50% - var(--uc-urlbar-width) / 2);
   --uc-uw: var(--uc-urlbar-width);
@@ -795,7 +796,7 @@ findbar {
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #TabsToolbar {
   position: absolute !important;
-  top: calc(var(--uc-barre-extra) / 2); /* centrée dans la barre élargie */
+  top: calc((var(--urlbar-height) + 2 * var(--urlbar-padding-block) + var(--uc-barre-extra) - 40px) / 2); /* centrée dans la barre (sa hauteur, moins les 40 px de la boîte de la bande) */
   height: 40px; /* la bande garde sa taille normale (36 px dans une rangée de 40, d'où le padding et le max-height rétablis) ; c'est le CHAMP d'adresse qui grandit pour l'égaler, voir plus haut */
   left: calc(var(--uc-ux) + var(--uc-uw) + 25px); /* 25 px d'écart avec le champ d'adresse = l'écart visible entre la flèche « suivant » et le champ (25,4 px mesurés) ; pendant le glissement aussi (--uc-ux et --uc-uw sont animées) */
   right: calc(var(--uc-droite, 260px) + 9px); /* --uc-droite compte 6 px de marge et le bouton a 10 px de vide autour de son icône : 25 px d'écart visible, comme à gauche */
@@ -994,11 +995,11 @@ findbar {
 }
 
 /* Couleurs de la barre active, de Safari plutôt que de Firefox : contour bleu translucide de 3 px à
- * l'extérieur (Firefox : turquoise de 2 px), sélection bleue, fond gris un cran au-dessus du repos
+ * l'INTÉRIEUR du champ (demandé : il ne doit pas déborder ni donner l'impression d'un champ plus grand ; Firefox : turquoise de 2 px à l'extérieur), sélection bleue, fond gris un cran au-dessus du repos
  * (Firefox : gris-violet #42414d). Le bleu est le bleu système de macOS (#0a84ff). */
 #urlbar[focused] > .urlbar-background {
   outline: 3px solid rgba(10, 132, 255, 0.55) !important;
-  outline-offset: 0 !important;
+  outline-offset: -3px !important;
 }
 #urlbar:is([focused], [open]) > .urlbar-background {
   background-color: var(--uc-actif) !important;

@@ -153,6 +153,11 @@ git add -A; git commit -m "…"; git push
   **Barre de favoris** : même air sous les favoris que sous la bande / le champ, MAIS seulement quand la bande d'onglets est visible (`:root[uc-multi]` : `padding-block: 2px calc(2px + var(--uc-barre-bas))`,
   `max-height: calc(3em + var(--uc-barre-bas))`) ; avec un seul onglet c'était trop grand (demandé). Mesuré avec 3 favoris : 3 onglets = 11 px au-dessus / 11,7 px sous
   (normal et compact) ; 1 onglet = 11 px au-dessus / 4,7 px sous (comme avant).
+- **Champ d'adresse de la hauteur de la bande d'onglets** (`--urlbar-height: 36px !important` sur `:root`, demandé le 2026-10-14) dans les DEUX modes : la barre passe à 50 px (36 + 8 + 6),
+  7 px d'air haut et bas ; en compact la bande (boîte de 40 px) est centrée à `(hauteur de barre - 40) / 2` = 5 px, ses onglets alignés sur le champ (7 → 43 px).
+  Le 36 px avait été refusé plus tôt en compact (« j'aime pas comme ça », barre de 40 px, 2 px d'air) : si ce n'est pas la hauteur mais l'air qui gênait, ne changer que la variable.
+  **Contour de focus bleu à l'INTÉRIEUR** (`outline-offset: -3px` sur `#urlbar[focused] > .urlbar-background`) : il ne déborde plus du champ ; mesuré, champ identique au repos et pris
+  en focus (448,5 / 7 / 384,4 x 36).
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : fines et translucides partout (`scrollbar-width: thin`, gris moyen, `userContent.css`). La barre de la PAGE
