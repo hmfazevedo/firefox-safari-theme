@@ -348,7 +348,7 @@
  * navigation. La largeur vient de --uc-urlbar-width, définie plus haut : rien d'autre à changer. */
 #stop-reload-button {
   position: absolute !important;
-  left: calc(var(--uc-ux) + var(--uc-uw) - 36px) !important; /* bouton de 32 px (rond de survol de 28 px + 2 px de marge de chaque côté) : -36 px = rond à 6 px du bord droit de la barre (2 px, puis 4 px de plus demandés) */
+  left: calc(var(--uc-ux) + var(--uc-uw) - 35px) !important; /* bouton de 32 px (rond de survol de 28 px + 2 px de marge de chaque côté) : -35 px = rond à 5 px du bord droit de la barre (2 px, +4 px demandés, puis -1 px) */
   top: 50%;
   transform: translateY(-50%);
   z-index: 5;
@@ -933,7 +933,7 @@ findbar {
 }
 #urlbar[uc-centre] #identity-box {
   position: absolute;
-  inset-inline-start: 5px; /* globe TOUJOURS à gauche, comme « Actualiser » est à droite : rond de 28 px à 5 px du bord (2 px, puis +3 px demandés) ; plus de position d'après le texte (--uc-gx, posée par le script, n'est plus lue) */
+  inset-inline-start: 4px; /* globe TOUJOURS à gauche, comme « Actualiser » est à droite : rond de 28 px à 4 px du bord (2 px, +3 px demandés, puis -1 px) ; plus de position d'après le texte (--uc-gx, posée par le script, n'est plus lue) */
   top: 50%;
   transform: translateY(-50%);
   /* La zone est placée pour UN bouton de 28 px (--uc-gx). Quand Firefox ajoute l'icône d'une permission bloquée (lecture
