@@ -773,8 +773,6 @@ findbar {
  * est posée EN SUPERPOSITION de la barre de navigation (position: absolute, même hauteur de 40 px) ; seulement en onglets horizontaux. ===== */
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) {
   --uc-champ: clamp(220px, 22vw, 380px);
-  --urlbar-height: 36px !important; /* le champ passe de 32 à 36 px, la hauteur de la bande d'onglets (la barre reste à 40 px : 2 px de marge au lieu de 4) ; !important : Firefox pose ces variables dans une règle d'auteur */
-  --urlbar-padding-block: 2px !important;
   --uc-ux: calc(var(--uc-gauche, 150px) + 17px); /* 17 px après le bord de « suivant » = même écart VISIBLE (25,7 px, mesuré sur les glyphes) qu'entre le bouton compact et la flèche de retour */
   --uc-uw: var(--uc-champ);
 }

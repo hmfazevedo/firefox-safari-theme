@@ -113,6 +113,11 @@ git add -A; git commit -m "…"; git push
   rangée d'onglets EN SUPERPOSITION de la barre de navigation (`position: absolute`, 40 px) ; seulement en onglets horizontaux (`:has(#tabbrowser-tabs[orient="horizontal"])`).
   **Écarts de la bande** : 25 px entre le champ et le premier onglet (= l'écart visible flèche « suivant » -> champ, 25,4 px) et 25 px entre la bande et l'icône du premier bouton
   de droite (mesurés dans le Firefox de test : 25 / 25). Formules : `left: calc(var(--uc-ux) + var(--uc-uw) + 25px)`, `right: calc(var(--uc-droite) + 9px)`.
+  **Hauteur** : en mode compact le champ garde ses 32 px et la bande d'onglets ses 36 px (donc 2 px de plus de chaque côté, la bande allant de 2 à 38 px et le champ de 4 à 36 px). Deux essais ont été
+  refusés : bande réduite à 32 px (pastilles de 24 px), puis champ agrandi à 36 px (`--urlbar-height: 36px !important`, que Firefox pose dans une règle d'auteur). `#urlbar[uc-centre] #identity-box { align-items: center }`
+  est resté (inoffensif en mode normal). Si on retente : un champ de 34 px serait un compromis.
+  **Écarts de la bande** : 25 px entre le champ et le premier onglet (= l'écart visible flèche « suivant » -> champ, 25,4 px) et 25 px entre la bande et l'icône du premier bouton
+  de droite (mesurés dans le Firefox de test : 25 / 25). Formules : `left: calc(var(--uc-ux) + var(--uc-uw) + 25px)`, `right: calc(var(--uc-droite) + 9px)`.
   **Hauteur** : en mode compact c'est le CHAMP d'adresse qui grandit pour égaler la bande d'onglets (36 px, de 2 à 38 px dans la barre de 40 px) : `--urlbar-height: 36px !important`
   et `--urlbar-padding-block: 2px !important` sur la racine (sans `!important` Firefox, qui les pose dans une règle d'auteur, l'emporte). La bande garde sa taille normale
   (pastilles de 28 px). La boîte d'identité (globe) grandit avec le champ : `align-items: center` pour garder le globe centré. Mode normal inchangé (champ de 32 px).
