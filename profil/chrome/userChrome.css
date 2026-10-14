@@ -348,7 +348,7 @@
  * navigation. La largeur vient de --uc-urlbar-width, définie plus haut : rien d'autre à changer. */
 #stop-reload-button {
   position: absolute !important;
-  left: calc(var(--uc-ux) + var(--uc-uw) - 35px) !important; /* bouton de 32 px (rond de survol de 28 px + 2 px de marge de chaque côté) : -35 px = rond à 5 px du bord droit de la barre (2 px, +4 px demandés, puis -1 px) */
+  left: calc(var(--uc-ux) + var(--uc-uw) - 34px) !important; /* bouton de 32 px (rond de survol de 28 px + 2 px de marge de chaque côté) : -34 px = rond à 4 px du bord droit de la barre (2 px, +4 px demandés, puis -1 px, puis -1 px) */
   top: 50%;
   transform: translateY(-50%);
   z-index: 5;
