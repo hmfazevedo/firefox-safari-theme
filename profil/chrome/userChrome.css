@@ -782,11 +782,14 @@ findbar {
  * est posée EN SUPERPOSITION de la barre de navigation (position: absolute, même hauteur de 40 px) ; seulement en onglets horizontaux. ===== */
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) {
   --uc-champ: clamp(220px, 22vw, 380px);
-  --uc-ux: calc(var(--uc-gauche, 150px) + 40px); /* le bouclier (32 px, symbole de 16 px) est posé à GAUCHE du champ, comme en mode normal : son symbole est au même écart VISIBLE de la flèche « suivant » (25,7 px, mesuré sur les glyphes de la capture : 39 px réels) que le bouton compact l'est de la flèche de retour ; le conteneur du bouclier finit 5,3 px avant le champ */
+  --uc-ux: calc(var(--uc-gauche, 150px) + 52px); /* champ 12 px plus loin pour que l'écart bouclier -> champ égale l'écart flèche « suivant » -> bouclier (voir la règle du bouclier plus bas). Le bouclier (32 px, symbole de 16 px) est posé à GAUCHE du champ, comme en mode normal : son symbole est au même écart VISIBLE de la flèche « suivant » (25,7 px, mesuré sur les glyphes de la capture : 39 px réels) que le bouton compact l'est de la flèche de retour ; le conteneur du bouclier finit 5,3 px avant le champ */
   --uc-uw: var(--uc-champ);
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #navigator-toolbox {
   position: relative;
+}
+:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) :is(#trust-icon-container, #tracking-protection-icon-container) {
+  inset-inline-end: calc(100% + 18px); /* le bouclier garde sa place (symbole à 25,7 px visibles de « suivant ») mais le champ est 12 px plus loin : même écart de chaque côté du bouclier ; en mode normal le bouclier reste à 6 px du champ */
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #TabsToolbar {
   position: absolute !important;
