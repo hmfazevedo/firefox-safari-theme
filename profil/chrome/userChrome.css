@@ -665,6 +665,15 @@ findbar {
 :root[uc-clair] #navigator-toolbox {
   color-scheme: light !important;
 }
+/* Le menu déroulant de l'adresse est DANS la barre d'outils mais garde son fond gris foncé fixe : sans ceci il héritait de
+ * color-scheme: light et son texte passait en noir sur ce fond foncé. */
+:root[uc-clair] #urlbar .urlbarView {
+  color-scheme: dark !important;
+}
+/* Les boutons d'action du menu (« Rechercher avec Wikipédia ») ont un texte noir fixe de Firefox : noir sur gris foncé. */
+#urlbar .urlbarView-action-btn {
+  color: #fbfbfe !important;
+}
 :root[uc-clair] :is(#back-button, #forward-button, #reload-button, #stop-button, #new-tab-button, #PanelUI-menu-button,
     #unified-extensions-button, #sidebar-button, #downloads-button) .toolbarbutton-icon,
 :root[uc-clair] #downloads-indicator-icon,
