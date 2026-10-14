@@ -170,6 +170,8 @@ git add -A; git commit -m "…"; git push
 - **Globe sur une page non sécurisée (http)** : Firefox (classe `notSecureText` sur `#identity-box`) lui donnait un fond CLAIR et affichait « Non sécurisé » (`#identity-icon-label`), coupé en « … » par
   la barre étroite. Fond transparent (survol 22 % de la couleur du texte), texte masqué ; la page non sécurisée est signalée par le bouclier à gauche du champ, qui passe en « ! » (règle `.insecure`,
   plus ancienne). Reproduit avec `http://192.168.86.206:8766/` (serveur de test sur le réseau local), corrigé et revérifié sur capture.
+- **Globe et « Actualiser » un peu plus loin des bords** (demandé) : globe +3 px vers la droite (`inset-inline-start: 5px`), « Actualiser » 4 px vers la gauche (`left: calc(var(--uc-ux) + var(--uc-uw) - 36px)`).
+  Mesuré : globe à 5,7 px du bord gauche du champ, rond d'« Actualiser » à 6 px du bord droit, en normal et en compact.
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : fines et translucides partout (`scrollbar-width: thin`, gris moyen, `userContent.css`). La barre de la PAGE
