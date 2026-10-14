@@ -233,11 +233,31 @@
 :root {
   --uc-urlbar-width: clamp(320px, 30vw, 600px);
 }
+/* Position et largeur du champ : deux variables ENREGISTRÉES (@property) pour que le passage au mode compact les fasse glisser au lieu de
+ * sauter (transition sous [uc-anim], posé par urlbar-domaine.uc.js le temps de l'animation seulement : sans cela, redimensionner la fenêtre
+ * ferait « traîner » le champ). Normal : centré (50 % - demi-largeur). Compact : voir plus bas. */
+@property --uc-ux {
+  syntax: "<length-percentage>";
+  inherits: true;
+  initial-value: 0px;
+}
+@property --uc-uw {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 400px;
+}
+:root {
+  --uc-ux: calc(50% - var(--uc-urlbar-width) / 2);
+  --uc-uw: var(--uc-urlbar-width);
+}
+:root[uc-anim] {
+  transition: --uc-ux 380ms cubic-bezier(0.2, 0.8, 0.2, 1), --uc-uw 380ms cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+}
 #urlbar-container {
   position: absolute;
-  inset: 0 0;
-  margin-inline: auto !important; /* centrage ; remplace aussi les 5 px de marge de Firefox */
-  width: var(--uc-urlbar-width) !important; /* !important : Firefox fixe sa propre largeur avec des règles plus prioritaires */
+  inset: 0 auto 0 var(--uc-ux) !important;
+  margin: 0 !important; /* remplace aussi les 5 px de marge de Firefox */
+  width: var(--uc-uw) !important; /* !important : Firefox fixe sa propre largeur avec des règles plus prioritaires */
   min-width: 0 !important;
   max-width: none !important;
 }
@@ -325,7 +345,7 @@
  * navigation. La largeur vient de --uc-urlbar-width, définie plus haut : rien d'autre à changer. */
 #stop-reload-button {
   position: absolute !important;
-  left: calc(50% + var(--uc-urlbar-width) / 2 - 32px) !important; /* bouton de 32 px (rond de survol de 28 px + 2 px de marge de chaque côté) : -32 px = rond à 2 px du bord droit de la barre (1 px de liseré + 1 px d'air) */
+  left: calc(var(--uc-ux) + var(--uc-uw) - 32px) !important; /* bouton de 32 px (rond de survol de 28 px + 2 px de marge de chaque côté) : -32 px = rond à 2 px du bord droit de la barre (1 px de liseré + 1 px d'air) */
   top: 50%;
   transform: translateY(-50%);
   z-index: 5;
@@ -753,17 +773,11 @@ findbar {
  * est posée EN SUPERPOSITION de la barre de navigation (position: absolute, même hauteur de 40 px) ; seulement en onglets horizontaux. ===== */
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) {
   --uc-champ: clamp(220px, 22vw, 380px);
+  --uc-ux: calc(var(--uc-gauche, 150px) + 30px); /* 30 px : la place du bouclier, posé à gauche du champ */
+  --uc-uw: var(--uc-champ);
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #navigator-toolbox {
   position: relative;
-}
-:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #urlbar-container {
-  inset: 0 auto 0 calc(var(--uc-gauche, 150px) + 30px) !important; /* 30 px : la place du bouclier, posé à gauche du champ */
-  margin: 0 !important;
-  width: var(--uc-champ) !important;
-}
-:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #stop-reload-button {
-  left: calc(var(--uc-gauche, 150px) + 30px + var(--uc-champ) - 32px) !important; /* même règle que plus haut, depuis le bord gauche du champ */
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #TabsToolbar {
   position: absolute !important;
@@ -774,6 +788,33 @@ findbar {
   padding-inline: 0 !important; /* les 8 px de la barre d'onglets s'ajoutaient à l'écart */
   z-index: 3;
   background-color: transparent !important;
+}
+
+/* Animation du passage normal <-> compact (la bascule du bouton, ou un deuxième onglet qui s'ouvre / se ferme en mode compact) :
+ * pendant [uc-anim] la bande d'onglets entre en fondu en glissant depuis la droite (compact) ou depuis le haut (normal), le champ glisse
+ * (variables --uc-ux / --uc-uw plus haut) et urlbar-domaine.uc.js anime la hauteur de la barre (80 -> 40 px). La barre n'est coupée
+ * que pendant ces 0,4 s. */
+@keyframes uc-onglets-compact {
+  from { opacity: 0; transform: translateX(28px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes uc-onglets-normal {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: none; }
+}
+:root[uc-anim] #navigator-toolbox {
+  overflow: clip;
+}
+:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"])[uc-anim] #TabsToolbar {
+  animation: uc-onglets-compact 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+:root[uc-anim][uc-multi]:not([uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"])) #TabsToolbar {
+  animation: uc-onglets-normal 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+/* Retour à un seul onglet : la rangée disparaît tout de suite (sans cela elle réapparaissait en seconde rangée le temps de se replier). */
+:root[uc-anim]:not([uc-multi]) #TabsToolbar {
+  opacity: 0 !important;
+  transition: none !important;
 }
 
 /* Le bouton de panneau latéral (en haut à gauche) ne sert pas : le bouton « Mode compact » prend sa place (placé par urlbar-domaine.uc.js). */

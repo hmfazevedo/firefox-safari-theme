@@ -369,12 +369,45 @@
       racine.style.setProperty("--uc-gauche", gauche + "px");
       racine.style.setProperty("--uc-droite", droite + "px");
     };
-    const appliquer = () => {
-      if (actif()) {
-        racine.setAttribute("uc-compact", "");
-      } else {
-        racine.removeAttribute("uc-compact");
+    // Disposition compacte EFFECTIVE : préférence vraie, deux onglets ou plus, onglets horizontaux (voir userChrome.css).
+    const effectif = () =>
+      racine.hasAttribute("uc-compact") && racine.hasAttribute("uc-multi") && gBrowser.tabContainer.getAttribute("orient") === "horizontal";
+    let finAnim = null;
+    let pret = false; // pas d'animation pendant le démarrage de la fenêtre
+    setTimeout(() => (pret = true), 3000);
+    // Fait la modification, et si la disposition effective change, l'ANIME : [uc-anim] active les transitions et l'entrée de la bande
+    // d'onglets (userChrome.css), et la hauteur de la barre (80 -> 40 px ou l'inverse) glisse avec l'API d'animation. Posé AVANT la
+    // modification : une transition prend les propriétés de transition du style d'ARRIVÉE.
+    const changer = (modifier) => {
+      if (!pret) {
+        modifier();
+        return;
       }
+      const avant = effectif();
+      const boite = document.getElementById("navigator-toolbox");
+      const h0 = boite.getBoundingClientRect().height;
+      racine.setAttribute("uc-anim", "");
+      modifier();
+      if (effectif() === avant) {
+        clearTimeout(finAnim);
+        finAnim = setTimeout(() => racine.removeAttribute("uc-anim"), 50);
+        return;
+      }
+      const h1 = boite.getBoundingClientRect().height;
+      if (h0 !== h1 && racine.hasAttribute("uc-multi")) { // un seul onglet : la rangée se replie avec sa propre transition
+        boite.animate([{ height: h0 + "px" }, { height: h1 + "px" }], { duration: 380, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" });
+      }
+      clearTimeout(finAnim);
+      finAnim = setTimeout(() => racine.removeAttribute("uc-anim"), 450);
+    };
+    const appliquer = () => {
+      changer(() => {
+        if (actif()) {
+          racine.setAttribute("uc-compact", "");
+        } else {
+          racine.removeAttribute("uc-compact");
+        }
+      });
       mesurer();
     };
     const observateur = { observe: appliquer };
@@ -384,11 +417,16 @@
     // Deux onglets ou plus : seul cas où la disposition change.
     const compter = () => {
       const n = gBrowser.visibleTabs.filter((t) => !t.closing).length;
-      if (n > 1) {
-        racine.setAttribute("uc-multi", "");
-      } else {
-        racine.removeAttribute("uc-multi");
+      if (n > 1 === racine.hasAttribute("uc-multi")) {
+        return;
       }
+      changer(() => {
+        if (n > 1) {
+          racine.setAttribute("uc-multi", "");
+        } else {
+          racine.removeAttribute("uc-multi");
+        }
+      });
     };
     for (const ev of ["TabOpen", "TabClose", "TabPinned", "TabUnpinned", "TabHide", "TabShow"]) {
       gBrowser.tabContainer.addEventListener(ev, () => {

@@ -111,6 +111,11 @@ git add -A; git commit -m "…"; git push
   (`CustomizableUI.createWidget`, replacé avant « Précédent » à chaque démarrage car `user.js` remet la disposition à zéro), pose `uc-compact`,
   `uc-multi` (2 onglets ou plus : avec un seul la rangée est masquée, rien ne change) et mesure `--uc-gauche` / `--uc-droite`. `userChrome.css` pose la
   rangée d'onglets EN SUPERPOSITION de la barre de navigation (`position: absolute`, 40 px) ; seulement en onglets horizontaux (`:has(#tabbrowser-tabs[orient="horizontal"])`).
+  **Animation** : le passage normal <-> compact (bouton, ou 2e onglet qui s'ouvre / se ferme en mode compact) est progressif sur 0,38 s : le champ glisse et se
+  rétrécit (variables `--uc-ux` / `--uc-uw` déclarées avec `@property`, transition seulement sous l'attribut `uc-anim` posé le temps de l'animation, sinon le champ
+  « traînerait » au redimensionnement), la bande d'onglets entre en fondu en glissant (`@keyframes`), la hauteur de la barre (80 -> 40 px) est animée par
+  `element.animate`. Pas d'animation pendant les 3 premières secondes d'une fenêtre. Mesuré toutes les 33 ms sur les quatre cas : position, largeur et opacité évoluent
+  de façon continue. Enregistrement d'écran de départ : tout apparaissait en une image.
   Testé : bascule dans les deux sens, fenêtre de 885 px, 10 onglets (la bande défile avec ses flèches), retour à la disposition normale avec un seul onglet.
 - **Boutons de fenêtre en ronds** (`userChrome.css`) : réduire / agrandir / fermer en ronds de 30 px (90 px de large au lieu de 138), glyphes fins arrondis dessinés en SVG
   dans le `::before` du bouton (le symbole de Windows est une police : `content: "\e8bb"`), survol rond clair, rouge `#e5484d` pour fermer, dessins inversés
