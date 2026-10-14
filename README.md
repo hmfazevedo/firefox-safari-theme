@@ -150,8 +150,9 @@ git add -A; git commit -m "…"; git push
   **Mode normal, écart visible** : la rangée d'onglets avait 2 px de marge EN HAUT, donc 9 px visibles sous le champ contre 7 au-dessus (signalé par l'utilisateur sur
   capture). `#TabsToolbar` n'a plus de padding haut en normal ; en bas il a `--uc-barre-bas` = 7 px (`padding: 0 8px 7px`, `max-height: 43px`), le même air entre la bande et la page qu'entre le champ et la bande (demandé : « il manque de la hauteur en bas des tabs ») ; en compact (bande en superposition) il garde 2 px haut et bas et
   40 px. Mesuré sur capture : 11 px au-dessus du champ, 11 px sous le champ jusqu'à la bande d'onglets.
-  **Barre de favoris** : même air sous les favoris que sous la bande / le champ (`padding-block: 2px calc(2px + var(--uc-barre-bas))`, `max-height: calc(3em + var(--uc-barre-bas))`).
-  Mesuré avec 3 favoris : 11 px au-dessus et 11 px sous, en normal comme en compact.
+  **Barre de favoris** : même air sous les favoris que sous la bande / le champ, MAIS seulement quand la bande d'onglets est visible (`:root[uc-multi]` : `padding-block: 2px calc(2px + var(--uc-barre-bas))`,
+  `max-height: calc(3em + var(--uc-barre-bas))`) ; avec un seul onglet c'était trop grand (demandé). Mesuré avec 3 favoris : 3 onglets = 11 px au-dessus / 11,7 px sous
+  (normal et compact) ; 1 onglet = 11 px au-dessus / 4,7 px sous (comme avant).
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : fines et translucides partout (`scrollbar-width: thin`, gris moyen, `userContent.css`). La barre de la PAGE
