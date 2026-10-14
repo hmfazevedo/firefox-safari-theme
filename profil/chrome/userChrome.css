@@ -491,8 +491,14 @@
 #urlbar > .urlbarView {
   translate: 0 10px;
 }
-/* Le trait fin tout en haut du panneau : bordure haute de .urlbarView-body-inner, qui séparait la barre de la
- * liste quand les deux étaient soudées. Détachées, elle ne sépare plus rien et coupe les coins arrondis. */
+/* Le trait fin tout en haut du panneau (de retour dans Firefox 157) : bordure haute de #urlbar-results (0,67 px, gris #52525e), qui
+ * séparait la barre de la liste quand les deux étaient soudées. Détachées, elle ne sépare plus rien. Repérée en retirant
+ * successivement l'ombre du fond, la bordure de #urlbar-results et celle des lignes : seul le retrait de #urlbar-results fait
+ * disparaître le trait. L'ancienne cible (.urlbarView-body-inner) n'existe plus dans ce Firefox, la règle plus bas est morte. */
+#urlbar-results {
+  border-top: none !important;
+}
+/* Ancienne version du même trait : bordure haute de .urlbarView-body-inner. */
 #urlbar .urlbarView-body-inner {
   border-top: none !important;
 }
