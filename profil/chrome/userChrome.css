@@ -49,8 +49,8 @@
 
 /* Hauteur des onglets : la bande qui les contient fait 36 px (-8 px par rapport au défaut de
  * Firefox, 44 px) et chaque pastille 28 px (--tab-min-height - 8 px ; défaut 36 px), soit 4 px de
- * marge au-dessus et en dessous (= --tab-margin-block). La BARRE des onglets fait 38 px en mode
- * normal (2 px de padding seulement en bas : le haut est déjà aéré par la barre d'adresse) et 40 px
+ * marge au-dessus et en dessous (= --tab-margin-block). La BARRE des onglets fait 43 px en mode
+ * normal (7 px de padding seulement en bas, --uc-barre-bas : le haut est déjà aéré par la barre d'adresse) et 40 px
  * en compact (2 px haut et bas). Pour une pastille plus grande ou plus petite : changer les deux « 8px » ensemble
  * (bande = pastille + 2 x marge de 4 px) et ajuster les paddings / max-height de #TabsToolbar. */
 .tab-background {
@@ -136,7 +136,7 @@
 
 /* Onglets : bords complètement arrondis (capsule), largeur égale qui remplit la rangée */
 #TabsToolbar {
-  padding: 0 8px 2px !important; /* bande de 36 + 2 = 38 px : pas de marge EN HAUT, car la barre du dessus a déjà 7 px d'air sous le champ (sinon 9 px sous le champ contre 7 au-dessus, écart signalé) ; !important : le style de Firefox pour les barres d'outils (padding: 0) l'emporte sinon */
+  padding: 0 8px var(--uc-barre-bas) !important; /* bande de 36 + 7 = 43 px : 7 px sous la bande (même air que sous le champ, au-dessus d'elle), et pas de marge EN HAUT, car la barre du dessus a déjà 7 px d'air sous le champ (sinon 9 px sous le champ contre 7 au-dessus, écart signalé) ; !important : le style de Firefox pour les barres d'outils (padding: 0) l'emporte sinon */
 }
 :root {
   --tab-border-radius: 20px !important; /* > demi-hauteur d'un onglet (~16 px) : bords complètement ronds, en capsule */
@@ -170,7 +170,7 @@
  * trop tard). La rangée commence donc à se replier en même temps que l'onglet rétrécit. visibility
  * passe à hidden à la FIN du repli (donc rien n'est cliquable ni atteignable au clavier une fois repliée). */
 #TabsToolbar {
-  max-height: 38px !important;
+  max-height: calc(36px + var(--uc-barre-bas)) !important;
   overflow: clip !important;
   transition: max-height 220ms ease-out, padding-block 220ms ease-out, opacity 220ms ease-out, visibility 220ms linear, background-color 350ms ease !important;
 }
@@ -247,6 +247,7 @@
   initial-value: 400px;
 }
 :root {
+  --uc-barre-bas: 7px; /* espace sous la bande d'onglets (mode normal), entre elle et la page */
   --uc-barre-extra: 6px; /* hauteur ajoutée à la barre du haut (40 -> 46 px) ; le champ reste centré dedans */
   --uc-ux: calc(50% - var(--uc-urlbar-width) / 2);
   --uc-uw: var(--uc-urlbar-width);

@@ -148,7 +148,7 @@ git add -A; git commit -m "…"; git push
   (32 px) a donc 7 px d'air en haut comme en bas (4 px avant). En compact la bande d'onglets (36 px dans une boîte de 40) est recentrée (`top: calc(var(--uc-barre-extra) / 2)`).
   Mesuré dans un profil jetable : barre 46,0 px, champ 7,0 / 7,0, bande 3,0 / 3,0, onglet 5,0 / 5,0, boutons de fenêtre et de gauche centrés.
   **Mode normal, écart visible** : la rangée d'onglets avait 2 px de marge EN HAUT, donc 9 px visibles sous le champ contre 7 au-dessus (signalé par l'utilisateur sur
-  capture). `#TabsToolbar` n'a plus de padding haut en normal (`padding: 0 8px 2px`, `max-height: 38px`) ; en compact (bande en superposition) il garde 2 px haut et bas et
+  capture). `#TabsToolbar` n'a plus de padding haut en normal ; en bas il a `--uc-barre-bas` = 7 px (`padding: 0 8px 7px`, `max-height: 43px`), le même air entre la bande et la page qu'entre le champ et la bande (demandé : « il manque de la hauteur en bas des tabs ») ; en compact (bande en superposition) il garde 2 px haut et bas et
   40 px. Mesuré sur capture : 11 px au-dessus du champ, 11 px sous le champ jusqu'à la bande d'onglets.
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
