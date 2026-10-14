@@ -49,10 +49,10 @@
 
 /* Hauteur des onglets : la bande qui les contient fait 36 px (-8 px par rapport au défaut de
  * Firefox, 44 px) et chaque pastille 28 px (--tab-min-height - 8 px ; défaut 36 px), soit 4 px de
- * marge au-dessus et en dessous (= --tab-margin-block). La BARRE des onglets fait 40 px : la bande
- * est centrée dedans par le padding de #TabsToolbar (2 px haut et bas). Pour une pastille plus
- * grande ou plus petite : changer les deux « 8px » ensemble (bande = pastille + 2 x marge de 4 px)
- * et ajuster le padding de #TabsToolbar pour garder 40 px. */
+ * marge au-dessus et en dessous (= --tab-margin-block). La BARRE des onglets fait 38 px en mode
+ * normal (2 px de padding seulement en bas : le haut est déjà aéré par la barre d'adresse) et 40 px
+ * en compact (2 px haut et bas). Pour une pastille plus grande ou plus petite : changer les deux « 8px » ensemble
+ * (bande = pastille + 2 x marge de 4 px) et ajuster les paddings / max-height de #TabsToolbar. */
 .tab-background {
   margin-block: var(--tab-margin-block) !important;
   min-height: calc(var(--tab-min-height) - 8px) !important;
@@ -136,7 +136,7 @@
 
 /* Onglets : bords complètement arrondis (capsule), largeur égale qui remplit la rangée */
 #TabsToolbar {
-  padding: 2px 8px !important; /* 2 + bande de 36 + 2 = 40 px, la hauteur d'avant ; !important : le style de Firefox pour les barres d'outils (padding: 0) l'emporte sinon */
+  padding: 0 8px 2px !important; /* bande de 36 + 2 = 38 px : pas de marge EN HAUT, car la barre du dessus a déjà 7 px d'air sous le champ (sinon 9 px sous le champ contre 7 au-dessus, écart signalé) ; !important : le style de Firefox pour les barres d'outils (padding: 0) l'emporte sinon */
 }
 :root {
   --tab-border-radius: 20px !important; /* > demi-hauteur d'un onglet (~16 px) : bords complètement ronds, en capsule */
@@ -170,7 +170,7 @@
  * trop tard). La rangée commence donc à se replier en même temps que l'onglet rétrécit. visibility
  * passe à hidden à la FIN du repli (donc rien n'est cliquable ni atteignable au clavier une fois repliée). */
 #TabsToolbar {
-  max-height: 40px !important;
+  max-height: 38px !important;
   overflow: clip !important;
   transition: max-height 220ms ease-out, padding-block 220ms ease-out, opacity 220ms ease-out, visibility 220ms linear, background-color 350ms ease !important;
 }
@@ -789,10 +789,11 @@ findbar {
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #TabsToolbar {
   position: absolute !important;
   top: calc(var(--uc-barre-extra) / 2); /* centrée dans la barre élargie */
-  height: 40px; /* la bande garde sa taille normale (36 px dans une rangée de 40) ; c'est le CHAMP d'adresse qui grandit pour l'égaler, voir plus haut */
+  height: 40px; /* la bande garde sa taille normale (36 px dans une rangée de 40, d'où le padding et le max-height rétablis) ; c'est le CHAMP d'adresse qui grandit pour l'égaler, voir plus haut */
   left: calc(var(--uc-ux) + var(--uc-uw) + 25px); /* 25 px d'écart avec le champ d'adresse = l'écart visible entre la flèche « suivant » et le champ (25,4 px mesurés) ; pendant le glissement aussi (--uc-ux et --uc-uw sont animées) */
   right: calc(var(--uc-droite, 260px) + 9px); /* --uc-droite compte 6 px de marge et le bouton a 10 px de vide autour de son icône : 25 px d'écart visible, comme à gauche */
-  padding-inline: 0 !important; /* les 8 px de la barre d'onglets s'ajoutaient à l'écart */
+  padding: 2px 0 !important; /* les 8 px de la barre d'onglets s'ajoutaient à l'écart ; 2 px haut et bas : la bande est centrée dans sa boîte de 40 px (pas de barre au-dessus ici) */
+  max-height: 40px !important;
   z-index: 3;
   background-color: transparent !important;
 }
