@@ -141,9 +141,10 @@ git add -A; git commit -m "…"; git push
   en bas (`padding: 0 8px 7px`, `max-height: 43px`), le même air entre la bande et la page qu'entre le champ et la bande (demandé : « il manque de la hauteur en bas des tabs »). Mesuré sur capture : 11 px au-dessus
   du champ, 11 px sous le champ jusqu'à la bande d'onglets. En compact (bande en superposition) : 2 px haut et bas, 40 px, centrée dans la barre (onglets alignés sur le champ, de 7 à 43 px).
   Le 36 px avait été refusé plus tôt en compact (« j'aime pas comme ça », barre de 40 px, 2 px d'air) : si ce n'est pas la hauteur mais l'air qui gênait, ne changer que la variable.
-- **Barre de favoris** : même air sous les favoris que sous la bande / le champ (`padding-block: 2px calc(2px + var(--uc-barre-bas))`, `max-height: calc(3em + var(--uc-barre-bas))`), avec UN seul
+- **Barre de favoris** : pas de marge en haut, `--uc-barre-bas` (7 px) en bas (`padding-block: 0 var(--uc-barre-bas)`, `max-height: calc(3em + var(--uc-barre-bas) - 4px)`), avec UN seul
   onglet (page de nouvel onglet) comme avec plusieurs : même hauteur de barre (demandé le 2026-10-14 ; un essai « seulement avec 2 onglets ou plus » avait été fait juste avant puis retiré).
-  Mesuré avec 3 favoris : barre de 39 px, favoris à 11 px au-dessus / 11,7 px sous, avec 1 comme avec 3 onglets, en normal comme en compact.
+  Réduite de 2 px en haut et 2 px en bas le 2026-10-15 (elle avait `padding-block: 2px calc(2px + var(--uc-barre-bas))`). Mesuré en profil jetable (Firefox 158), avec des favoris :
+  barre de 35 px au lieu de 39, favoris à 2 px au-dessus / 9 px sous au lieu de 4 / 11, identique avec 1 ou 2 onglets et en mode compact.
 - **Contour de focus bleu à l'INTÉRIEUR** (`outline-offset: -3px` sur `#urlbar[focused] > .urlbar-background`) : il ne déborde plus du champ ; mesuré, champ identique au repos et pris
   en focus (448,5 / 7 / 384,4 x 36).
 - **Globe et « Actualiser »** (demandé) : le globe (`#identity-box`) est toujours à gauche du champ, à `inset-inline-start: 4px` (rond de 28 px, mesuré à 4,7 px du bord), comme « Actualiser » est à droite

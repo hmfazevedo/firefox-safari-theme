@@ -1,10 +1,10 @@
 /* userChrome.css : Firefox 157 */
 
-/* Barre de favoris plus aérée : 2 px en haut et en bas. Firefox l'ouvre / la ferme en la faisant glisser
+/* Barre de favoris : pas de marge en haut, 7 px en bas (voir la règle plus bas). Firefox l'ouvre / la ferme en la faisant glisser
  * verticalement (max-height animé de 0 à une limite de 4em, 170 ms). Cette limite doit rester proche de
  * la hauteur réelle (32 px = 2,7em) : à 8em (96 px, valeur d'avant) l'animation n'était visible que sur
- * le premier tiers de sa durée, donc quasi invisible. 3em (36 px) laisse la marge des 2 + 2 px de
- * padding et suit la taille de la police. Le padding est animé lui aussi (sinon saut de 4 px) et la durée
+ * le premier tiers de sa durée, donc quasi invisible. 3em (36 px) - 4 px + 7 px de marge basse reste 4 px au-dessus de la hauteur
+ * réelle et suit la taille de la police. Le padding est animé lui aussi (sinon saut) et la durée
  * passe à 220 ms comme les onglets. Pas de règle de limite quand la barre est repliée ([collapsed]),
  * sinon elle ne se refermerait plus.
  * Firefox pose la classe .instant (pas de transition, visibility: collapse) quand la barre apparaît ou
@@ -13,8 +13,8 @@
  * restaurée (au démarrage, rien ne glisse). visibility passe à hidden à la FIN du repli : rien n'est
  * atteignable au clavier une fois la barre repliée, comme avec le collapse d'origine. */
 #PersonalToolbar:not([collapsed]) {
-  padding-block: 2px calc(2px + var(--uc-barre-bas)) !important; /* en bas 2 + 7 px : au-dessus des favoris il y a 7 px (bas de la barre du haut ou de la bande d'onglets) + 2, la page ne doit pas être collée dessous. Même hauteur avec un seul onglet (page de nouvel onglet) qu'avec plusieurs : demandé le 2026-10-14, après un essai « seulement avec 2 onglets ou plus » */
-  max-height: calc(3em + var(--uc-barre-bas)) !important;
+  padding-block: 0 var(--uc-barre-bas) !important; /* 0 en haut, 7 px en bas : au-dessus des favoris il y a déjà 7 px (bas de la barre du haut ou de la bande d'onglets), la page ne doit pas être collée dessous. Même hauteur avec un seul onglet (page de nouvel onglet) qu'avec plusieurs : demandé le 2026-10-14, après un essai « seulement avec 2 onglets ou plus ». Réduite de 2 px en haut et 2 px en bas (donc 4 px de moins) le 2026-10-15 : elle avait 2 px / 2 + 7 px de padding */
+  max-height: calc(3em + var(--uc-barre-bas) - 4px) !important; /* limite d'animation, gardée 4 px au-dessus de la hauteur réelle (comme avant : 43 px pour 39) */
 }
 :root[sessionrestored] #PersonalToolbar {
   transition: min-height 220ms ease-out, max-height 220ms ease-out, padding-block 220ms ease-out, visibility 220ms linear, background-color 350ms ease !important;
