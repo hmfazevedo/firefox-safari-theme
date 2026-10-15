@@ -308,12 +308,14 @@
     placer();
     setTimeout(placer, 1500);
 
-    // Bord droit du bouton « suivant » et largeur des boutons de droite, en pixels CSS.
+    // Bord droit du bouton « suivant » et largeur des boutons de droite, en pixels CSS. Le bouton des téléchargements en fait partie : masqué tant que la
+    // liste est vide (largeur nulle), il apparaît à gauche des autres pendant un téléchargement et la bande d'onglets le recouvrait (« Mode compact », signalé le
+    // 2026-10-16) ; sa largeur est donc suivie (ResizeObserver, plus bas) et remesurée dès qu'il apparaît ou disparaît.
     const mesurer = () => {
       const suivant = document.getElementById("forward-button");
       const gauche = suivant ? Math.ceil(suivant.getBoundingClientRect().right) : 150;
       let min = Infinity;
-      for (const id of ["unified-extensions-button", "new-tab-button", "PanelUI-menu-button"]) {
+      for (const id of ["downloads-button", "unified-extensions-button", "new-tab-button", "PanelUI-menu-button"]) {
         const el = document.getElementById(id);
         const r = el && el.getBoundingClientRect();
         if (r && r.width > 0 && r.left < min) {
@@ -398,6 +400,10 @@
     setTimeout(appliquer, 800);
     setTimeout(appliquer, 2500);
     window.addEventListener("resize", mesurer);
+    const boutonTelechargements = document.getElementById("downloads-button");
+    if (boutonTelechargements) {
+      new ResizeObserver(mesurer).observe(boutonTelechargements);
+    }
   } catch (e) {
     console.error("mode compact :", e);
   }

@@ -189,6 +189,12 @@ git add -A; git commit -m "…"; git push
   que quand le bouton compact était le deuxième) : symbole à 25 px du bord, « Précédent » à 51 px. La disposition reste imposée à chaque démarrage : un arrangement fait dans « Personnaliser » est
   annulé au redémarrage suivant, tant que la ligne `browser.uiCustomization.state` est dans `user.js` (la supprimer pour garder la main). Mesuré en profil jetable : bouton compact en tête, bouton latéral dans la palette,
   les deux ensemble possibles, bascule par clic, animations et mode Personnaliser inchangés.
+- **Bouton des téléchargements recouvert en mode compact** (signalé le 2026-10-16 : l'icône « cassée » pendant un téléchargement, cachée sinon) : le bouton est masqué tant que la liste de téléchargements est vide
+  (`browser.download.autohideButton`, imposé par `user.js`) et apparaît à gauche du bouton d'extensions pendant un téléchargement. La bande d'onglets en superposition s'arrête à `right: calc(var(--uc-droite) + 9px)`, où
+  `--uc-droite` était mesuré à partir du bouton d'extensions, du « + » et du menu seulement : le bout arrondi de la bande recouvrait le bouton (seule une moitié de l'anneau de progression restait visible). `mesurer()`
+  (`urlbar-domaine.uc.js`) compte maintenant `downloads-button` et un `ResizeObserver` le remesure quand le bouton apparaît ou disparaît. Reproduit avec un faux fichier de 8 Mo servi lentement (`Downloads.createDownload`) :
+  avant, bouton [1021-1057] sous la bande [514-1042], `--uc-droite` 234 px ; après, bande [478-1005], `--uc-droite` 271 px, anneau entier ; le téléchargement effacé, la bande revient à 1042. La bande saute de 37 px quand
+  le bouton apparaît (pas d'animation). Le mode normal n'est pas concerné (la rangée d'onglets est sous la barre).
 - **Animations unifiées** (mesurées image par image le 2026-10-15, avec `requestAnimationFrame` dans le Firefox de test) : une seule courbe `--uc-courbe: cubic-bezier(0.4, 0, 0.2, 1)` et des durées communes
   (`--uc-duree` 260 ms pour tout ce qui glisse : ouverture / fermeture d'un onglet, rangée d'onglets, favoris ; `--uc-duree-teinte` 300 ms pour les couleurs), définies sur `:root` en tête de `userChrome.css`. Avant :
   ouverture d'onglet en `ease-out` de 220 ms (27 % de la largeur en 25 ms : départ brusque), fermeture quasi linéaire, favoris et rangée en `ease-out`. Le mode compact (420 ms, même courbe) n'a pas changé.
