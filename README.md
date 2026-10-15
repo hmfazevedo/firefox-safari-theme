@@ -170,7 +170,9 @@ git add -A; git commit -m "…"; git push
   ce mode seulement : barre d'adresse et « Actualiser » dans le flux (largeur `--uc-urlbar-width`), « Actualiser » visible, `-moz-window-dragging: no-drag` sur `#nav-bar`, `#TabsToolbar` et les emplacements, le bouton de
   panneau latéral (masqué d'habitude) affiché pour pouvoir le déplacer, et la disposition compacte suspendue par `urlbar-domaine.uc.js` (un `MutationObserver` sur `customizing` ; la préférence reste vraie, le compact revient à la
   sortie, mesuré : barre d'adresse et bande d'onglets exactement aux mêmes positions qu'avant). Mesuré en profil jetable, en normal et en compact : 11 emplacements, aucun recouvert (`elementsFromPoint` au centre de chacun),
-  rendu identique à celui de Firefox. NON vérifié : un vrai glisser-déposer à la souris (Marionette ne déclenche pas la session de glisser de Windows) et l'effet réel de `no-drag` (la valeur calculée n'est pas lisible depuis le test).
+  rendu identique à celui de Firefox. La barre d'adresse y est vide (désactivée) et son fond est un voile noir de 30 % : on ne la voyait presque plus (signalé le 2026-10-15) ; elle est maintenant dessinée plus nettement
+  (fond `rgba(255, 255, 255, 0.07)`, contour de 28 %) avec l'étiquette « Barre d'adresse » (`::before` de `.urlbar-input-container`), dans ce mode seulement (fond, contour et absence d'étiquette hors du mode vérifiés identiques).
+  Piège de test : la peinture rayée rouge de Marionette sur `.urlbar-background` masquait le défaut ; l'annuler (`background-image: none`) dans la fenêtre de test. NON vérifié : un vrai glisser-déposer à la souris (Marionette ne déclenche pas la session de glisser de Windows) et l'effet réel de `no-drag` (la valeur calculée n'est pas lisible depuis le test).
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : fines et translucides partout (`scrollbar-width: thin`, gris moyen, `userContent.css`). La barre de la PAGE
