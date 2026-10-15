@@ -359,9 +359,11 @@
       clearTimeout(finAnim);
       finAnim = setTimeout(() => racine.removeAttribute("uc-anim"), 520);
     };
+    // Mode « Personnaliser la barre d'outils » (attribut customizing posé par Firefox sur la racine) : pas de disposition compacte, la bande d'onglets
+    // en superposition recouvrirait les emplacements des boutons qu'on veut déplacer. La préférence reste vraie : le mode compact revient à la sortie.
     const appliquer = () => {
       changer(() => {
-        if (actif()) {
+        if (actif() && !racine.hasAttribute("customizing")) {
           racine.setAttribute("uc-compact", "");
         } else {
           racine.removeAttribute("uc-compact");
@@ -372,6 +374,7 @@
     const observateur = { observe: appliquer };
     Services.prefs.addObserver(CLE, observateur);
     window.addEventListener("unload", () => Services.prefs.removeObserver(CLE, observateur), { once: true });
+    new MutationObserver(appliquer).observe(racine, { attributes: true, attributeFilter: ["customizing"] });
 
     // Deux onglets ou plus : seul cas où la disposition change.
     const compter = (exclu) => {

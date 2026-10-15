@@ -837,8 +837,9 @@ findbar {
   transition: none !important;
 }
 
-/* Le bouton de panneau latéral (en haut à gauche) ne sert pas : le bouton « Mode compact » prend sa place (placé par urlbar-domaine.uc.js). */
-#sidebar-button {
+/* Le bouton de panneau latéral (en haut à gauche) ne sert pas : le bouton « Mode compact » prend sa place (placé par urlbar-domaine.uc.js).
+ * Visible en mode « Personnaliser » seulement, pour qu'on puisse le déplacer ou le retirer comme les autres. */
+:root:not([customizing]) #sidebar-button {
   display: none !important;
 }
 
@@ -1036,4 +1037,34 @@ findbar {
 #urlbar-input::selection {
   background-color: #0b5bd3 !important; /* opaque : avec une transparence, Firefox peignait un turquoise terne */
   color: #fff !important;
+}
+
+/* ===== MODE « PERSONNALISER LA BARRE D'OUTILS » (Firefox pose l'attribut customizing sur la racine) =====
+ * Les réglages de cette feuille sortent la barre d'adresse et le bouton « Actualiser » du flux (position: absolute) et font de la barre du haut une
+ * zone de déplacement de la fenêtre : en mode Personnaliser, chaque bouton est enveloppé dans un emplacement qu'on glisse-dépose, et ces réglages
+ * faisaient chevaucher les emplacements (barre d'adresse et Actualiser posées au mauvais endroit) et capter le glisser par la fenêtre. Pendant ce
+ * mode seulement, on les remet dans le flux ; la disposition compacte est suspendue par urlbar-domaine.uc.js (la bande d'onglets en superposition
+ * recouvrait les emplacements). Rien ne change hors de ce mode. */
+:root[customizing] #urlbar-container {
+  position: relative !important;
+  inset: auto !important;
+  width: var(--uc-urlbar-width) !important;
+  min-width: 200px !important;
+}
+:root[customizing] #stop-reload-button {
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+:root[customizing] #nav-bar,
+:root[customizing] #TabsToolbar,
+:root[customizing] toolbarpaletteitem {
+  -moz-window-dragging: no-drag !important;
+}
+/* « Actualiser » est masqué sur la page de nouvel onglet / vide (règle plus haut) : la page « Personnaliser » en fait partie, donc son emplacement
+ * resterait invisible et introuvable. Visible pendant ce mode (sélecteur plus spécifique que la règle masquante). */
+:root[customizing] #nav-bar:has(#urlbar) #stop-reload-button {
+  visibility: visible !important;
 }
