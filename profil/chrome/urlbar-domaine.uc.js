@@ -403,3 +403,33 @@
     console.error("mode compact :", e);
   }
 })();
+
+// ---- Titre d'onglet estompé à tort ----
+// Firefox estompe la fin du titre d'un onglet (attribut textoverflow, mask-image dans tabs.css) quand le conteneur du titre déborde ; l'attribut est posé et
+// retiré par les évènements « overflow » / « underflow » du conteneur (tab.js : on_overflow / on_underflow), donc seulement quand l'état CHANGE. Il peut
+// rester posé alors que le titre tient largement (signalé le 2026-10-15 : « Firefox » avec le « x » estompé dans une pastille très large). On recalcule
+// l'état réel (le texte dépasse le conteneur de plus de 1 px) toutes les secondes et après chaque animation, changement d'onglet ou redimensionnement.
+// Un vrai débordement garde son fondu ; les onglets épinglés (conteneur de largeur nulle) sont ignorés.
+(() => {
+  try {
+    const corriger = () => {
+      for (const onglet of gBrowser.tabs) {
+        const conteneur = onglet.querySelector(".tab-label-container");
+        const texte = conteneur && conteneur.querySelector(".tab-label");
+        if (!texte || onglet.hasAttribute("pinned") || !conteneur.clientWidth) {
+          continue;
+        }
+        const deborde = texte.scrollWidth - conteneur.clientWidth > 1;
+        if (conteneur.hasAttribute("textoverflow") !== deborde) {
+          conteneur.toggleAttribute("textoverflow", deborde);
+        }
+      }
+    };
+    setInterval(corriger, 1000);
+    gBrowser.tabContainer.addEventListener("transitionend", () => setTimeout(corriger, 60));
+    gBrowser.tabContainer.addEventListener("TabSelect", () => setTimeout(corriger, 60));
+    window.addEventListener("resize", () => setTimeout(corriger, 200));
+  } catch (e) {
+    console.error("titre d'onglet :", e);
+  }
+})();
