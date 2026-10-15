@@ -182,21 +182,28 @@
       clearTimeout(minuterie);
       minuterie = null;
     };
+    // Le texte et les icônes passent du clair au foncé (attribut uc-clair) quand la couleur de fond franchit le milieu de sa transition (100 ms sur 300 : la luminance y franchit 128) :
+    // à l'instant 0 ils seraient foncés sur une barre encore sombre.
+    let minuterieClair = null;
+    const poserClair = (clair) => {
+      racine.toggleAttribute("uc-fond-clair", clair); // le fond (creux de la bande, champ actif) vise tout de suite sa couleur d'arrivée : sinon sa transition repartirait au milieu
+      clearTimeout(minuterieClair);
+      if (clair === racine.hasAttribute("uc-clair")) {
+        return;
+      }
+      minuterieClair = setTimeout(() => racine.toggleAttribute("uc-clair", clair), 100);
+    };
     const appliquer = (c) => {
       annuler();
       appliqueeCle = c ? c.join(",") : "";
       if (!c) {
         racine.style.removeProperty("--uc-teinte");
-        racine.removeAttribute("uc-clair");
+        poserClair(false);
         return;
       }
       racine.style.setProperty("--uc-teinte", `rgb(${c[0]} ${c[1]} ${c[2]})`);
       const luma = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
-      if (luma > 127.5) {
-        racine.setAttribute("uc-clair", "");
-      } else {
-        racine.removeAttribute("uc-clair");
-      }
+      poserClair(luma > 127.5);
     };
     const estWeb = (navigateur) => /^https?:/i.test(navigateur.currentURI?.spec || "");
     // Demande une mesure à la page (utile quand la couleur de cet onglet n'est pas encore connue : page déjà chargée avant

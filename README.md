@@ -168,6 +168,14 @@ git add -A; git commit -m "…"; git push
   nouvel onglet au repos / actif / saisie) ; avant, texte décalé jusqu'à 24 px (page interne, repos) et alignée à gauche pendant la frappe sur une page web (et, centrée avec les anciennes marges de 12 / 40 px, 28 px à gauche du milieu à cause du bouton « Aller »). Le bouton « Aller »
   reste à 2 px du bord droit. Limite : un texte plus long que le champ (en compact, le texte d'invite de 280 px dans un champ de 220 px) est aligné à gauche, c'est voulu. L'attribut `uc-vierge`, essayé d'abord pour le seul nouvel onglet,
   a été retiré (code mort).
+- **Animations unifiées** (mesurées image par image le 2026-10-15, avec `requestAnimationFrame` dans le Firefox de test) : une seule courbe `--uc-courbe: cubic-bezier(0.4, 0, 0.2, 1)` et des durées communes
+  (`--uc-duree` 260 ms pour tout ce qui glisse : ouverture / fermeture d'un onglet, rangée d'onglets, favoris ; `--uc-duree-teinte` 300 ms pour les couleurs), définies sur `:root` en tête de `userChrome.css`. Avant :
+  ouverture d'onglet en `ease-out` de 220 ms (27 % de la largeur en 25 ms : départ brusque), fermeture quasi linéaire, favoris et rangée en `ease-out`. Le mode compact (420 ms, même courbe) n'a pas changé.
+  **Teinte** : avant, la barre du haut (`#nav-bar`) et la bande d'onglets (`#tabbrowser-tabs`) changeaient de couleur d'un coup, la rangée d'onglets, les favoris et `#browser` fondaient sur 350 ms : 5 surfaces,
+  2 moments. Maintenant les cinq fondent ensemble (début à ~25 ms, fin à ~255 ms). Le texte et les icônes (attribut `uc-clair`) ne changent qu'à 100 ms (la luminance franchit alors 128), pas à l'instant 0 où ils
+  étaient foncés sur une barre encore sombre. L'attribut `uc-fond-clair`, posé tout de suite, commande le calcul du creux de la bande et du champ actif (`--uc-creux-pct`, `--uc-actif-pct`) : si ce calcul suivait
+  `uc-clair` (retardé), la couleur d'arrivée de la bande changerait en cours de route et sa transition repartirait (arrêt de 40 ms mesuré, fin à 377 ms au lieu de 255 ms). Le délai de 500 ms avant d'appliquer une
+  nouvelle couleur de page (`DELAI_TEINTE_MS`) est inchangé. Limite : mesure des VALEURS animées, pas de la fluidité réelle sur ta carte graphique (la fenêtre de test est hors écran).
 - **Mode « Personnaliser la barre d'outils »** (corrigé le 2026-10-15) : Firefox pose l'attribut `customizing` sur la racine, chaque bouton est alors enveloppé dans un emplacement (`toolbarpaletteitem`) qu'on glisse-dépose.
   Les réglages de la feuille cassaient ce mode : la barre d'adresse (`#urlbar-container`) et « Actualiser » (`#stop-reload-button`) en `position: absolute` laissaient leurs emplacements vides ailleurs, en mode compact
   la bande d'onglets en superposition recouvrait les emplacements, « Actualiser » restait invisible (la page « Personnaliser » compte comme page vide) et la barre du haut est une zone de déplacement de la fenêtre. Maintenant, pendant

@@ -1,11 +1,18 @@
 /* userChrome.css : Firefox 157 */
 
+/* Une seule courbe et des durees communes pour toutes les animations de l'interface (variante proposee). */
+:root {
+  --uc-courbe: cubic-bezier(0.4, 0, 0.2, 1);
+  --uc-duree: 260ms;
+  --uc-duree-teinte: 300ms;
+}
+
 /* Barre de favoris : pas de marge en haut, 7 px en bas (voir la règle plus bas). Firefox l'ouvre / la ferme en la faisant glisser
  * verticalement (max-height animé de 0 à une limite de 4em, 170 ms). Cette limite doit rester proche de
  * la hauteur réelle (32 px = 2,7em) : à 8em (96 px, valeur d'avant) l'animation n'était visible que sur
  * le premier tiers de sa durée, donc quasi invisible. 3em (36 px) - 8 px + 7 px de marge basse reste 4 px au-dessus de la hauteur
  * réelle (31 px) et suit la taille de la police. Le padding est animé lui aussi (sinon saut) et la durée
- * passe à 220 ms comme les onglets. Pas de règle de limite quand la barre est repliée ([collapsed]),
+ * passe à --uc-duree (260 ms) comme les onglets. Pas de règle de limite quand la barre est repliée ([collapsed]),
  * sinon elle ne se refermerait plus.
  * Firefox pose la classe .instant (pas de transition, visibility: collapse) quand la barre apparaît ou
  * disparaît à cause d'un changement de page (réglage « seulement sur la page de nouvel onglet ») : c'est
@@ -17,7 +24,7 @@
   max-height: calc(3em + var(--uc-barre-bas) - 8px) !important; /* limite d'animation, gardée 4 px au-dessus de la hauteur réelle (31 px : pilule de 24 px + 7 px de marge basse ; comme avant : 43 px pour 39) */
 }
 :root[sessionrestored] #PersonalToolbar {
-  transition: min-height 220ms ease-out, max-height 220ms ease-out, padding-block 220ms ease-out, visibility 220ms linear, background-color 350ms ease !important;
+  transition: min-height var(--uc-duree) var(--uc-courbe), max-height var(--uc-duree) var(--uc-courbe), padding-block var(--uc-duree) var(--uc-courbe), visibility var(--uc-duree) linear, background-color var(--uc-duree-teinte) var(--uc-courbe) !important;
 }
 :root[sessionrestored] #PersonalToolbar[collapsed] {
   visibility: hidden !important;
@@ -37,7 +44,7 @@
   --uc-actif-pct: 96%;
   --uc-actif: color-mix(in srgb, var(--uc-teinte, #23282e) var(--uc-actif-pct), white);
 }
-:root[uc-clair] {
+:root[uc-fond-clair] {
   --uc-creux-pct: 92%;
   --uc-actif-pct: 0%;
 }
@@ -174,7 +181,7 @@
 #TabsToolbar {
   max-height: calc(36px + var(--uc-barre-bas)) !important;
   overflow: clip !important;
-  transition: max-height 220ms ease-out, padding-block 220ms ease-out, opacity 220ms ease-out, visibility 220ms linear, background-color 350ms ease !important;
+  transition: max-height var(--uc-duree) var(--uc-courbe), padding-block var(--uc-duree) var(--uc-courbe), opacity var(--uc-duree) var(--uc-courbe), visibility var(--uc-duree) linear, background-color var(--uc-duree-teinte) var(--uc-courbe) !important;
 }
 #TabsToolbar:has(#tabbrowser-arrowscrollbox > .tabbrowser-tab[fadein]):not(:has(#tabbrowser-arrowscrollbox > .tabbrowser-tab[fadein] ~ .tabbrowser-tab[fadein])):not(:has(#pinned-tabs-container > .tabbrowser-tab, tab-group)) {
   max-height: 0 !important;
@@ -321,7 +328,7 @@
 }
 
 /* Ouverture / fermeture d'un onglet : l'onglet grandit depuis son bord gauche vers la droite à l'ouverture
- * et rétrécit de la même façon à la fermeture, les voisins glissant avec lui (220 ms).
+ * et rétrécit de la même façon à la fermeture, les voisins glissant avec lui (--uc-duree, 260 ms).
  * Pourquoi : Firefox anime min-width / max-width, mais le plafond --tab-max-width: 10000px posé plus haut
  * (pour remplir la rangée) fait que max-width, animé de 0,1 px à 10000 px en 100 ms, dépasse la largeur
  * réelle en quelques millisecondes : l'animation existait mais était invisible. On anime donc flex-grow
@@ -329,11 +336,11 @@
  * il saute tout de suite à l'ouverture (step-start) et à la FIN à la fermeture (step-end), ce qui conserve
  * l'évènement transitionend de max-width que Firefox attend avant de retirer l'onglet fermé. */
 .tabbrowser-tab:not([pinned]) {
-  transition: flex-grow 220ms ease-out, min-width 220ms ease-out, max-width 220ms step-start !important;
+  transition: flex-grow var(--uc-duree) var(--uc-courbe), min-width var(--uc-duree) var(--uc-courbe), max-width var(--uc-duree) step-start !important;
 }
 .tabbrowser-tab:not([pinned]):not([fadein]) {
   flex-grow: 0 !important;
-  transition: flex-grow 220ms ease-out, min-width 220ms ease-out, max-width 220ms step-end !important;
+  transition: flex-grow var(--uc-duree) var(--uc-courbe), min-width var(--uc-duree) var(--uc-courbe), max-width var(--uc-duree) step-end !important;
 }
 
 /* Bouton « Nouvel onglet » de la barre du haut : un simple « + » (au lieu de l'icône onglet + plus
@@ -676,7 +683,7 @@ findbar {
  * opaque des trois barres (#23282e), sans Mica. */
 #browser {
   background-color: var(--uc-teinte, #23282e) !important;
-  transition: background-color 350ms ease;
+  transition: background-color var(--uc-duree-teinte) var(--uc-courbe);
 }
 
 /* Barre latérale : déjà une carte sombre arrondie dans la palette ; seul le contour de focus (champ de recherche
@@ -1087,4 +1094,11 @@ findbar {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.55);
   pointer-events: none;
+}
+
+/* Teinte : TOUTES les surfaces teintees changent de couleur ensemble (avant : la barre du haut et la bande d'onglets changeaient d'un coup, la rangee
+ * d'onglets, les favoris et le fond en 350 ms). */
+#nav-bar,
+#tabbrowser-tabs {
+  transition: background-color var(--uc-duree-teinte) var(--uc-courbe);
 }
