@@ -168,6 +168,14 @@ git add -A; git commit -m "…"; git push
   nouvel onglet au repos / actif / saisie) ; avant, texte décalé jusqu'à 24 px (page interne, repos) et alignée à gauche pendant la frappe sur une page web (et, centrée avec les anciennes marges de 12 / 40 px, 28 px à gauche du milieu à cause du bouton « Aller »). Le bouton « Aller »
   reste à 2 px du bord droit. Limite : un texte plus long que le champ (en compact, le texte d'invite de 280 px dans un champ de 220 px) est aligné à gauche, c'est voulu. L'attribut `uc-vierge`, essayé d'abord pour le seul nouvel onglet,
   a été retiré (code mort).
+- **Nouvel onglet : favoris en fondu** (choisi le 2026-10-15 sur une vidéo, option A) : avec le réglage « barre de favoris seulement sur la page de nouvel onglet », ouvrir un onglet fait en même temps glisser la barre d'adresse
+  et les onglets (passage au mode compact, 420 ms) ET ouvrir en hauteur la barre de favoris, le texte coupé en bas : effet « collapse ». Option A : la barre de favoris change de hauteur d'un coup et apparaît en fondu
+  (`opacity` 260 ms, `#PersonalToolbar[collapsed] { opacity: 0 }`) ; à la disparition elle est repliée tout de suite (le fondu est alors invisible, la hauteur étant nulle). Écartées (même vidéo) : B, favoris
+  glissant 400 ms après le reste, et C, tout d'un coup (barre d'adresse et onglets compris). Comparaison filmée en temps réel (`PrintWindow` de la fenêtre de test, ~120 images / s, fenêtre réduite à 1300 x 330).
+- **Démarrage sans « squelette »** (signalé le 2026-10-15 : « l'animation de la tab » au premier lancement) : avant que l'interface soit prête, Firefox dessine une maquette de SA disposition (pastille d'onglet en haut à gauche,
+  barre d'adresse dessous) enregistrée dans le registre (`HKCU\Software\Mozilla\Firefox\PreXULSkeletonUISettings`, `C:\Program Files\Mozilla Firefox\firefox.exe|Enabled = 1`), qui ne ressemble pas à cette personnalisation
+  et dure ~0,5 s. `user.js` règle `browser.startup.preXulSkeletonUI` sur `false` ; prise en compte au lancement suivant celui qui lit cette ligne (la valeur du registre est mise à jour par Firefox, on n'y touche pas).
+  Mesuré : aucune animation d'onglet ni de barre de favoris pendant les 3,5 premières secondes (seules les couleurs fondent à la première teinte d'une page web).
 - **Animations unifiées** (mesurées image par image le 2026-10-15, avec `requestAnimationFrame` dans le Firefox de test) : une seule courbe `--uc-courbe: cubic-bezier(0.4, 0, 0.2, 1)` et des durées communes
   (`--uc-duree` 260 ms pour tout ce qui glisse : ouverture / fermeture d'un onglet, rangée d'onglets, favoris ; `--uc-duree-teinte` 300 ms pour les couleurs), définies sur `:root` en tête de `userChrome.css`. Avant :
   ouverture d'onglet en `ease-out` de 220 ms (27 % de la largeur en 25 ms : départ brusque), fermeture quasi linéaire, favoris et rangée en `ease-out`. Le mode compact (420 ms, même courbe) n'a pas changé.

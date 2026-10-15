@@ -14,3 +14,8 @@ user_pref("browser.uiCustomization.state", "{\"placements\":{\"widget-overflow-f
 // true) et les épingles posées par l'ancien script sont vidées. Imposé à chaque démarrage.
 user_pref("browser.newtabpage.activity-stream.feeds.topsites", false);
 user_pref("browser.newtabpage.pinned", "[]");
+// Pas de « squelette » au démarrage : avant que l'interface soit prête, Firefox dessine une maquette de SA disposition (une pastille d'onglet en haut à
+// gauche, la barre d'adresse en dessous) enregistrée dans le registre (HKCU\Software\Mozilla\Firefox\PreXULSkeletonUISettings). Elle ne ressemble pas à
+// cette personnalisation (onglets sous la barre d'adresse) et s'efface au bout d'une demi-seconde : signalé le 2026-10-15 (« l'animation de la tab »
+// au premier lancement). Prise en compte au lancement suivant celui qui lit cette ligne.
+user_pref("browser.startup.preXulSkeletonUI", false);

@@ -7,24 +7,20 @@
   --uc-duree-teinte: 300ms;
 }
 
-/* Barre de favoris : pas de marge en haut, 7 px en bas (voir la règle plus bas). Firefox l'ouvre / la ferme en la faisant glisser
- * verticalement (max-height animé de 0 à une limite de 4em, 170 ms). Cette limite doit rester proche de
- * la hauteur réelle (32 px = 2,7em) : à 8em (96 px, valeur d'avant) l'animation n'était visible que sur
- * le premier tiers de sa durée, donc quasi invisible. 3em (36 px) - 8 px + 7 px de marge basse reste 4 px au-dessus de la hauteur
- * réelle (31 px) et suit la taille de la police. Le padding est animé lui aussi (sinon saut) et la durée
- * passe à --uc-duree (260 ms) comme les onglets. Pas de règle de limite quand la barre est repliée ([collapsed]),
- * sinon elle ne se refermerait plus.
- * Firefox pose la classe .instant (pas de transition, visibility: collapse) quand la barre apparaît ou
- * disparaît à cause d'un changement de page (réglage « seulement sur la page de nouvel onglet ») : c'est
- * exactement le cas courant, mesuré sans animation du tout. On ignore donc .instant une fois la session
- * restaurée (au démarrage, rien ne glisse). visibility passe à hidden à la FIN du repli : rien n'est
- * atteignable au clavier une fois la barre repliée, comme avec le collapse d'origine. */
+/* Barre de favoris : pas de marge en haut, 7 px en bas (voir la règle plus bas). Elle apparaît et disparaît en FONDU (opacité) : sa hauteur change
+ * d'un coup, elle ne glisse plus. Avant, Firefox l'ouvrait en la faisant glisser en hauteur (max-height animé), le texte des favoris coupé en bas pendant
+ * le mouvement, ce qui, à l'ouverture d'un nouvel onglet (réglage « seulement sur la page de nouvel onglet »), s'ajoutait au glissement de la barre
+ * d'adresse et des onglets : effet « collapse » signalé le 2026-10-15 (option A choisie sur une vidéo comparant le glissement actuel, le fondu, un
+ * glissement décalé de 400 ms et un changement instantané). Replié ([collapsed]), la barre est transparente (règle en fin de feuille) ; visibility
+ * passe à hidden à la FIN du fondu : rien n'est atteignable au clavier une fois la barre repliée, comme avec le collapse d'origine. Firefox pose la
+ * classe .instant (pas de transition) quand la barre apparaît à cause d'un changement de page : on l'ignore une fois la session restaurée (au
+ * démarrage, rien ne s'anime). */
 #PersonalToolbar:not([collapsed]) {
   padding-block: 0 var(--uc-barre-bas) !important; /* 0 en haut, 7 px en bas : au-dessus des favoris il y a déjà 7 px (bas de la barre du haut ou de la bande d'onglets), la page ne doit pas être collée dessous. Même hauteur avec un seul onglet (page de nouvel onglet) qu'avec plusieurs : demandé le 2026-10-14, après un essai « seulement avec 2 onglets ou plus ». Réduite le 2026-10-15 de 2 px en haut et 2 px en bas (padding 2 px / 2 + 7 px -> 0 / 7 px), puis encore 2 px et 2 px (marge des favoris, règle .bookmark-item plus bas) */
-  max-height: calc(3em + var(--uc-barre-bas) - 8px) !important; /* limite d'animation, gardée 4 px au-dessus de la hauteur réelle (31 px : pilule de 24 px + 7 px de marge basse ; comme avant : 43 px pour 39) */
+  max-height: calc(3em + var(--uc-barre-bas) - 8px) !important; /* plafond, 4 px au-dessus de la hauteur réelle (31 px : pilule de 24 px + 7 px de marge basse) */
 }
 :root[sessionrestored] #PersonalToolbar {
-  transition: min-height var(--uc-duree) var(--uc-courbe), max-height var(--uc-duree) var(--uc-courbe), padding-block var(--uc-duree) var(--uc-courbe), visibility var(--uc-duree) linear, background-color var(--uc-duree-teinte) var(--uc-courbe) !important;
+  transition: opacity var(--uc-duree) var(--uc-courbe), visibility var(--uc-duree) linear, background-color var(--uc-duree-teinte) var(--uc-courbe) !important;
 }
 :root[sessionrestored] #PersonalToolbar[collapsed] {
   visibility: hidden !important;
@@ -1101,4 +1097,9 @@ findbar {
 #nav-bar,
 #tabbrowser-tabs {
   transition: background-color var(--uc-duree-teinte) var(--uc-courbe);
+}
+
+/* Favoris repliés : transparents, pour apparaître et disparaître en fondu (voir le commentaire en tête de feuille). */
+#PersonalToolbar[collapsed] {
+  opacity: 0 !important;
 }
