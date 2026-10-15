@@ -359,6 +359,15 @@
 .urlbar-input-box {
   margin-inline: 12px 40px !important; /* 40 px à droite pour le bouton ; 12 px à gauche : Firefox réserve déjà ~28 px d'éléments invisibles, mesurés */
 }
+/* Avec le globe (attribut uc-centre) : le texte commence aussi loin du globe qu'il finit loin du bouton « Actualiser » (20 px). Le globe, posé
+ * en absolu à 4 px du bord, a son dessin à 10,7 -> 26,7 px du bord du champ ; le texte doit donc commencer à 46,7 px, soit 45 px de marge
+ * (+ 1,3 px de remplissage du conteneur). Sans cette règle le texte commençait à 13 px du bord, SOUS le globe. Le texte court (domaine seul) est
+ * ainsi exactement centré dans le champ (marge de 45 px à gauche, 40 + 4 px de remplissage à droite). Sans globe (frappe, page interne) : règle
+ * précédente, inchangée. PIÈGE DE TEST : un Firefox piloté par Marionette ajoute l'icône #remote-control-box (32 px, dans le flux, à gauche du
+ * champ) qui décale tout de 32 px et cache le défaut ; la masquer pour mesurer. */
+#urlbar[uc-centre] .urlbar-input-box {
+  margin-inline-start: 45px !important;
+}
 
 /* Favicon collé à gauche du titre, le groupe « icône + titre » étant centré dans l'onglet (comme
  * Safari). Dans .tab-content (rangée flexible) : l'icône, le titre puis la croix. Le conteneur du

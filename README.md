@@ -149,8 +149,9 @@ git add -A; git commit -m "…"; git push
 - **Contour de focus bleu à l'INTÉRIEUR** (`outline-offset: -3px` sur `#urlbar[focused] > .urlbar-background`) : il ne déborde plus du champ ; mesuré, champ identique au repos et pris
   en focus (448,5 / 7 / 384,4 x 36).
 - **Globe et « Actualiser »** (demandé) : le globe (`#identity-box`) est toujours à gauche du champ, à `inset-inline-start: 4px` (rond de 28 px, mesuré à 4,7 px du bord), comme « Actualiser » est à droite
-  (`left: calc(var(--uc-ux) + var(--uc-uw) - 34px)`, rond à 4 px du bord) ; il n'est plus placé d'après le texte. Le texte seul est centré dans le champ (`padding-inline-end: 4px` : mesuré, centre du texte =
-  centre du champ). Le bouton des permissions (site qui en a, YouTube par exemple) était une pilule de 52 px (globe + icône de lecture automatique bloquée, marges de 8 px) : même rond de 28 px, les icônes de
+  (`left: calc(var(--uc-ux) + var(--uc-uw) - 34px)`, rond à 4 px du bord) ; il n'est plus placé d'après le texte. Le texte seul est centré dans le champ : `#urlbar[uc-centre] .urlbar-input-box { margin-inline-start: 45px }` (avec le globe seulement ; sans globe : 12 px comme avant) et
+  `padding-inline-end: 4px`. Le texte commence ainsi aussi loin du globe qu'il finit loin d'« Actualiser » (demandé le 2026-10-15) : 20,3 px / 20 px mesurés avec une adresse longue, texte court
+  centré à 0,5 px du centre du champ. Avant, il commençait à 13 px du bord, SOUS le globe (écart de -12,7 px contre 20 px côté « Actualiser »), et le domaine seul était 16 px trop à gauche. Le bouton des permissions (site qui en a, YouTube par exemple) était une pilule de 52 px (globe + icône de lecture automatique bloquée, marges de 8 px) : même rond de 28 px, les icônes de
   permission BLOQUÉE (`#blocked-permissions-container`) ne s'affichent plus à côté (elles restent dans le panneau au clic) ; les icônes de PARTAGE en cours (caméra, micro) restent visibles et élargissent la zone.
   Mesuré : 28 x 28, rayon 14 px, avec et sans permission, normal et compact.
 - **Globe sur une page non sécurisée (http)** : Firefox (classe `notSecureText` sur `#identity-box`) lui donnait un fond CLAIR et affichait « Non sécurisé » (`#identity-icon-label`), coupé en « … » par
@@ -184,7 +185,9 @@ git add -A; git commit -m "…"; git push
 
 Limites connues : avec Marionette actif, ou dans un profil isolé, la vraie page « nouvel onglet » reste vide (le rendu se
 vérifie sur une copie statique) ; une fenêtre hors écran est « inactive » (sélection de texte grisée) ; les clics simulés ne
-passent pas par la zone de déplacement de fenêtre de Windows.
+passent pas par la zone de déplacement de fenêtre de Windows. Un Firefox piloté par Marionette affiche aussi l'icône de télécommande
+`#remote-control-box` (32 px, dans le flux, à gauche du champ d'adresse) qui décale le texte de la barre de 32 px par rapport à votre vrai Firefox : avant de mesurer
+l'adresse, la masquer (`#remote-control-box { display: none !important }` injecté dans la fenêtre de test, pas dans le profil).
 
 ## Ce qui a été essayé puis retiré
 
