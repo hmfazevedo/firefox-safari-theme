@@ -267,8 +267,8 @@
 })();
 
 // ---- Mode compact : onglets et adresse sur une seule rangée (voir userChrome.css, bloc « MODE COMPACT ») ----
-// Le bouton « Mode compact » (créé ici, placé tout à gauche, avant « Précédent », à chaque démarrage car user.js remet la disposition à
-// zéro) bascule la préférence extensions.uc.compact ; chaque fenêtre l'observe et pose l'attribut uc-compact sur la racine.
+// Le bouton « Mode compact » (créé ici ; un bouton à part entière, comme les autres : on peut le déplacer, le retirer, ou mettre aussi le bouton de
+// panneau latéral) bascule la préférence extensions.uc.compact ; chaque fenêtre l'observe et pose l'attribut uc-compact sur la racine.
 (() => {
   try {
     const CLE = "extensions.uc.compact";
@@ -294,20 +294,12 @@
         },
       });
     }
-    // Placement idempotent : tout à gauche de la barre, juste avant « Précédent » (à la place du bouton de panneau latéral, masqué par
-    // userChrome.css).
+    // Placement seulement si le bouton n'a encore aucune place (première utilisation) : tout à gauche de la barre. La disposition imposée par user.js
+    // (browser.uiCustomization.state) le place déjà en tête de « nav-bar » ; si elle n'est plus imposée, l'emplacement choisi par l'utilisateur est gardé.
     const placer = () => {
       try {
-        const AIRE = "nav-bar";
-        const p = CustomizableUI.getPlacementOfWidget(ID);
-        if (!p || p.area !== AIRE) {
-          CustomizableUI.addWidgetToArea(ID, AIRE);
-        }
-        const ids = CustomizableUI.getWidgetIdsInArea(AIRE);
-        const k = ids.indexOf("back-button");
-        const i = ids.indexOf(ID);
-        if (k >= 0 && i !== k - 1) {
-          CustomizableUI.moveWidgetWithinArea(ID, i < k ? k - 1 : k);
+        if (!CustomizableUI.getPlacementOfWidget(ID)) {
+          CustomizableUI.addWidgetToArea(ID, "nav-bar", 0);
         }
       } catch (e) {
         console.error("mode compact (placement) :", e);

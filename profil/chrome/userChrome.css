@@ -789,7 +789,7 @@ findbar {
  * disposition « Compact » de Safari. Le choix est mémorisé dans la préférence extensions.uc.compact ; urlbar-domaine.uc.js pose
  * l'attribut uc-compact sur la racine (préférence vraie), uc-multi (deux onglets ou plus : avec un seul, la rangée d'onglets est de
  * toute façon masquée et rien ne change) et mesure --uc-gauche (bord droit du bouton « suivant ») et --uc-droite (largeur des boutons
- * de droite). Disposition : [panneau latéral, précédent, suivant] [champ d'adresse] [onglets] [boutons de droite]. La rangée d'onglets
+ * de droite). Disposition : [Mode compact, précédent, suivant] [champ d'adresse] [onglets] [boutons de droite]. La rangée d'onglets
  * est posée EN SUPERPOSITION de la barre de navigation (position: absolute, même hauteur de 40 px) ; seulement en onglets horizontaux. ===== */
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) {
   --uc-champ: clamp(220px, 22vw, 380px);
@@ -849,18 +849,15 @@ findbar {
   transition: none !important;
 }
 
-/* Le bouton de panneau latéral (en haut à gauche) ne sert pas : le bouton « Mode compact » prend sa place (placé par urlbar-domaine.uc.js).
- * Visible en mode « Personnaliser » seulement, pour qu'on puisse le déplacer ou le retirer comme les autres. */
-:root:not([customizing]) #sidebar-button {
-  display: none !important;
-}
-
 /* Le bouton « Mode compact » : deux rangées (mode normal) ou une seule (mode compact), au trait fin des autres icônes. */
 #uc-compact-button {
   list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linejoin='round'><rect x='2' y='2.8' width='12' height='4' rx='1.6'/><rect x='2' y='9.2' width='12' height='4' rx='1.6'/></g></svg>") !important;
 }
-#uc-compact-button {
-  margin-inline-start: 15px !important; /* le bouton tout à gauche ne doit pas coller le bord : écart symbole-bord de la fenêtre = écart symbole-flèche « précédent » (25,7 px visibles, 11 px avant) ; tout ce qui suit est poussé d'autant */
+/* Marge à gauche du premier bouton de la barre, quel qu'il soit (le bouton « Mode compact », ou un autre si on les déplace) : le bouton tout à gauche ne doit pas
+ * coller le bord de la fenêtre. 9 px, car Firefox ajoute déjà 6 px de remplissage à gauche du premier bouton (8 px au lieu de 2) : le symbole reste à 25 px du bord de la
+ * fenêtre (= écart symbole-flèche « précédent », 25,7 px visibles) et « précédent » à 51 px, comme avant que le bouton de panneau latéral ne soit retiré de la barre. */
+#nav-bar-customization-target {
+  padding-inline-start: 9px !important;
 }
 :root[uc-compact] #uc-compact-button {
   list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linejoin='round'><rect x='2' y='6' width='12' height='4' rx='1.6'/></g></svg>") !important;

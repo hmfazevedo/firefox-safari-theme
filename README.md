@@ -105,7 +105,7 @@ git add -A; git commit -m "…"; git push
 - **Fenêtre privée reconnaissable** : `:root[privatebrowsingmode]` barres `#161618` ; `urlbar-domaine.uc.js` n'y active pas la teinte de la page ;
   mention « Navigation privée » en violet (`#b9a3ff`) à gauche du champ, seulement quand une page est affichée (`pageproxystate="valid"`) : sur
   un nouvel onglet vide le texte d'invite centré la recouvrait. Mention et couleurs inspirées de Safari, non vérifiées sur votre Safari 27.
-- **Mode compact** (bouton « Mode compact » tout à gauche de la barre, à la place du bouton de panneau latéral, masqué ; deux rangées / une rangée) : onglets et champ d'adresse sur UNE seule rangée,
+- **Mode compact** (bouton « Mode compact » tout à gauche de la barre, un bouton à part entière ; deux rangées / une rangée) : onglets et champ d'adresse sur UNE seule rangée,
   comme la disposition « Compact » de Safari : [Mode compact, précédent, suivant] [bouclier] [champ d'adresse] [onglets] [boutons de droite]. Le choix est la
   préférence `extensions.uc.compact` (modifiable aussi dans about:config), observée par chaque fenêtre. `urlbar-domaine.uc.js` crée le bouton
   (`CustomizableUI.createWidget`, replacé avant « Précédent » à chaque démarrage car `user.js` remet la disposition à zéro), pose `uc-compact`,
@@ -181,6 +181,14 @@ git add -A; git commit -m "…"; git push
   onglets non épinglés dans ce cas ; la règle « invisible hors survol » existante la garde cachée au repos. Les onglets épinglés gardent leur règle (pas de croix). Mesuré (14 onglets de 94 px, souris virtuelle) :
   onglet inactif survolé : croix affichée (24 px, à 4 px du bord gauche) ; onglet épinglé survolé : pas de croix. Piège de test : le réglage `tabClipWidth` n'est relu qu'à l'ouverture / la fermeture d'onglets, pas quand
   il change ; refaire le test avec une valeur par défaut et des onglets neufs.
+- **Bouton « Mode compact » indépendant** (demandé le 2026-10-15 : il donnait l'impression d'être une copie du bouton de panneau latéral, dont il avait pris la place) : le bouton de panneau latéral n'était pas
+  retiré de la barre, seulement masqué (`display: none`), et le script plaçait le bouton compact devant « Précédent » à chaque démarrage. Maintenant la disposition imposée par `user.js`
+  (`browser.uiCustomization.state`) met `uc-compact-button` en tête de `nav-bar` et ne contient plus `sidebar-button` (ajouté à la liste `seen`, sans quoi Firefox le remet à sa place par défaut, comme
+  un bouton nouveau) ; plus aucune règle ne le masque, il est dans la palette de « Personnaliser la barre d'outils » et on peut aussi le mettre à côté du bouton compact. Le script ne place le bouton compact que
+  s'il n'a encore aucune place. Même position qu'avant : `#nav-bar-customization-target { padding-inline-start: 9px }` (Firefox met 8 px au lieu de 2 de remplissage à gauche du PREMIER bouton, donc 6 px de plus
+  que quand le bouton compact était le deuxième) : symbole à 25 px du bord, « Précédent » à 51 px. La disposition reste imposée à chaque démarrage : un arrangement fait dans « Personnaliser » est
+  annulé au redémarrage suivant, tant que la ligne `browser.uiCustomization.state` est dans `user.js` (la supprimer pour garder la main). Mesuré en profil jetable : bouton compact en tête, bouton latéral dans la palette,
+  les deux ensemble possibles, bascule par clic, animations et mode Personnaliser inchangés.
 - **Animations unifiées** (mesurées image par image le 2026-10-15, avec `requestAnimationFrame` dans le Firefox de test) : une seule courbe `--uc-courbe: cubic-bezier(0.4, 0, 0.2, 1)` et des durées communes
   (`--uc-duree` 260 ms pour tout ce qui glisse : ouverture / fermeture d'un onglet, rangée d'onglets, favoris ; `--uc-duree-teinte` 300 ms pour les couleurs), définies sur `:root` en tête de `userChrome.css`. Avant :
   ouverture d'onglet en `ease-out` de 220 ms (27 % de la largeur en 25 ms : départ brusque), fermeture quasi linéaire, favoris et rangée en `ease-out`. Le mode compact (420 ms, même courbe) n'a pas changé.
@@ -192,8 +200,7 @@ git add -A; git commit -m "…"; git push
 - **Mode « Personnaliser la barre d'outils »** (corrigé le 2026-10-15) : Firefox pose l'attribut `customizing` sur la racine, chaque bouton est alors enveloppé dans un emplacement (`toolbarpaletteitem`) qu'on glisse-dépose.
   Les réglages de la feuille cassaient ce mode : la barre d'adresse (`#urlbar-container`) et « Actualiser » (`#stop-reload-button`) en `position: absolute` laissaient leurs emplacements vides ailleurs, en mode compact
   la bande d'onglets en superposition recouvrait les emplacements, « Actualiser » restait invisible (la page « Personnaliser » compte comme page vide) et la barre du haut est une zone de déplacement de la fenêtre. Maintenant, pendant
-  ce mode seulement : barre d'adresse et « Actualiser » dans le flux (largeur `--uc-urlbar-width`), « Actualiser » visible, `-moz-window-dragging: no-drag` sur `#nav-bar`, `#TabsToolbar` et les emplacements, le bouton de
-  panneau latéral (masqué d'habitude) affiché pour pouvoir le déplacer, et la disposition compacte suspendue par `urlbar-domaine.uc.js` (un `MutationObserver` sur `customizing` ; la préférence reste vraie, le compact revient à la
+  ce mode seulement : barre d'adresse et « Actualiser » dans le flux (largeur `--uc-urlbar-width`), « Actualiser » visible, `-moz-window-dragging: no-drag` sur `#nav-bar`, `#TabsToolbar` et les emplacements, et la disposition compacte suspendue par `urlbar-domaine.uc.js` (un `MutationObserver` sur `customizing` ; la préférence reste vraie, le compact revient à la
   sortie, mesuré : barre d'adresse et bande d'onglets exactement aux mêmes positions qu'avant). Mesuré en profil jetable, en normal et en compact : 11 emplacements, aucun recouvert (`elementsFromPoint` au centre de chacun),
   rendu identique à celui de Firefox. La barre d'adresse y est vide (désactivée) et son fond est un voile noir de 30 % : on ne la voyait presque plus (signalé le 2026-10-15) ; elle est maintenant dessinée plus nettement
   (fond `rgba(255, 255, 255, 0.07)`, contour de 28 %) avec l'étiquette « Barre d'adresse » (`::before` de `.urlbar-input-container`), dans ce mode seulement (fond, contour et absence d'étiquette hors du mode vérifiés identiques).
