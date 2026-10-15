@@ -159,11 +159,15 @@ git add -A; git commit -m "…"; git push
 - **Globe sur une page non sécurisée (http)** : Firefox (classe `notSecureText` sur `#identity-box`) lui donnait un fond CLAIR et affichait « Non sécurisé » (`#identity-icon-label`), coupé en « … » par
   la barre étroite. Fond transparent (survol 22 % de la couleur du texte), texte masqué ; la page non sécurisée est signalée par le bouclier à gauche du champ, qui passe en « ! » (règle `.insecure`).
   Reproduit avec `http://192.168.86.206:8766/` (serveur de test sur le réseau local), corrigé et revérifié sur capture.
-- **Saisie centrée dans un nouvel onglet** (demandé le 2026-10-15) : `urlbar-domaine.uc.js` pose l'attribut `uc-vierge` sur la barre quand l'onglet affiché est `about:newtab`, `about:home` ou
-  `about:blank` (à chaque `TabSelect` et via le filet de sécurité), et `userChrome.css` y centre ce qu'on tape (`text-align: center`) avec des marges de 40 px des deux côtés ; pendant la frappe
-  Firefox ajoute dans le flux le bouton « Aller » (28 px, à droite) : la marge droite passe alors à 12 px (12 + 28 = 40) pour que le texte reste au centre du champ. Mesuré (champ de 384 px) :
-  centre du texte = centre du champ (0 px) avec « facebook.com/ » comme avec une adresse longue. Sur une page web la frappe reste alignée à gauche (sinon le début d'une adresse qu'on modifie
-  bougerait à chaque lettre) ; le texte d'invite d'un champ vide, lui, est désormais exactement centré (il était 14 px trop à gauche).
+- **Texte de l'adresse centré dans tous les états** (demandé le 2026-10-15 : d'abord la saisie d'un nouvel onglet, puis « si le site est assez court, toujours au centre, dans tous les modes ») : `#urlbar-input { text-align: center }` sans
+  condition (repos, barre active, saisie, nouvel onglet, page interne, texte d'invite), en mode normal comme en compact ; trop long pour tenir, le texte remplit le champ et commence à gauche. Pour que le milieu du texte soit le milieu du champ
+  il faut le même espace des deux côtés. Avec le globe (`uc-centre`) : marges calculées plus haut (« Globe et Actualiser »). Sans le globe (`#urlbar:not([uc-centre], [searchmode]) .urlbar-input-box`) : la zone du texte est en
+  `position: absolute; inset: 0 40px`, donc centrée quoi que Firefox mette dans le flux à côté (icône de page interne de 77 px, bouton « Aller » de 28 px pendant la frappe, rien sur un nouvel onglet) ; le bouton « Aller » reçoit
+  `margin-inline-start: auto` (sans cela, la zone n'étant plus dans le flux, il se collait à gauche) et l'icône de la page interne `z-index: 2` (elle reste cliquable). Pas en mode recherche (pastille du moteur dans le flux).
+  Mesuré (champ de 384 px, profil jetable, normal et compact) : écart entre le milieu du texte et celui du champ = 0 px (0,5 px avec le globe) dans 10 états (page web au repos / active / saisie, page interne au repos / active / saisie,
+  nouvel onglet au repos / actif / saisie) ; avant, texte décalé jusqu'à 24 px (page interne, repos) et alignée à gauche pendant la frappe sur une page web (et, centrée avec les anciennes marges de 12 / 40 px, 28 px à gauche du milieu à cause du bouton « Aller »). Le bouton « Aller »
+  reste à 2 px du bord droit. Limite : un texte plus long que le champ (en compact, le texte d'invite de 280 px dans un champ de 220 px) est aligné à gauche, c'est voulu. L'attribut `uc-vierge`, essayé d'abord pour le seul nouvel onglet,
+  a été retiré (code mort).
 - **Mode « Personnaliser la barre d'outils »** (corrigé le 2026-10-15) : Firefox pose l'attribut `customizing` sur la racine, chaque bouton est alors enveloppé dans un emplacement (`toolbarpaletteitem`) qu'on glisse-dépose.
   Les réglages de la feuille cassaient ce mode : la barre d'adresse (`#urlbar-container`) et « Actualiser » (`#stop-reload-button`) en `position: absolute` laissaient leurs emplacements vides ailleurs, en mode compact
   la bande d'onglets en superposition recouvrait les emplacements, « Actualiser » restait invisible (la page « Personnaliser » compte comme page vide) et la barre du haut est une zone de déplacement de la fenêtre. Maintenant, pendant

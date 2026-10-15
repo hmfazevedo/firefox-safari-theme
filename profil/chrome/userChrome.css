@@ -145,8 +145,10 @@
   --tab-max-width: 10000px !important; /* plafond hors d'atteinte : 1000 px laissait un vide à droite sur un écran de 2560 px */
 }
 
-/* Adresse : texte centré tant qu'on ne la modifie pas */
-#urlbar:not([focused]) #urlbar-input {
+/* Adresse : texte centré dans TOUS les états (repos, barre active, saisie, nouvel onglet, page interne), en mode normal comme en compact : dès qu'il
+ * tient dans le champ il est au milieu et grandit des deux côtés ; trop long, il remplit le champ et commence à gauche (demandé le 2026-10-15). Le
+ * milieu du champ n'est le milieu du texte que si l'espace des deux côtés est égal : règles .urlbar-input-box plus bas (avec le globe, sans le globe). */
+#urlbar-input {
   text-align: center !important;
 }
 
@@ -932,7 +934,6 @@ findbar {
 #urlbar[uc-centre] #urlbar-input {
   padding-inline-start: 0 !important; /* plus de place réservée au globe : il est collé au bord gauche du champ, le texte seul est centré */
   padding-inline-end: 4px !important; /* le cadre du texte (entre le globe et « Actualiser ») est 2 px à droite du centre du champ : 4 px ramènent le texte, mesuré, au centre */
-  text-align: center !important;
 }
 #urlbar[uc-centre] #identity-box {
   position: absolute;
@@ -998,30 +999,31 @@ findbar {
   list-style-image: var(--uc-globe) !important; /* aussi en dehors du centrage : sans cela l'icône « réglages » de Firefox revenait */
 }
 
-/* Texte d'invite de la barre vide (« Rechercher avec Google ou saisir une adresse ») centré lui aussi */
-#urlbar[focused]:not([usertyping]) #urlbar-input:placeholder-shown {
-  text-align: center !important;
-}
-/* ... mais le texte d'invite étant centré, le curseur de saisie (le trait vertical clignotant) tombait AU MILIEU des lettres : sur
+/* Le texte d'invite de la barre vide (« Rechercher avec Google ou saisir une adresse ») est centré lui aussi (règle plus haut), mais le curseur de saisie (le trait vertical clignotant) tombait AU MILIEU des lettres : sur
  * un nouvel onglet Firefox met le focus dans la barre vide. On le cache tant que le champ est vide (page « nouvel onglet » ou champ
  * vidé : pageproxystate="invalid") ; dès qu'on tape, le texte d'invite disparaît et le curseur revient. Une page normale (adresse
  * affichée) garde son curseur. */
 #urlbar[pageproxystate="invalid"] #urlbar-input:placeholder-shown {
   caret-color: transparent !important;
 }
-/* Nouvel onglet / page vide (attribut uc-vierge, posé par urlbar-domaine.uc.js d'après l'adresse de l'onglet affiché : about:newtab, about:home,
- * about:blank) : ce qu'on tape est centré, comme le texte d'invite, et grandit des deux côtés (demandé le 2026-10-15). Marges de 40 px des deux
- * côtés, pour que le centre du texte soit le centre du champ (avec 12 / 40 px il était 14 px à gauche). Pendant la frappe, Firefox ajoute dans le flux, à
- * droite, le bouton « Aller » (28 px) : la marge droite passe à 12 px (12 + 28 = 40) et le texte reste au centre du champ, comme au repos.
- * Sur une page web la frappe reste alignée à gauche : sinon le début d'une adresse qu'on modifie bougerait à chaque lettre. */
-#urlbar[uc-vierge] #urlbar-input {
-  text-align: center !important;
+/* Sans le globe (frappe, nouvel onglet, page interne, texte d'invite) : la zone du texte est posée en absolu, à 40 px des deux bords du champ, donc
+ * son milieu est TOUJOURS celui du champ, quoi que Firefox mette dans le flux à côté (l'icône de la page interne, large de 77 px, le bouton « Aller »
+ * de 28 px pendant la frappe, rien sur un nouvel onglet) : avant, avec les marges de 12 / 40 px, le texte était jusqu'à 58 px à côté du milieu. Le
+ * texte ne passe sous ces éléments que s'il est assez long pour approcher des bords. Pas en mode recherche (la pastille du moteur est alors dans le
+ * flux, à gauche du texte). Demandé le 2026-10-15 (nouvel onglet d'abord, puis « dans tous les modes »). */
+#urlbar:not([uc-centre], [searchmode]) .urlbar-input-box {
+  position: absolute !important;
+  inset: 0 40px !important;
+  margin: 0 !important;
 }
-#urlbar[uc-vierge] .urlbar-input-box {
-  margin-inline: 40px !important;
+/* L'icône (et son texte) de la page interne reste au-dessus de la zone du texte : un clic dessus ouvre toujours son panneau. */
+#urlbar:not([uc-centre], [searchmode]) #identity-box {
+  position: relative;
+  z-index: 2;
 }
-#urlbar[uc-vierge][usertyping] .urlbar-input-box {
-  margin-inline: 40px 12px !important;
+/* La zone du texte, sortie du flux, ne repousse plus le bouton « Aller » (flèche, pendant la frappe) vers la droite : il se serait collé à gauche. */
+#urlbar:not([uc-centre], [searchmode]) .urlbar-go-button {
+  margin-inline-start: auto;
 }
 
 /* Couleurs de la barre active, de Safari plutôt que de Firefox : contour bleu translucide de 3 px à
