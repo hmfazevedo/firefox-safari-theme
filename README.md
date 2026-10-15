@@ -159,6 +159,11 @@ git add -A; git commit -m "…"; git push
 - **Globe sur une page non sécurisée (http)** : Firefox (classe `notSecureText` sur `#identity-box`) lui donnait un fond CLAIR et affichait « Non sécurisé » (`#identity-icon-label`), coupé en « … » par
   la barre étroite. Fond transparent (survol 22 % de la couleur du texte), texte masqué ; la page non sécurisée est signalée par le bouclier à gauche du champ, qui passe en « ! » (règle `.insecure`).
   Reproduit avec `http://192.168.86.206:8766/` (serveur de test sur le réseau local), corrigé et revérifié sur capture.
+- **Saisie centrée dans un nouvel onglet** (demandé le 2026-10-15) : `urlbar-domaine.uc.js` pose l'attribut `uc-vierge` sur la barre quand l'onglet affiché est `about:newtab`, `about:home` ou
+  `about:blank` (à chaque `TabSelect` et via le filet de sécurité), et `userChrome.css` y centre ce qu'on tape (`text-align: center`) avec des marges de 40 px des deux côtés ; pendant la frappe
+  Firefox ajoute dans le flux le bouton « Aller » (28 px, à droite) : la marge droite passe alors à 12 px (12 + 28 = 40) pour que le texte reste au centre du champ. Mesuré (champ de 384 px) :
+  centre du texte = centre du champ (0 px) avec « facebook.com/ » comme avec une adresse longue. Sur une page web la frappe reste alignée à gauche (sinon le début d'une adresse qu'on modifie
+  bougerait à chaque lettre) ; le texte d'invite d'un champ vide, lui, est désormais exactement centré (il était 14 px trop à gauche).
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : fines et translucides partout (`scrollbar-width: thin`, gris moyen, `userContent.css`). La barre de la PAGE

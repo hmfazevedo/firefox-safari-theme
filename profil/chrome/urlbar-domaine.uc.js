@@ -24,6 +24,8 @@
   // gauche (sinon il bougerait à chaque lettre).
   const majCentre = () => {
     try {
+      // uc-vierge : l'onglet affiché est un nouvel onglet / une page vide : la saisie y est centrée (voir userChrome.css), pas sur une page web
+      bar.toggleAttribute("uc-vierge", /^about:(newtab|home|blank)\b/i.test(gBrowser.selectedBrowser.currentURI.spec));
       if (!bar.hasAttribute("uc-web") || bar.hasAttribute("usertyping") || !bar.inputField.value) {
         bar.removeAttribute("uc-centre");
         return;
@@ -83,6 +85,7 @@
   // d'onglet, redirection, restauration) et la fenêtre peut être redimensionnée. On revérifie donc
   // l'état de centrage ; presque gratuit (deux lectures d'attributs).
   const synchroniser = majCentre;
+  gBrowser.tabContainer.addEventListener("TabSelect", synchroniser);
   new ResizeObserver(synchroniser).observe(bar);
   setInterval(synchroniser, 400);
   // Réaction immédiate au focus / à la frappe : Firefox change le texte (adresse complète) et les attributs

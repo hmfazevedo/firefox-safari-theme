@@ -1008,6 +1008,20 @@ findbar {
 #urlbar[pageproxystate="invalid"] #urlbar-input:placeholder-shown {
   caret-color: transparent !important;
 }
+/* Nouvel onglet / page vide (attribut uc-vierge, posé par urlbar-domaine.uc.js d'après l'adresse de l'onglet affiché : about:newtab, about:home,
+ * about:blank) : ce qu'on tape est centré, comme le texte d'invite, et grandit des deux côtés (demandé le 2026-10-15). Marges de 40 px des deux
+ * côtés, pour que le centre du texte soit le centre du champ (avec 12 / 40 px il était 14 px à gauche). Pendant la frappe, Firefox ajoute dans le flux, à
+ * droite, le bouton « Aller » (28 px) : la marge droite passe à 12 px (12 + 28 = 40) et le texte reste au centre du champ, comme au repos.
+ * Sur une page web la frappe reste alignée à gauche : sinon le début d'une adresse qu'on modifie bougerait à chaque lettre. */
+#urlbar[uc-vierge] #urlbar-input {
+  text-align: center !important;
+}
+#urlbar[uc-vierge] .urlbar-input-box {
+  margin-inline: 40px !important;
+}
+#urlbar[uc-vierge][usertyping] .urlbar-input-box {
+  margin-inline: 40px 12px !important;
+}
 
 /* Couleurs de la barre active, de Safari plutôt que de Firefox : contour bleu translucide de 3 px à
  * l'INTÉRIEUR du champ (demandé : il ne doit pas déborder ni donner l'impression d'un champ plus grand ; Firefox : turquoise de 2 px à l'extérieur), sélection bleue, fond gris un cran au-dessus du repos
