@@ -220,14 +220,14 @@
   transform: translateY(-50%);
 }
 
-/* Barre d'adresse plus courte et centrée sur la FENÊTRE (comme Safari : ~40 % de la largeur).
+/* Barre d'adresse plus courte et centrée sur la FENÊTRE (comme Safari : ~30 % de la largeur).
  * Dans la barre de navigation elle occupe l'espace libre entre les boutons de gauche et ceux de
  * droite, donc son centre dépend de la largeur de ces boutons. On la sort de ce flux
  * (position: absolute, repère = #nav-bar qui couvre toute la fenêtre) et on la centre avec des
  * marges automatiques (left/right 0 + largeur fixe) : PAS de transform, car Firefox ancre le
  * panneau de suggestions sur la barre et un transform le décalait (barre et panneau désalignés à
- * l'ouverture). top/bottom 0 : la barre prend la hauteur de la rangée (40 px) et centre son champ.
- * Largeur : 40 % de la fenêtre, entre 320 et 800 px. */
+ * l'ouverture). top/bottom 0 : la barre prend la hauteur de la rangée et centre son champ.
+ * Largeur : 30 % de la fenêtre, entre 320 et 600 px. */
 /* LARGEUR de la barre d'adresse : un seul endroit à modifier (la hauteur n'est jamais touchée).
  * clamp(minimum, part de la fenêtre, maximum). Le bouton « Actualiser » plus bas la reprend. */
 :root {
@@ -522,12 +522,8 @@
 /* Le trait fin tout en haut du panneau (de retour dans Firefox 157) : bordure haute de #urlbar-results (0,67 px, gris #52525e), qui
  * séparait la barre de la liste quand les deux étaient soudées. Détachées, elle ne sépare plus rien. Repérée en retirant
  * successivement l'ombre du fond, la bordure de #urlbar-results et celle des lignes : seul le retrait de #urlbar-results fait
- * disparaître le trait. L'ancienne cible (.urlbarView-body-inner) n'existe plus dans ce Firefox, la règle plus bas est morte. */
+ * disparaître le trait. */
 #urlbar-results {
-  border-top: none !important;
-}
-/* Ancienne version du même trait : bordure haute de .urlbarView-body-inner. */
-#urlbar .urlbarView-body-inner {
   border-top: none !important;
 }
 #urlbar > .urlbarView > .urlbarView-background {
@@ -547,11 +543,6 @@
 }
 #unified-extensions-button {
   list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M1.8 5.5H4.9a1.6 1.6 0 1 1 2.4 0H11.6V8.1a1.6 1.6 0 1 1 0 2.4V13.1H1.8Z' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/></svg>") !important;
-}
-
-/* Barre latérale : l'icône de Safari (rectangle arrondi, volet à gauche avec trois petits traits), en blanc. */
-#sidebar-button {
-  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><rect x='1.6' y='2.6' width='12.8' height='10.8' rx='2.6'/><path d='M6.7 2.9v10.2M3.6 5.6h.8M3.6 8h.8M3.6 10.4h.8'/></g></svg>") !important;
 }
 
 /* Téléchargements : cercle avec flèche vers le bas, comme Safari, en blanc. Le dessin est celui du
@@ -712,7 +703,7 @@ findbar {
   color: #fbfbfe !important;
 }
 :root[uc-clair] :is(#back-button, #forward-button, #reload-button, #stop-button, #new-tab-button, #PanelUI-menu-button,
-    #unified-extensions-button, #sidebar-button, #downloads-button, #uc-compact-button) .toolbarbutton-icon,
+    #unified-extensions-button, #downloads-button, #uc-compact-button) .toolbarbutton-icon,
 :root[uc-clair] #downloads-indicator-icon,
 :root[uc-clair] #urlbar[uc-centre] #identity-icon,
 :root[uc-clair] #urlbar[uc-web] #permissions-granted-icon,
@@ -912,17 +903,14 @@ findbar {
   filter: none;
 }
 
-/* Globe à gauche du texte, comme Safari : le groupe « globe + texte » est centré dans la barre, au repos (domaine seul)
- * comme barre active (adresse complète sélectionnée). Le script urlbar-domaine.uc.js pose l'attribut uc-centre
- * (adresse de site affichée, pas de frappe en cours) et la variable --uc-dw (largeur du texte affiché, en px). Le champ
- * réserve 22 px à gauche du texte (16 px de globe + 6 px d'air), ce qui le décale de 11 px vers la droite : le groupe
- * entier est donc centré ; sur une adresse longue qui remplit le champ, le globe reste simplement collé à gauche.
- * Blanc fixé dans le dessin (#fbfbfe) : Firefox ne transmet pas sa couleur aux images data:. Rien de tout cela sur
+/* Globe collé au bord gauche du champ, texte seul centré, comme Safari : au repos (domaine seul) comme barre active (adresse
+ * complète sélectionnée). Le script urlbar-domaine.uc.js pose l'attribut uc-centre (adresse de site affichée, pas de frappe en
+ * cours). Blanc fixé dans le dessin (#fbfbfe) : Firefox ne transmet pas sa couleur aux images data:. Rien de tout cela sur
  * une page interne ni pendant la frappe d'une recherche.
  *
  * Le globe est un VRAI bouton de Firefox, donc cliquable : #identity-icon-box (qui ouvre le panneau du site) quand
  * le site n'a aucune permission, ou #identity-permission-box (qui ouvre le panneau des permissions) quand il en a
- * (l'autre est alors masqué : un seul globe). #identity-box est placé à l'endroit du globe par le script (--uc-gx). */
+ * (l'autre est alors masqué : un seul globe). */
 :root {
   --uc-globe: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.1' stroke-linecap='round'><circle cx='8' cy='8' r='6.2'/><ellipse cx='8' cy='8' rx='2.7' ry='6.2'/><path d='M1.9 8h12.2M2.8 4.7h10.4M2.8 11.3h10.4'/></g></svg>");
 }
@@ -933,14 +921,9 @@ findbar {
 }
 #urlbar[uc-centre] #identity-box {
   position: absolute;
-  inset-inline-start: 4px; /* globe TOUJOURS à gauche, comme « Actualiser » est à droite : rond de 28 px à 4 px du bord (2 px, +3 px demandés, puis -1 px) ; plus de position d'après le texte (--uc-gx, posée par le script, n'est plus lue) */
+  inset-inline-start: 4px; /* globe TOUJOURS à gauche, comme « Actualiser » est à droite : rond de 28 px à 4 px du bord */
   top: 50%;
   transform: translateY(-50%);
-  /* La zone est placée pour UN bouton de 28 px (--uc-gx). Quand Firefox ajoute l'icône d'une permission bloquée (lecture
-   * automatique, fenêtre bloquée…), elle s'élargit (48 px mesurés) et débordait sur le début du texte. On la tire vers la
-   * gauche de sa largeur en trop (un pourcentage de translate se compte sur la largeur de l'élément lui-même) : les icônes
-   * restent collées à gauche du texte, dans l'ordre globe puis icône bloquée. Sans icône en plus : 28 px - 100 % = 0. */
-  translate: none;
   z-index: 3; /* le champ de saisie est après lui dans le DOM : sans cela il le recouvre et le clic n'arrive jamais au bouton */
 }
 #urlbar[uc-centre] #identity-box {

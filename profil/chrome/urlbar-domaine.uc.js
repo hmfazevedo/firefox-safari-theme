@@ -18,63 +18,20 @@
   // Seules les adresses web : les pages internes (about:, file:, extensions) gardent leur texte.
   const estWeb = (val) => typeof val === "string" && /^https?:\/\/[^/?#\s]+/i.test(val);
 
-  // Largeur (en px) du domaine affiché, mesurée avec la police réelle du champ : la feuille de style
-  // s'en sert pour poser le globe juste à gauche du texte centré (CSS seul ne sait pas où commence
-  // un texte centré dans un champ de saisie). Publiée dans --uc-dw sur la barre, avec l'attribut
-  // uc-domaine tant que l'affichage « domaine seul » est actif.
-  let canvas = null;
-  let dernierTexte = ""; // dernier texte mesuré (déclaré ici : rafraichir() s'exécute avant la fin du script)
-  const largeurTexte = (texte) => {
-    canvas ||= document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
-    const cs = getComputedStyle(this_input());
-    const ctx = canvas.getContext("2d");
-    ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
-    return ctx.measureText(texte).width;
-  };
-  const this_input = () => bar.inputField;
-  // Position (en px, depuis le bord gauche du conteneur) du bouton-globe, mesurée sur le texte réel :
-  // le texte est centré dans le CHAMP, pas dans la barre, et un élément en plus dans la barre (extension,
-  // icône) décale le champ ; un calcul en pourcentage de la barre mettrait alors le globe sur le texte.
-  // Le bouton fait 28 px (icône de 16 px à 6 px du bord) et son bord droit doit être à 6 px du texte.
-  const placerGlobe = () => {
-    const conteneur = bar.querySelector(".urlbar-input-container");
-    const dw = parseFloat(bar.style.getPropertyValue("--uc-dw"));
-    if (!conteneur || !(dw >= 0) || !bar.hasAttribute("uc-centre")) {
-      return;
-    }
-    const champ = bar.inputField.getBoundingClientRect();
-    const cs = getComputedStyle(bar.inputField);
-    const decalage = (parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) / 2;
-    const debutTexte = champ.left + champ.width / 2 + decalage - dw / 2;
-    const gx = (Math.round((debutTexte - conteneur.getBoundingClientRect().left - 28) * 10) / 10) + "px";
-    if (bar.style.getPropertyValue("--uc-gx") !== gx) {
-      bar.style.setProperty("--uc-gx", gx);
-    }
-  };
   // Centrage du groupe « globe + texte » : actif (attribut uc-centre) quand la barre montre l'adresse d'un site
   // (uc-web) et qu'on ne tape pas (usertyping) : au repos (domaine seul) ET barre active (adresse complète
-  // sélectionnée). La largeur du texte réellement affiché est remesurée quand elle change ; la position du globe
-  // en découle. Pendant la frappe, le texte reste aligné à gauche (sinon il bougerait à chaque lettre).
+  // sélectionnée). Le globe est collé à gauche du champ par le CSS ; pendant la frappe, le texte reste aligné à
+  // gauche (sinon il bougerait à chaque lettre).
   const majCentre = () => {
     try {
-      const val = bar.inputField.value;
-      if (!bar.hasAttribute("uc-web") || bar.hasAttribute("usertyping") || !val) {
+      if (!bar.hasAttribute("uc-web") || bar.hasAttribute("usertyping") || !bar.inputField.value) {
         bar.removeAttribute("uc-centre");
         return;
       }
-      if (val !== dernierTexte) {
-        dernierTexte = val;
-        bar.style.setProperty("--uc-dw", Math.round(largeurTexte(val)) + "px");
-      }
       bar.setAttribute("uc-centre", "");
-      placerGlobe();
     } catch (e) {
       console.error("urlbar-domaine (majCentre) :", e);
     }
-  };
-  const marquerDomaine = (domaine) => {
-    bar.toggleAttribute("uc-domaine", !!domaine);
-    majCentre();
   };
 
   const setValueNatif = bar.setValue;
@@ -82,7 +39,7 @@
     const resultat = setValueNatif.call(this, val, options);
     try {
       // uc-web : la barre montre l'adresse d'un site (réduite OU complète, sélectionnée au focus). Sert au globe
-      // de la barre active, alors que uc-domaine n'existe que pour l'affichage « domaine seul » au repos.
+      // de la barre active, comme au repos (domaine seul).
       this.toggleAttribute("uc-web", estWeb(val));
       // allowTrim = affichage « au repos » demandé par Firefox ; pas quand on tape ou qu'on édite.
       if (options && options.allowTrim && !this.focused && estWeb(val)) {
@@ -91,11 +48,11 @@
           this._protocolIsTrimmed = true; // pour que le focus remette l'adresse entière
           this.inputField.value = domaine;
           this.formatValue();
-          marquerDomaine(domaine);
+          majCentre();
           return domaine;
         }
       }
-      marquerDomaine(null);
+      majCentre();
     } catch (e) {
       console.error("urlbar-domaine :", e);
     }
@@ -123,9 +80,8 @@
   rafraichir();
 
   // Filet de sécurité : Firefox change parfois le texte du champ sans passer par setValue (changement
-  // d'onglet, redirection, restauration) et la fenêtre peut être redimensionnée. On remesure donc le
-  // domaine affiché et la position du globe quand la barre est au repos ; presque gratuit (une lecture
-  // de géométrie, la mesure du texte n'est refaite que si le texte change).
+  // d'onglet, redirection, restauration) et la fenêtre peut être redimensionnée. On revérifie donc
+  // l'état de centrage ; presque gratuit (deux lectures d'attributs).
   const synchroniser = majCentre;
   new ResizeObserver(synchroniser).observe(bar);
   setInterval(synchroniser, 400);

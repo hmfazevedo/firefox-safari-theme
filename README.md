@@ -106,33 +106,24 @@ git add -A; git commit -m "…"; git push
   mention « Navigation privée » en violet (`#b9a3ff`) à gauche du champ, seulement quand une page est affichée (`pageproxystate="valid"`) : sur
   un nouvel onglet vide le texte d'invite centré la recouvrait. Mention et couleurs inspirées de Safari, non vérifiées sur votre Safari 27.
 - **Mode compact** (bouton « Mode compact » tout à gauche de la barre, à la place du bouton de panneau latéral, masqué ; deux rangées / une rangée) : onglets et champ d'adresse sur UNE seule rangée,
-  comme la disposition « Compact » de Safari : [panneau latéral, précédent, suivant] [champ d'adresse] [onglets] [boutons de droite]. Le choix est la
+  comme la disposition « Compact » de Safari : [Mode compact, précédent, suivant] [bouclier] [champ d'adresse] [onglets] [boutons de droite]. Le choix est la
   préférence `extensions.uc.compact` (modifiable aussi dans about:config), observée par chaque fenêtre. `urlbar-domaine.uc.js` crée le bouton
   (`CustomizableUI.createWidget`, replacé avant « Précédent » à chaque démarrage car `user.js` remet la disposition à zéro), pose `uc-compact`,
   `uc-multi` (2 onglets ou plus : avec un seul la rangée est masquée, rien ne change) et mesure `--uc-gauche` / `--uc-droite`. `userChrome.css` pose la
-  rangée d'onglets EN SUPERPOSITION de la barre de navigation (`position: absolute`, 40 px) ; seulement en onglets horizontaux (`:has(#tabbrowser-tabs[orient="horizontal"])`).
-  **Écarts de la bande** : 25 px entre le champ et le premier onglet (= l'écart visible flèche « suivant » -> champ, 25,4 px) et 25 px entre la bande et l'icône du premier bouton
-  de droite (mesurés dans le Firefox de test : 25 / 25). Formules : `left: calc(var(--uc-ux) + var(--uc-uw) + 25px)`, `right: calc(var(--uc-droite) + 9px)`.
-  **Hauteur** : en mode compact le champ garde ses 32 px et la bande d'onglets ses 36 px (donc 2 px de plus de chaque côté, la bande allant de 2 à 38 px et le champ de 4 à 36 px). Deux essais ont été
-  refusés : bande réduite à 32 px (pastilles de 24 px), puis champ agrandi à 36 px (`--urlbar-height: 36px !important`, que Firefox pose dans une règle d'auteur). `#urlbar[uc-centre] #identity-box { align-items: center }`
-  est resté (inoffensif en mode normal). Si on retente : un champ de 34 px serait un compromis.
-  **Écarts de la bande** : 25 px entre le champ et le premier onglet (= l'écart visible flèche « suivant » -> champ, 25,4 px) et 25 px entre la bande et l'icône du premier bouton
-  de droite (mesurés dans le Firefox de test : 25 / 25). Formules : `left: calc(var(--uc-ux) + var(--uc-uw) + 25px)`, `right: calc(var(--uc-droite) + 9px)`.
-  **Hauteur** : en mode compact c'est le CHAMP d'adresse qui grandit pour égaler la bande d'onglets (36 px, de 2 à 38 px dans la barre de 40 px) : `--urlbar-height: 36px !important`
-  et `--urlbar-padding-block: 2px !important` sur la racine (sans `!important` Firefox, qui les pose dans une règle d'auteur, l'emporte). La bande garde sa taille normale
-  (pastilles de 28 px). La boîte d'identité (globe) grandit avec le champ : `align-items: center` pour garder le globe centré. Mode normal inchangé (champ de 32 px).
-  **Écarts de la bande** : 25 px entre le champ et le premier onglet (= l'écart visible flèche « suivant » -> champ, 25,4 px) et 25 px entre la bande et l'icône du premier bouton
-  de droite (mesurés dans le Firefox de test : 25 / 25). Formules : `left: calc(var(--uc-ux) + var(--uc-uw) + 25px)`, `right: calc(var(--uc-droite) + 9px)`.
-  **Hauteur de la bande** : en mode compact la bande d'onglets fait la MÊME hauteur et la même ligne que le champ d'adresse (32 px, de 4 à 36 px : `top: var(--urlbar-padding-block)`,
-  `height: var(--urlbar-height)`, `--tab-min-height: 32px`, `--tabstrip-min-height: 40px` ; pastilles de 24 px, marge de 4 px). Mode normal inchangé (bande de 36 px, pastilles de 28 px).
-  **Espacement à gauche** : le champ commence à `--uc-gauche + 17px`, soit le même écart VISIBLE (25,7 px, mesuré sur les glyphes d'une capture : bouton compact -> flèche
-  de retour) entre la flèche « suivant » et le champ. Le bouclier, qui occupait cet espace à gauche du champ, passe DANS le champ en mode compact (`inset-inline: 6px auto`,
-  apparition en fondu pendant `uc-anim`) ; la mention « Navigation privée » est décalée à 40 px pour ne pas passer dessous.
+  rangée d'onglets EN SUPERPOSITION de la barre de navigation (`position: absolute`, boîte de 40 px) ; seulement en onglets horizontaux (`:has(#tabbrowser-tabs[orient="horizontal"])`).
+  **Champ** : `left` = `--uc-gauche + 47px`, largeur `clamp(220px, 22vw, 380px)`.
+  **Bouclier** : à gauche du champ (`inset-inline-end: calc(100% + 13px)`, 6 px en mode normal). Mesuré sur capture, pixels réels : flèche « suivant » -> bouclier 39 px (écart
+  VALIDÉ par l'utilisateur : ne plus y toucher), bouclier -> bord du champ 32 px (essais : 24 px = « pas bon », 40 px = « trop grand »). **Bouton compact** décalé de 15 px (`margin-inline-start`) :
+  bord de la fenêtre -> symbole = 40 px, symbole -> flèche « précédent » = 39 px (valable aussi en mode normal, même bouton).
+  **Bande d'onglets** : `left: calc(var(--uc-ux) + var(--uc-uw) + 25px)` et `right: calc(var(--uc-droite) + 9px)`, soit 25 px d'écart visible avec le champ (= l'écart flèche « suivant » -> champ, 25,4 px
+  mesurés) et 25 px avec l'icône du premier bouton de droite (`--uc-droite` compte 6 px de marge et le bouton a 10 px de vide autour de son icône).
+  **Hauteur** : la bande garde sa taille normale (boîte de 40 px, onglets de 36 px dont des pastilles de 28 px) ; c'est le champ qui est à 36 px (voir « Hauteur de la barre du haut »). La bande est
+  centrée dans la barre de 50 px : `top: calc((hauteur de barre - 40px) / 2)` = 5 px.
   **Animation** : le passage normal <-> compact (bouton, ou 2e onglet qui s'ouvre / se ferme en mode compact) est progressif sur 0,42 s, courbe symétrique
   `cubic-bezier(0.4, 0, 0.2, 1)` (la première, très « ease-out », faisait la moitié du trajet en 35 ms : on ne voyait qu'un saut). Le champ glisse et se rétrécit
   (variables `--uc-ux` / `--uc-uw` déclarées avec `@property`, transition seulement sous l'attribut `uc-anim`, posé APRÈS la modification dans la même tâche et
   seulement si la disposition change, sinon le champ « traînerait » au redimensionnement et le mode normal serait touché). La bande d'onglets SUIT le bord droit du
-  champ (`left: calc(var(--uc-ux) + var(--uc-uw) + 12px)`) : plus de chevauchement, mesuré à 12 px minimum à chaque image. Pendant `uc-anim` : pas de transition propre
+  champ : plus de chevauchement. Pendant `uc-anim` : pas de transition propre
   à Firefox sur la rangée d'onglets (son ouverture en hauteur laissait voir une rangée vide), boîte de la barre de la couleur des barres (sa couleur propre, plus sombre,
   faisait une bande sous la barre des favoris), flèches de défilement des onglets masquées. La hauteur n'est animée (`element.animate`) que pour la bascule du bouton :
   à l'ouverture d'un onglet la mesure de départ était faussée par la rangée de Firefox en train de s'ouvrir. Onglets comptés SYNCHRONEMENT à `TabOpen` / `TabClose`
@@ -144,34 +135,25 @@ git add -A; git commit -m "…"; git push
   sur barre claire. Ce sont les boutons que Firefox garde en copie dans `#nav-bar`. Vérifié : mesures, survol forcé (`InspectorUtils.addPseudoClassLock`) en barre
   sombre et claire, touche du centre. NON testé : de vrais clics de souris sur la fenêtre (les clics simulés ne traversent pas la zone de déplacement de Windows) ;
   le dessin du bouton « restaurer » (fenêtre agrandie) n'a pas été photographié. Refusés avant : ronds rouge/jaune/vert à GAUCHE.
-- **Hauteur de la barre du haut** (`userChrome.css`, variable `--uc-barre-extra` = 6 px) : la rangée du champ d'adresse passe de 40 à 46 px dans les DEUX modes, le champ
-  (32 px) a donc 7 px d'air en haut comme en bas (4 px avant). En compact la bande d'onglets (36 px dans une boîte de 40) est recentrée (`top: calc(var(--uc-barre-extra) / 2)`).
-  Mesuré dans un profil jetable : barre 46,0 px, champ 7,0 / 7,0, bande 3,0 / 3,0, onglet 5,0 / 5,0, boutons de fenêtre et de gauche centrés.
-  **Mode normal, écart visible** : la rangée d'onglets avait 2 px de marge EN HAUT, donc 9 px visibles sous le champ contre 7 au-dessus (signalé par l'utilisateur sur
-  capture). `#TabsToolbar` n'a plus de padding haut en normal ; en bas il a `--uc-barre-bas` = 7 px (`padding: 0 8px 7px`, `max-height: 43px`), le même air entre la bande et la page qu'entre le champ et la bande (demandé : « il manque de la hauteur en bas des tabs ») ; en compact (bande en superposition) il garde 2 px haut et bas et
-  40 px. Mesuré sur capture : 11 px au-dessus du champ, 11 px sous le champ jusqu'à la bande d'onglets.
-  **Barre de favoris** : même air sous les favoris que sous la bande / le champ (`padding-block: 2px calc(2px + var(--uc-barre-bas))`, `max-height: calc(3em + var(--uc-barre-bas))`), avec UN seul
+- **Hauteur de la barre du haut** (`userChrome.css`, `--uc-barre-extra` = 6 px et `--urlbar-height: 36px !important` sur `:root`, demandé le 2026-10-14) : le champ d'adresse a la hauteur de la bande
+  d'onglets (36 px), dans les DEUX modes ; la barre du haut passe à 50 px (36 + 8 + 6), soit 7 px d'air au-dessus et au-dessous du champ. `!important` : Firefox pose sa valeur dans une règle d'auteur.
+  Mode normal : `#TabsToolbar` n'a pas de padding haut (la barre du dessus a déjà 7 px d'air sous le champ ; sinon 9 px sous le champ contre 7 au-dessus, écart signalé sur capture) et `--uc-barre-bas` = 7 px
+  en bas (`padding: 0 8px 7px`, `max-height: 43px`), le même air entre la bande et la page qu'entre le champ et la bande (demandé : « il manque de la hauteur en bas des tabs »). Mesuré sur capture : 11 px au-dessus
+  du champ, 11 px sous le champ jusqu'à la bande d'onglets. En compact (bande en superposition) : 2 px haut et bas, 40 px, centrée dans la barre (onglets alignés sur le champ, de 7 à 43 px).
+  Le 36 px avait été refusé plus tôt en compact (« j'aime pas comme ça », barre de 40 px, 2 px d'air) : si ce n'est pas la hauteur mais l'air qui gênait, ne changer que la variable.
+- **Barre de favoris** : même air sous les favoris que sous la bande / le champ (`padding-block: 2px calc(2px + var(--uc-barre-bas))`, `max-height: calc(3em + var(--uc-barre-bas))`), avec UN seul
   onglet (page de nouvel onglet) comme avec plusieurs : même hauteur de barre (demandé le 2026-10-14 ; un essai « seulement avec 2 onglets ou plus » avait été fait juste avant puis retiré).
   Mesuré avec 3 favoris : barre de 39 px, favoris à 11 px au-dessus / 11,7 px sous, avec 1 comme avec 3 onglets, en normal comme en compact.
-- **Champ d'adresse de la hauteur de la bande d'onglets** (`--urlbar-height: 36px !important` sur `:root`, demandé le 2026-10-14) dans les DEUX modes : la barre passe à 50 px (36 + 8 + 6),
-  7 px d'air haut et bas ; en compact la bande (boîte de 40 px) est centrée à `(hauteur de barre - 40) / 2` = 5 px, ses onglets alignés sur le champ (7 → 43 px).
-  Le 36 px avait été refusé plus tôt en compact (« j'aime pas comme ça », barre de 40 px, 2 px d'air) : si ce n'est pas la hauteur mais l'air qui gênait, ne changer que la variable.
-  **Contour de focus bleu à l'INTÉRIEUR** (`outline-offset: -3px` sur `#urlbar[focused] > .urlbar-background`) : il ne déborde plus du champ ; mesuré, champ identique au repos et pris
+- **Contour de focus bleu à l'INTÉRIEUR** (`outline-offset: -3px` sur `#urlbar[focused] > .urlbar-background`) : il ne déborde plus du champ ; mesuré, champ identique au repos et pris
   en focus (448,5 / 7 / 384,4 x 36).
-- **Bouclier hors du champ en compact aussi** (demandé) : il reste à gauche du champ comme en mode normal (plus de règle qui le rentrait dans le champ, ni de décalage de la mention
-  « Navigation privée », ni de fondu) ; le champ commence à `--uc-gauche + 40px`. **Bouton compact** décalé de 15 px (`margin-inline-start`) : mesuré sur capture, bord de la fenêtre -> symbole
-  = 40 px, symbole -> flèche « précédent » = 39 px, flèche « suivant » -> bouclier = 39 px (pixels réels). Valable aussi en mode normal (même bouton).
-- **Globe toujours à gauche, zone ronde** (demandé) : `#identity-box` à `inset-inline-start: 2px` du champ (comme « Actualiser » est à 2 px du bord droit), plus placé d'après le texte (la variable
-  `--uc-gx` du script n'est plus lue) ; le texte seul est centré dans le champ (`padding-inline-end: 4px` : mesuré, centre du texte = centre du champ). Le bouton des permissions (site qui en a, YouTube
-  par exemple) était une pilule de 52 px (globe + icône de lecture automatique bloquée, marges de 8 px) : même rond de 28 px, les icônes de permission BLOQUÉE (`#blocked-permissions-container`) ne s'affichent plus
-  à côté (elles restent dans le panneau au clic) ; les icônes de PARTAGE en cours (caméra, micro) restent visibles et élargissent la zone. Mesuré : 28 x 28, rayon 14 px, avec et sans permission, normal et compact.
-- **Écart du bouclier en compact** : champ à `--uc-gauche + 47px`, bouclier à `inset-inline-end: calc(100% + 13px)`. Mesuré sur capture, pixels réels : flèche « suivant » -> bouclier 39 px (écart
-  VALIDÉ par l'utilisateur : ne plus y toucher), bouclier -> bord du champ 32 px (essais : 24 px = « pas bon », 40 px = « trop grand »). En mode normal le bouclier reste à 6 px du champ (inchangé).
+- **Globe et « Actualiser »** (demandé) : le globe (`#identity-box`) est toujours à gauche du champ, à `inset-inline-start: 4px` (rond de 28 px, mesuré à 4,7 px du bord), comme « Actualiser » est à droite
+  (`left: calc(var(--uc-ux) + var(--uc-uw) - 34px)`, rond à 4 px du bord) ; il n'est plus placé d'après le texte. Le texte seul est centré dans le champ (`padding-inline-end: 4px` : mesuré, centre du texte =
+  centre du champ). Le bouton des permissions (site qui en a, YouTube par exemple) était une pilule de 52 px (globe + icône de lecture automatique bloquée, marges de 8 px) : même rond de 28 px, les icônes de
+  permission BLOQUÉE (`#blocked-permissions-container`) ne s'affichent plus à côté (elles restent dans le panneau au clic) ; les icônes de PARTAGE en cours (caméra, micro) restent visibles et élargissent la zone.
+  Mesuré : 28 x 28, rayon 14 px, avec et sans permission, normal et compact.
 - **Globe sur une page non sécurisée (http)** : Firefox (classe `notSecureText` sur `#identity-box`) lui donnait un fond CLAIR et affichait « Non sécurisé » (`#identity-icon-label`), coupé en « … » par
-  la barre étroite. Fond transparent (survol 22 % de la couleur du texte), texte masqué ; la page non sécurisée est signalée par le bouclier à gauche du champ, qui passe en « ! » (règle `.insecure`,
-  plus ancienne). Reproduit avec `http://192.168.86.206:8766/` (serveur de test sur le réseau local), corrigé et revérifié sur capture.
-- **Globe et « Actualiser » un peu plus loin des bords** (demandé) : globe +3 px vers la droite (`inset-inline-start: 5px`), « Actualiser » 4 px vers la gauche (`left: calc(var(--uc-ux) + var(--uc-uw) - 36px)`).
-  Puis 1 px de moins chacun (`inset-inline-start: 4px`, `- 35px`), puis encore 1 px pour « Actualiser » (`- 34px`). Mesuré : globe à 4,7 px du bord gauche du champ, rond d'« Actualiser » à 4 px du bord droit, en normal et en compact.
+  la barre étroite. Fond transparent (survol 22 % de la couleur du texte), texte masqué ; la page non sécurisée est signalée par le bouclier à gauche du champ, qui passe en « ! » (règle `.insecure`).
+  Reproduit avec `http://192.168.86.206:8766/` (serveur de test sur le réseau local), corrigé et revérifié sur capture.
 - **Coins** : 22 px sur les panneaux, le menu de l'adresse et la recherche dans la page ; 12 px sur les menus contextuels. Les
   coins de la fenêtre elle-même sont gérés par Windows.
 - **Barres de défilement** : fines et translucides partout (`scrollbar-width: thin`, gris moyen, `userContent.css`). La barre de la PAGE
