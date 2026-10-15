@@ -176,6 +176,11 @@ git add -A; git commit -m "…"; git push
   barre d'adresse dessous) enregistrée dans le registre (`HKCU\Software\Mozilla\Firefox\PreXULSkeletonUISettings`, `C:\Program Files\Mozilla Firefox\firefox.exe|Enabled = 1`), qui ne ressemble pas à cette personnalisation
   et dure ~0,5 s. `user.js` règle `browser.startup.preXulSkeletonUI` sur `false` ; prise en compte au lancement suivant celui qui lit cette ligne (la valeur du registre est mise à jour par Firefox, on n'y touche pas).
   Mesuré : aucune animation d'onglet ni de barre de favoris pendant les 3,5 premières secondes (seules les couleurs fondent à la première teinte d'une page web).
+- **Croix de fermeture au survol de TOUS les onglets** (signalé le 2026-10-15, avec ~8 onglets de ~100 px) : quand les onglets font moins de 140 px (`browser.tabs.tabClipWidth`), Firefox pose `closebuttons="activetab"` sur
+  `#tabbrowser-tabs` et masque (`display: none`, `tabs.css`) la croix de tous les onglets sauf l'actif, donc survoler un onglet inactif n'affichait rien. `userChrome.css` remet `display: flex !important` sur la croix des
+  onglets non épinglés dans ce cas ; la règle « invisible hors survol » existante la garde cachée au repos. Les onglets épinglés gardent leur règle (pas de croix). Mesuré (14 onglets de 94 px, souris virtuelle) :
+  onglet inactif survolé : croix affichée (24 px, à 4 px du bord gauche) ; onglet épinglé survolé : pas de croix. Piège de test : le réglage `tabClipWidth` n'est relu qu'à l'ouverture / la fermeture d'onglets, pas quand
+  il change ; refaire le test avec une valeur par défaut et des onglets neufs.
 - **Animations unifiées** (mesurées image par image le 2026-10-15, avec `requestAnimationFrame` dans le Firefox de test) : une seule courbe `--uc-courbe: cubic-bezier(0.4, 0, 0.2, 1)` et des durées communes
   (`--uc-duree` 260 ms pour tout ce qui glisse : ouverture / fermeture d'un onglet, rangée d'onglets, favoris ; `--uc-duree-teinte` 300 ms pour les couleurs), définies sur `:root` en tête de `userChrome.css`. Avant :
   ouverture d'onglet en `ease-out` de 220 ms (27 % de la largeur en 25 ms : départ brusque), fermeture quasi linéaire, favoris et rangée en `ease-out`. Le mode compact (420 ms, même courbe) n'a pas changé.

@@ -406,6 +406,13 @@
 #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned]):not(:hover) .tab-close-button {
   visibility: hidden !important;
 }
+/* Quand les onglets deviennent étroits (moins de 140 px : réglage browser.tabs.tabClipWidth), Firefox pose closebuttons="activetab" sur la bande et
+ * masque (display: none) la croix de TOUS les onglets sauf l'actif : survoler un onglet inactif n'affichait donc rien (signalé le 2026-10-15, avec ~8
+ * onglets de ~100 px). La croix, déjà cachée hors survol par la règle précédente, redevient affichable au survol de n'importe quel onglet. Les onglets
+ * épinglés gardent leur règle (pas de croix). */
+#tabbrowser-tabs[closebuttons="activetab"][orient="horizontal"] .tabbrowser-tab:not([pinned]) .tab-close-button {
+  display: flex !important;
+}
 
 /* Site non sécurisé (http) : même présentation que le sécurisé. Firefox affiche un bouclier barré,
  * le texte « Non sécurisé » et une pastille de fond, qui dépasse de la barre. On met le bouclier
