@@ -202,6 +202,10 @@ git add -A; git commit -m "…"; git push
   (`urlbar-domaine.uc.js`) compte maintenant `downloads-button` et un `ResizeObserver` le remesure quand le bouton apparaît ou disparaît. Reproduit avec un faux fichier de 8 Mo servi lentement (`Downloads.createDownload`) :
   avant, bouton [1021-1057] sous la bande [514-1042], `--uc-droite` 234 px ; après, bande [478-1005], `--uc-droite` 271 px, anneau entier ; le téléchargement effacé, la bande revient à 1042. La bande saute de 37 px quand
   le bouton apparaît (pas d'animation). Le mode normal n'est pas concerné (la rangée d'onglets est sous la barre).
+- **Les trois icônes de téléchargement au même diamètre** (demandé le 2026-10-16) : flèche (notre dessin), anneau de progression et coche de fin (dessins de Firefox) mesuraient 14,7 / 18,7 / 18,7 px (capture à 150 %,
+  étendue des pixels différents du fond). La flèche passe à un cercle de rayon 8,3 dans un cadre de 18 (viewBox `-1 -1 18 18`, trait 1,4 = 1,25 px une fois ramené à 16 px) et `#downloads-indicator-progress-outer`,
+  `-start-box` et `-finish-box` reçoivent `scale: 0.89`. Mesuré après : 16,0 / 16,0 / 16,0 px. Le test force l'animation de fin à la main (attributs `animate` + `notification="finish"` sur `#downloads-button`) : la fenêtre
+  de test hors écran ne la déclenche pas.
 - **Animations unifiées** (mesurées image par image le 2026-10-15, avec `requestAnimationFrame` dans le Firefox de test) : une seule courbe `--uc-courbe: cubic-bezier(0.4, 0, 0.2, 1)` et des durées communes
   (`--uc-duree` 260 ms pour tout ce qui glisse : ouverture / fermeture d'un onglet, rangée d'onglets, favoris ; `--uc-duree-teinte` 300 ms pour les couleurs), définies sur `:root` en tête de `userChrome.css`. Avant :
   ouverture d'onglet en `ease-out` de 220 ms (27 % de la largeur en 25 ms : départ brusque), fermeture quasi linéaire, favoris et rangée en `ease-out`. Le mode compact (420 ms, même courbe) n'a pas changé.
