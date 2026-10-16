@@ -582,6 +582,11 @@
 #downloads-indicator-start-box,
 #downloads-indicator-finish-box {
   scale: 0.89;
+  translate: 0 0.7px; /* mesuré : leur centre était 0,7 px plus haut que celui de la flèche (dy -1,0 contre -0,3) */
+}
+/* Le bleu de l'anneau, de la coche et de l'indicateur est le bleu de Safari (#0a84ff, comme le reste de la feuille) et non le turquoise de Firefox. */
+#downloads-button {
+  --toolbarbutton-icon-fill-attention: #0a84ff !important;
 }
 
 /* Bouton « Arrêter » (il prend la place d'Actualiser pendant un chargement) : croix fine et plus petite
