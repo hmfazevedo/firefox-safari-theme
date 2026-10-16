@@ -19,3 +19,8 @@ user_pref("browser.newtabpage.pinned", "[]");
 // cette personnalisation (onglets sous la barre d'adresse) et s'efface au bout d'une demi-seconde : signalé le 2026-10-15 (« l'animation de la tab »
 // au premier lancement). Prise en compte au lancement suivant celui qui lit cette ligne.
 user_pref("browser.startup.preXulSkeletonUI", false);
+// Réglages dont dépend le rendu et que Firefox ne pose pas tout seul (sans eux, un profil neuf n'a pas le même aspect) :
+// ancienne présentation de Firefox (le CSS cible celle-là), thème sombre forcé, barre d'outils sombre.
+user_pref("browser.nova.enabled", false);
+user_pref("ui.systemUsesDarkTheme", 1);
+user_pref("browser.theme.toolbar-theme", 0);

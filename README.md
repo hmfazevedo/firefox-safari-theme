@@ -33,6 +33,13 @@ Options : `-Profil <dossier>`, `-DossierFirefox <dossier>`, `-SansInstallation`,
 
 > Si l'exécution est bloquée par la stratégie de scripts : `powershell -ExecutionPolicy Bypass -File .\restaurer.ps1`.
 
+## Tout refaire après un formatage
+
+1. Installer **Firefox 158** (version sur laquelle tout est mesuré), le lancer une fois, se connecter à Firefox Sync (marque-pages, extensions), puis le quitter COMPLÈTEMENT.
+2. Remettre Windows 11 en mode sombre. Cloner ce dépôt (privé : se connecter à GitHub), puis `.estaurer.ps1` (voir plus haut). `user.js` pose aussi `browser.nova.enabled = false`, le thème sombre et la barre d'outils sombre.
+3. Relancer Firefox. Le choix du mode compact est la préférence `extensions.uc.compact` (bouton « Mode compact » dans la barre).
+Non restauré par ce dépôt : marque-pages, extensions et historique (Firefox Sync), réglage d'affichage de Windows (mesures faites à 150 %).
+
 ## Enregistrer une modification
 
 Après avoir changé quelque chose dans le profil :
