@@ -4,16 +4,14 @@ user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 // est vide »). C'est la valeur par défaut de Firefox, mais il la passe à false dès qu'on déplace le bouton avec
 // « Personnaliser la barre d'outils ». Imposé ici à chaque démarrage.
 user_pref("browser.download.autohideButton", true);
-// Disposition des barres d'outils : le bouton « Nouvel onglet » passe de la rangée d'onglets à la barre du haut
-// (à droite, comme dans Safari). Firefox relit cette ligne à chaque démarrage : une personnalisation
-// faite ensuite via « Personnaliser la barre d'outils » est annulée au redémarrage suivant. Pour
-// garder la main : supprimer cette ligne après un premier redémarrage (Firefox aura enregistré la disposition).
-// État GÉNÉRIQUE (partageable) : la zone d'extensions est vide et « seen » ne liste que des widgets standards —
-// les extensions de chacun apparaissent d'elles-mêmes (Firefox y ajoute automatiquement les widgets absents
-// de « seen »). « newElementCount » : compteur qui génère les identifiants des springs
-// (« customizableui-special-springN ») ; à conserver >= 2 (la barre contient spring1 et spring2),
-// sinon un nouveau spring pourrait reprendre un identifiant déjà posé.
-user_pref("browser.uiCustomization.state", "{\"placements\":{\"widget-overflow-fixed-list\":[],\"unified-extensions-area\":[],\"nav-bar\":[\"uc-compact-button\",\"back-button\",\"forward-button\",\"stop-reload-button\",\"customizableui-special-spring1\",\"vertical-spacer\",\"urlbar-container\",\"customizableui-special-spring2\",\"downloads-button\",\"reset-pbm-toolbar-button\",\"unified-extensions-button\",\"new-tab-button\"],\"toolbar-menubar\":[\"menubar-items\"],\"TabsToolbar\":[\"tabbrowser-tabs\",\"smartwindow-group-tabs-button\",\"ai-window-toggle\"],\"vertical-tabs\":[],\"PersonalToolbar\":[\"personal-bookmarks\"]},\"seen\":[\"sidebar-button\",\"uc-compact-button\",\"reset-pbm-toolbar-button\",\"screenshot-button\",\"developer-button\"],\"dirtyAreaCache\":[\"unified-extensions-area\",\"nav-bar\",\"toolbar-menubar\",\"TabsToolbar\",\"vertical-tabs\",\"PersonalToolbar\"],\"currentVersion\":26,\"newElementCount\":11}");
+// Disposition des barres d'outils : NON imposée (retrait du 2026-10-16). Une ligne « browser.uiCustomization.state »
+// ré-imposait un état à chaque démarrage : les extensions absentes de sa liste « seen » y étaient replacées
+// d'elles-mêmes dans la zone d'extensions, donc un « dépinglage » fait via l'icône de l'extension — et tout
+// arrangement de la barre — était annulé au redémarrage suivant. La disposition enregistrée par Firefox dans le
+// profil (prefs.js) est maintenant la source de vérité : les boutons épinglés / dépinglés et leur emplacement
+// sont gardés. Sur un profil neuf, le script (urlbar-domaine.uc.js) positionne une seule fois le bouton compact
+// (en tête de la barre) et le bouton « Nouvel onglet » (en bout, comme dans Safari) ; le centrage de l'adresse
+// ne dépend pas de la disposition (userChrome.css : position absolue + marges automatiques).
 // Page « nouvel onglet » : pas de raccourcis (état d'origine de ce profil : feeds.topsites = false). La grille « Favoris »
 // a été essayée puis retirée à la demande de l'utilisateur ; la préférence est remise à false (elle avait été passée à
 // true) et les épingles posées par l'ancien script sont vidées. Imposé à chaque démarrage.

@@ -302,9 +302,9 @@
   text-align: center;
 }
 
-/* Le « + » de la rangée d'onglets est masqué : le bouton « Nouvel onglet » est maintenant dans la
- * barre du haut (réglage browser.uiCustomization.state de user.js), comme dans Safari. Il reste donc
- * disponible quand la rangée d'onglets est cachée (un seul onglet). */
+/* Le « + » de la rangée d'onglets est masqué : le bouton « Nouvel onglet » est dans la barre du haut
+ * (disposition enregistrée dans le profil ; sur un profil neuf, le script le déplace une seule fois),
+ * comme dans Safari. Il reste donc disponible quand la rangée d'onglets est cachée (un seul onglet). */
 #tabs-newtab-button,
 #vertical-tabs-newtab-button {
   display: none !important;

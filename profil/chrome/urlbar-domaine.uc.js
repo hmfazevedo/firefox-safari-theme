@@ -294,8 +294,9 @@
         },
       });
     }
-    // Placement seulement si le bouton n'a encore aucune place (première utilisation) : tout à gauche de la barre. La disposition imposée par user.js
-    // (browser.uiCustomization.state) le place déjà en tête de « nav-bar » ; si elle n'est plus imposée, l'emplacement choisi par l'utilisateur est gardé.
+    // Placement seulement si le bouton n'a encore aucune place (première utilisation) : tout à gauche de la barre. user.js n'impose plus la disposition
+    // (retrait de la ligne « browser.uiCustomization.state » du 2026-10-16) : l'emplacement enregistré dans le profil est gardé, celui choisi par
+    // l'utilisateur compris.
     const placer = () => {
       try {
         if (!CustomizableUI.getPlacementOfWidget(ID)) {
@@ -406,6 +407,25 @@
     }
   } catch (e) {
     console.error("mode compact :", e);
+  }
+})();
+
+// ---- Bouton « Nouvel onglet » en bout de barre du haut (à droite, comme dans Safari) ----
+// user.js n'impose plus la disposition (retrait de la ligne « browser.uiCustomization.state » du 2026-10-16) : la
+// disposition enregistrée dans le profil est gardée, les choix de l'utilisateur compris. Sur un profil où le
+// bouton n'est pas encore dans la barre du haut (état par défaut de Firefox : dans la rangée d'onglets, masquée
+// par userChrome.css), le script le déplace une seule fois en bout de barre ; ensuite l'emplacement choisi par
+// l'utilisateur est gardé.
+(() => {
+  try {
+    if (!CustomizableUI.getPlacementOfWidget("new-tab-button").includes("nav-bar")) {
+      if (!Services.prefs.getBoolPref("extensions.uc.nouvelOngletDeplace", false)) {
+        CustomizableUI.addWidgetToArea("new-tab-button", "nav-bar");
+        Services.prefs.setBoolPref("extensions.uc.nouvelOngletDeplace", true);
+      }
+    }
+  } catch (e) {
+    console.error("bouton « Nouvel onglet » (placement) :", e);
   }
 })();
 

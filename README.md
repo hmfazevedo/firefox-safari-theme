@@ -12,7 +12,7 @@ Tout repose sur quatre mécanismes, sans extension :
 | `profil/chrome/userContent.css` | style de la page « nouvel onglet » / accueil |
 | `profil/chrome/urlbar-domaine.uc.js` + `.manifest` | script d'interface : domaine seul dans la barre d'adresse, globe cliquable, centrage |
 | `profil/chrome/teinte-child.sys.mjs` + `teinte-parent.sys.mjs` | acteur de fenêtre : mesure la couleur de la page (côté page) et la transmet à l'interface (côté interface) |
-| `profil/user.js` | préférences imposées à chaque démarrage (active `userChrome.css`, disposition des barres…) |
+| `profil/user.js` | préférences imposées à chaque démarrage (active `userChrome.css`, thème sombre, page de nouvel onglet) |
 | `installation/config.js` + `installation/defaults/pref/config-prefs.js` | chargeur (AutoConfig) du script ci-dessus, dans **le dossier d'installation** de Firefox |
 
 ## Remettre en place (après une mise à jour, une réinstallation, sur un autre PC)
@@ -189,13 +189,20 @@ git add -A; git commit -m "…"; git push
   onglet inactif survolé : croix affichée (24 px, à 4 px du bord gauche) ; onglet épinglé survolé : pas de croix. Piège de test : le réglage `tabClipWidth` n'est relu qu'à l'ouverture / la fermeture d'onglets, pas quand
   il change ; refaire le test avec une valeur par défaut et des onglets neufs.
 - **Bouton « Mode compact » indépendant** (demandé le 2026-10-15 : il donnait l'impression d'être une copie du bouton de panneau latéral, dont il avait pris la place) : le bouton de panneau latéral n'était pas
-  retiré de la barre, seulement masqué (`display: none`), et le script plaçait le bouton compact devant « Précédent » à chaque démarrage. Maintenant la disposition imposée par `user.js`
-  (`browser.uiCustomization.state`) met `uc-compact-button` en tête de `nav-bar` et ne contient plus `sidebar-button` (ajouté à la liste `seen`, sans quoi Firefox le remet à sa place par défaut, comme
-  un bouton nouveau) ; plus aucune règle ne le masque, il est dans la palette de « Personnaliser la barre d'outils » et on peut aussi le mettre à côté du bouton compact. Le script ne place le bouton compact que
-  s'il n'a encore aucune place. Même position qu'avant : `#nav-bar-customization-target { padding-inline-start: 9px }` (Firefox met 8 px au lieu de 2 de remplissage à gauche du PREMIER bouton, donc 6 px de plus
-  que quand le bouton compact était le deuxième) : symbole à 25 px du bord, « Précédent » à 51 px. La disposition reste imposée à chaque démarrage : un arrangement fait dans « Personnaliser » est
-  annulé au redémarrage suivant, tant que la ligne `browser.uiCustomization.state` est dans `user.js` (la supprimer pour garder la main). Mesuré en profil jetable : bouton compact en tête, bouton latéral dans la palette,
-  les deux ensemble possibles, bascule par clic, animations et mode Personnaliser inchangés.
+  retiré de la barre, seulement masqué (`display: none`), et le script plaçait le bouton compact devant « Précédent » à chaque démarrage. Le script ne place le bouton compact que s'il n'a encore aucune place
+  (première utilisation), en tête de `nav-bar` ; plus aucune règle ne masque le bouton de panneau latéral, il est dans la palette de « Personnaliser la barre d'outils » et on peut aussi le mettre à côté du
+  bouton compact. Même position qu'avant : `#nav-bar-customization-target { padding-inline-start: 9px }` (Firefox met 8 px au lieu de 2 de remplissage à gauche du PREMIER bouton, donc 6 px de plus
+  que quand le bouton compact était le deuxième) : symbole à 25 px du bord, « Précédent » à 51 px. Mesuré en profil jetable : bouton compact en tête, bouton latéral dans la palette,
+  les deux ensemble possibles, bascule par clic, animations et mode Personnaliser inchangés. (Depuis le retrait de la disposition imposée par `user.js` le 2026-10-16 — ci-dessous —, un arrangement fait
+  dans « Personnaliser » est désormais gardé au redémarrage.)
+- **Choix d'épinglage conservés au redémarrage** (corrigé le 2026-10-16 : « quand je clique sur épingler pour la désactiver, elle disparaît et réapparait au prochain démarrage ») : la ligne
+  `browser.uiCustomization.state` de `user.js` ré-imposait un état GÉNÉRIQUE à chaque démarrage — les extensions absentes de sa liste « seen » y étaient replacées d'elles-mêmes dans la zone
+  d'extensions, donc un « dépinglage » fait via l'icône de l'extension était annulé au redémarrage suivant, et de même tout arrangement de la barre (état enregistré du profil : le bouton uBlock posé
+  en bout de barre du haut était perdu). La ligne est retirée : la disposition enregistrée par Firefox dans le profil (`prefs.js`) devient la source de vérité — boutons épinglés / dépinglés et leur
+  emplacement sont gardés, et un arrangement fait dans « Personnaliser » est conservé au redémarrage. Sur un profil neuf, le script positionne une seule fois le bouton « Nouvel onglet » en bout de
+  barre du haut (à droite, comme dans Safari) et le bouton compact en tête ; ensuite l'emplacement choisi par l'utilisateur est gardé. Limite profil neuf : le bouton de panneau latéral reste à sa place
+  par défaut (il n'est plus forcé dans la palette ; le retirer via « Personnaliser » si besoin). Le centrage de l'adresse ne dépendait pas de la ligne (`userChrome.css` : position absolue + marges
+  automatiques).
 - **Bouton des téléchargements recouvert en mode compact** (signalé le 2026-10-16 : l'icône « cassée » pendant un téléchargement, cachée sinon) : le bouton est masqué tant que la liste de téléchargements est vide
   (`browser.download.autohideButton`, imposé par `user.js`) et apparaît à gauche du bouton d'extensions pendant un téléchargement. La bande d'onglets en superposition s'arrête à `right: calc(var(--uc-droite) + 9px)`, où
   `--uc-droite` était mesuré à partir du bouton d'extensions, du « + » et du menu seulement : le bout arrondi de la bande recouvrait le bouton (seule une moitié de l'anneau de progression restait visible). `mesurer()`
