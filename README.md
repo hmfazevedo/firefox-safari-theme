@@ -15,6 +15,16 @@ Tout repose sur quatre mécanismes, sans extension :
 | `profil/user.js` | préférences imposées à chaque démarrage (active `userChrome.css`, thème sombre, page de nouvel onglet) |
 | `installation/config.js` + `installation/defaults/pref/config-prefs.js` | chargeur (AutoConfig) du script ci-dessus, dans **le dossier d'installation** de Firefox |
 
+## Prérequis
+
+- **Firefox 158** — la version sur laquelle la personnalisation a été mesurée.
+- **Windows 11 en mode sombre** (les mesures de couleurs et d'icônes sont faites en mode sombre, à 150 % d'affichage).
+- **Thème sombre de Firefox** — posé par `user.js` (`ui.systemUsesDarkTheme`, `browser.theme.toolbar-theme`), rien à faire à la main.
+- **AutoConfig** — le chargeur (`config.js` + `config-prefs.js`) doit être posé dans le dossier d'installation
+  (`C:\Program Files\Mozilla Firefox`) : c'est lui qui charge `urlbar-domaine.uc.js` dans chaque fenêtre.
+  `restaurer.ps1` le pose (droits administrateur, il se relance seul en élevé) ; voir « Les mises à jour de Firefox
+  peuvent-elles tout casser ? » pour ce qui arrive s'il manque.
+
 ## Remettre en place (après une mise à jour, une réinstallation, sur un autre PC)
 
 1. Quitter **complètement** Firefox (aucun `firefox.exe` dans le Gestionnaire des tâches).
