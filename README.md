@@ -1,6 +1,6 @@
 # Firefox façon Safari
 
-Personnalisation de **Firefox 157 sous Windows 11** (thème sombre) pour ressembler à Safari de macOS :
+Personnalisation de **Firefox 158 sous Windows 11** (thème sombre) pour ressembler à Safari de macOS :
 barre d'adresse centrée qui n'affiche que le domaine avec un globe, onglets en capsule, menus et panneaux arrondis,
 icônes au trait fin, animations d'ouverture et de fermeture, page « nouvel onglet » sobre.
 
