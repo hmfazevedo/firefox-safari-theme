@@ -266,6 +266,59 @@
   }
 })();
 
+// ---- Chaînes du thème adaptées à la langue de Firefox (Services.locale) ----
+// Les 3 chaînes visibles du thème sont traduites dans la langue de l'utilisateur ; langue non listée : on garde le français.
+//  - bouton « Mode compact » (label + infobulle) : posé sur le widget ci-dessous ;
+//  - mention « Navigation privée » (fenêtre privée) et étiquette « Barre d'adresse » (mode Personnaliser) : posées en variables CSS sur la
+//    racine, lues par userChrome.css avec var() (repli français si la variable n'est pas posée). Les valeurs sont posées en chaînes CSS
+//    (JSON.stringify) : l'apostrophe de « Barre d'adresse » resterait un jeton invalide en valeur nue.
+(() => {
+  try {
+    const LANGUE = (Services.locale.appLocaleAsBCP47 || "fr").split("-")[0].toLowerCase();
+    const TRADUCTIONS = {
+      compact: {
+        fr: "Mode compact", en: "Compact mode", de: "Kompakter Modus", es: "Modo compacto", it: "Modalità compatta",
+        pt: "Modo compacto", nl: "Compacte modus", pl: "Tryb kompaktowy", ru: "Компактный режим", ja: "コンパクトモード",
+        ko: "컴팩트 모드", zh: "紧凑模式", ar: "وضع مدمج", tr: "Sıkıştırılmış mod", sv: "Kompakt läge",
+      },
+      "compact-desc": {
+        fr: "Mode compact : onglets et adresse sur une seule rangée",
+        en: "Compact mode: tabs and address on a single row",
+        de: "Kompakter Modus: Tabs und Adresse in einer Reihe",
+        es: "Modo compacto: pestañas y dirección en una sola fila",
+        it: "Modalità compatta: schede e indirizzo su una sola riga",
+        pt: "Modo compacto: abas e endereço em uma única linha",
+        nl: "Compacte modus: tabs en adres op één rij",
+        pl: "Tryb kompaktowy: karty i adres w jednym wierszu",
+        ru: "Компактный режим: вкладки и адрес в один ряд",
+        ja: "コンパクトモード: タブとアドレスを1行に",
+        ko: "컴팩트 모드: 탭과 주소를 한 줄로",
+        zh: "紧凑模式：标签页和地址在单行",
+        ar: "وضع مدمج: علامات التبويب والعنوان في صف واحد",
+        tr: "Sıkıştırılmış mod: sekmeler ve adres tek satırda",
+        sv: "Kompakt läge: flikar och adress i en rad",
+      },
+      "nav-privee": {
+        fr: "Navigation privée", en: "Private Browsing", de: "Privater Modus", es: "Navegación privada", it: "Navigazione privata",
+        pt: "Navegação privada", nl: "Privé browsen", pl: "Tryb prywatny", ru: "Секретный режим", ja: "プライベートブラウジング",
+        ko: "개인정보 보호", zh: "隐私浏览", ar: "التصفح الخاص", tr: "Gizli gezinme", sv: "Privat webbläsning",
+      },
+      "barre-adresse": {
+        fr: "Barre d'adresse", en: "Address bar", de: "Adressleiste", es: "Barra de direcciones", it: "Barra degli indirizzi",
+        pt: "Barra de endereço", nl: "Adresbalk", pl: "Pasek adresu", ru: "Строка адреса", ja: "アドレスバー",
+        ko: "주소창", zh: "地址栏", ar: "شريط العنوان", tr: "Adres çubuğu", sv: "Adressfält",
+      },
+    };
+    const chaine = (cle) => TRADUCTIONS[cle][LANGUE] || TRADUCTIONS[cle].fr;
+    Services.__ucChaines = { compact: chaine("compact"), "compact-desc": chaine("compact-desc") };
+    const racine = document.documentElement;
+    racine.style.setProperty("--uc-navigation-privee", JSON.stringify(chaine("nav-privee")));
+    racine.style.setProperty("--uc-barre-adresse", JSON.stringify(chaine("barre-adresse")));
+  } catch (e) {
+    console.error("localisation des chaînes :", e);
+  }
+})();
+
 // ---- Mode compact : onglets et adresse sur une seule rangée (voir userChrome.css, bloc « MODE COMPACT ») ----
 // Le bouton « Mode compact » (créé ici ; un bouton à part entière, comme les autres : on peut le déplacer, le retirer, ou mettre aussi le bouton de
 // panneau latéral) bascule la préférence extensions.uc.compact ; chaque fenêtre l'observe et pose l'attribut uc-compact sur la racine.
@@ -283,12 +336,13 @@
     };
     if (!Services.__ucCompactBouton) {
       Services.__ucCompactBouton = true;
+      const chaines = Services.__ucChaines || {};
       CustomizableUI.createWidget({
         id: ID,
         type: "button",
         defaultArea: "nav-bar",
-        label: "Mode compact",
-        tooltiptext: "Mode compact : onglets et adresse sur une seule rangée",
+        label: chaines.compact || "Mode compact",
+        tooltiptext: chaines["compact-desc"] || "Mode compact : onglets et adresse sur une seule rangée",
         onCommand() {
           Services.prefs.setBoolPref(CLE, !actif());
         },

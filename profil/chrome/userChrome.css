@@ -788,9 +788,9 @@ findbar {
   --uc-teinte: #161618;
 }
 :root[privatebrowsingmode] #urlbar[pageproxystate="valid"]:not([focused]) .urlbar-input-container::before {
-  content: "Navigation privée";
+  content: var(--uc-navigation-privee, "Navigation privée");
   position: absolute;
-  inset-inline-start: 14px;
+  inset-inline-start: 40px; /* à droite du globe (rond de 28 px posé à 4 px, il finit à 32 px) : 14 px la plaçait sous le globe, illisible */
   top: 50%;
   transform: translateY(-50%);
   font-size: 11px;
@@ -1098,7 +1098,7 @@ findbar {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28) !important;
 }
 :root[customizing] #urlbar .urlbar-input-container::before {
-  content: "Barre d'adresse";
+  content: var(--uc-barre-adresse, "Barre d'adresse");
   position: absolute;
   inset: 0;
   display: flex;

@@ -47,13 +47,6 @@ Même procédure pour une installation neuve, après une mise à jour de Firefox
 > Options : `-Profil <dossier>`, `-DossierFirefox <dossier>`, `-SansInstallation`, `-SansUserJs`.
 > Si la stratégie de scripts bloque : `powershell -ExecutionPolicy Bypass -File .\restaurer.ps1`.
 
-## Tout refaire après un formatage
-
-1. Installer **Firefox 158** (la version sur laquelle tout est mesuré), le lancer une fois, se connecter à Firefox Sync (marque-pages, extensions), puis le quitter complètement.
-2. Remettre Windows 11 en mode sombre. Cloner ce dépôt, puis `.\restaurer.ps1` (voir plus haut). `user.js` pose aussi `browser.nova.enabled = false`, le thème sombre et la barre d'outils sombre.
-3. Relancer Firefox. Le choix du mode compact est la préférence `extensions.uc.compact` (bouton « Mode compact » dans la barre).
-Non restauré par ce dépôt : marque-pages, extensions et historique (Firefox Sync), réglage d'affichage de Windows (mesures faites à 150 %).
-
 ## Les mises à jour de Firefox peuvent-elles tout casser ?
 
 - Les fichiers du **profil** ne sont jamais touchés par une mise à jour.
