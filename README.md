@@ -4,16 +4,23 @@ Personnalisation de **Firefox 158 sous Windows 11** (thème sombre) pour ressemb
 barre d'adresse centrée qui n'affiche que le domaine avec un globe, onglets en capsule, menus et panneaux arrondis,
 icônes au trait fin, animations d'ouverture et de fermeture, page « nouvel onglet » sobre.
 
-Tout repose sur quatre mécanismes, sans extension :
+Tout repose sur quatre mécanismes natifs, sans extension :
+
+1. **CSS utilisateur** — `userChrome.css` (interface) et `userContent.css` (page « nouvel onglet ») ;
+2. **script d'interface** — `urlbar-domaine.uc.js`, chargé par AutoConfig : domaine seul, globe cliquable, centrage ;
+3. **acteurs de fenêtre** — `teinte-child.sys.mjs` (dans la page) et `teinte-parent.sys.mjs` (côté interface) : mesurent la couleur de la page et la transmettent à l'interface ;
+4. **préférences** — `user.js`, imposées à chaque démarrage.
+
+Deux chargeurs les font tourner : `installation/config.js` + `installation/defaults/pref/config-prefs.js` (dans le **dossier d'installation** de Firefox) chargent le script ; `user.js` active les feuilles CSS.
 
 | Fichier | Rôle |
 |---|---|
 | `profil/chrome/userChrome.css` | style de l'interface (barres, onglets, barre d'adresse, panneaux, icônes…) |
 | `profil/chrome/userContent.css` | style de la page « nouvel onglet » / accueil |
 | `profil/chrome/urlbar-domaine.uc.js` + `.manifest` | script d'interface : domaine seul dans la barre d'adresse, globe cliquable, centrage |
-| `profil/chrome/teinte-child.sys.mjs` + `teinte-parent.sys.mjs` | acteur de fenêtre : mesure la couleur de la page (côté page) et la transmet à l'interface (côté interface) |
+| `profil/chrome/teinte-child.sys.mjs` + `teinte-parent.sys.mjs` | acteurs de fenêtre : mesurent la couleur de la page (côté page) et la transmettent à l'interface (côté interface) |
 | `profil/user.js` | préférences imposées à chaque démarrage (active `userChrome.css`, thème sombre, page de nouvel onglet) |
-| `installation/config.js` + `installation/defaults/pref/config-prefs.js` | chargeur (AutoConfig) du script ci-dessus, dans **le dossier d'installation** de Firefox |
+| `installation/config.js` + `installation/defaults/pref/config-prefs.js` | chargeur (AutoConfig) du script ci-dessus, posé dans le **dossier d'installation** de Firefox |
 
 ## Prérequis
 
@@ -21,50 +28,38 @@ Tout repose sur quatre mécanismes, sans extension :
 - **Windows 11 en mode sombre** (les mesures de couleurs et d'icônes sont faites en mode sombre, à 150 % d'affichage).
 - **Thème sombre de Firefox** — posé par `user.js` (`ui.systemUsesDarkTheme`, `browser.theme.toolbar-theme`), rien à faire à la main.
 - **AutoConfig** — le chargeur (`config.js` + `config-prefs.js`) doit être posé dans le dossier d'installation
-  (`C:\Program Files\Mozilla Firefox`) : c'est lui qui charge `urlbar-domaine.uc.js` dans chaque fenêtre.
-  `restaurer.ps1` le pose (droits administrateur, il se relance seul en élevé) ; voir « Les mises à jour de Firefox
-  peuvent-elles tout casser ? » pour ce qui arrive s'il manque.
+  (`C:\Program Files\Mozilla Firefox`, droits administrateur, voir « Installer ») : c'est lui qui charge
+  `urlbar-domaine.uc.js` dans chaque fenêtre. Voir « Les mises à jour de Firefox peuvent-elles tout casser ? »
+  pour ce qui arrive s'il est manquant.
 
-## Remettre en place (après une mise à jour, une réinstallation, sur un autre PC)
+## Installer
+
+Même procédure pour une installation neuve, après une mise à jour de Firefox, une réinstallation ou sur un autre PC :
 
 1. Quitter **complètement** Firefox (aucun `firefox.exe` dans le Gestionnaire des tâches).
-2. Dans PowerShell, depuis ce dossier :
+2. Copier le contenu du dossier `profil/` dans le dossier de votre profil Firefox (trouvable dans `about:support`, ligne « Dossier du profil ») : `user.js` et le dossier `chrome/`.
+3. Copier le contenu du dossier `installation/` dans `C:\Program Files\Mozilla Firefox` (droits administrateur) : `config.js` et le dossier `defaults/`.
+4. Relancer Firefox.
 
-```powershell
-.\restaurer.ps1 -Simuler     # affiche ce qui sera copié, sans rien faire
-.\restaurer.ps1              # restaure ; accepter la fenêtre d'autorisation administrateur
-```
-
-3. Relancer Firefox.
-
-Le script copie les fichiers du profil (en gardant les anciens dans `<profil>\sauvegarde-avant-restauration\`) puis installe
-le chargeur dans `C:\Program Files\Mozilla Firefox` (droits administrateur : il se relance seul en élevé).
-Options : `-Profil <dossier>`, `-DossierFirefox <dossier>`, `-SansInstallation`, `-SansUserJs`.
-
-> Si l'exécution est bloquée par la stratégie de scripts : `powershell -ExecutionPolicy Bypass -File .\restaurer.ps1`.
+> Le script `restaurer.ps1` (inclus dans ce dépôt) fait les étapes 2 et 3 automatiquement et garde une copie des
+> anciens fichiers dans `<profil>\sauvegarde-avant-restauration\` : `.\restaurer.ps1 -Simuler` affiche ce qui serait
+> copié sans rien faire, `.\restaurer.ps1` exécute (il se relance en administrateur si besoin).
+> Options : `-Profil <dossier>`, `-DossierFirefox <dossier>`, `-SansInstallation`, `-SansUserJs`.
+> Si la stratégie de scripts bloque : `powershell -ExecutionPolicy Bypass -File .\restaurer.ps1`.
 
 ## Tout refaire après un formatage
 
-1. Installer **Firefox 158** (version sur laquelle tout est mesuré), le lancer une fois, se connecter à Firefox Sync (marque-pages, extensions), puis le quitter COMPLÈTEMENT.
-2. Remettre Windows 11 en mode sombre. Cloner ce dépôt (privé : se connecter à GitHub), puis `.estaurer.ps1` (voir plus haut). `user.js` pose aussi `browser.nova.enabled = false`, le thème sombre et la barre d'outils sombre.
+1. Installer **Firefox 158** (la version sur laquelle tout est mesuré), le lancer une fois, se connecter à Firefox Sync (marque-pages, extensions), puis le quitter complètement.
+2. Remettre Windows 11 en mode sombre. Cloner ce dépôt, puis `.\restaurer.ps1` (voir plus haut). `user.js` pose aussi `browser.nova.enabled = false`, le thème sombre et la barre d'outils sombre.
 3. Relancer Firefox. Le choix du mode compact est la préférence `extensions.uc.compact` (bouton « Mode compact » dans la barre).
 Non restauré par ce dépôt : marque-pages, extensions et historique (Firefox Sync), réglage d'affichage de Windows (mesures faites à 150 %).
-
-## Enregistrer une modification
-
-Après avoir changé quelque chose dans le profil :
-
-```powershell
-.\sauvegarder.ps1            # recopie profil + chargeur ici et affiche git status
-git add -A; git commit -m "…"; git push
-```
 
 ## Les mises à jour de Firefox peuvent-elles tout casser ?
 
 - Les fichiers du **profil** ne sont jamais touchés par une mise à jour.
 - Le **chargeur** (`config.js`, `config-prefs.js`) est dans le dossier d'installation : une mise à jour ne devrait pas
   l'effacer, mais ce n'est pas garanti. S'il disparaît, le CSS continue de marcher mais le script s'arrête (domaine seul,
-  globe centré, recentrage de la barre active). `restaurer.ps1` le remet.
+  globe centré, recentrage de la barre active) : recopier le contenu du dossier `installation/` le remet.
 - Le vrai risque : Firefox change le nom ou la structure d'un élément ciblé. L'élément reprend alors simplement son aspect
   d'origine, sans plantage. Les zones les plus exposées : la barre d'adresse et son menu déroulant
   (`.urlbar-background`, `.urlbarView-background`), les panneaux (`--panel-*`), la barre latérale, la page « nouvel onglet »
@@ -115,17 +110,17 @@ git add -A; git commit -m "…"; git push
 - **Anneau de focus** (`userContent.css`) : `:focus-visible { outline: 3px solid rgba(10, 132, 255, 0.5); outline-offset: 0 }` sur toutes les pages,
   SANS `!important` : un site qui dessine ou retire son contour garde le sien (testé : un champ au contour vert reste vert).
 - **Boîtes de dialogue des pages en « feuille »** (`userChrome.css`) : `.content-prompt-dialog > .dialogOverlay { align-content: start }` (accrochées en
-  haut au lieu d'être centrées) et `.dialogBox` aux coins du bas arrondis (22 px) avec ombre douce. Structure de Firefox 157 : `stack.dialogStack.
+  haut au lieu d'être centrées) et `.dialogBox` aux coins du bas arrondis (22 px) avec ombre douce. Structure de Firefox 158 : `stack.dialogStack.
   content-prompt-dialog > div.dialogTemplate.dialogOverlay[topmost] > div.dialogBox > browser.dialogFrame`. Vérifié sur une structure SYNTHÉTIQUE
   aux vraies classes : Marionette ferme toute vraie boîte `confirm()` dès la commande suivante et la capture ne la montre pas, donc l'aspect
   d'une vraie boîte n'a pas été photographié.
 - **Fenêtre privée reconnaissable** : `:root[privatebrowsingmode]` barres `#161618` ; `urlbar-domaine.uc.js` n'y active pas la teinte de la page ;
   mention « Navigation privée » en violet (`#b9a3ff`) à gauche du champ, seulement quand une page est affichée (`pageproxystate="valid"`) : sur
-  un nouvel onglet vide le texte d'invite centré la recouvrait. Mention et couleurs inspirées de Safari, non vérifiées sur votre Safari 27.
+  un nouvel onglet vide le texte d'invite centré la recouvrait. Mention et couleurs inspirées de Safari, non vérifiées sur Safari 27.
 - **Mode compact** (bouton « Mode compact » tout à gauche de la barre, un bouton à part entière ; deux rangées / une rangée) : onglets et champ d'adresse sur UNE seule rangée,
   comme la disposition « Compact » de Safari : [Mode compact, précédent, suivant] [bouclier] [champ d'adresse] [onglets] [boutons de droite]. Le choix est la
   préférence `extensions.uc.compact` (modifiable aussi dans about:config), observée par chaque fenêtre. `urlbar-domaine.uc.js` crée le bouton
-  (`CustomizableUI.createWidget`, replacé avant « Précédent » à chaque démarrage car `user.js` remet la disposition à zéro), pose `uc-compact`,
+  (`CustomizableUI.createWidget`, placé en tête de la barre seulement s'il n'a encore aucune place), pose `uc-compact`,
   `uc-multi` (2 onglets ou plus : avec un seul la rangée est masquée, rien ne change) et mesure `--uc-gauche` / `--uc-droite`. `userChrome.css` pose la
   rangée d'onglets EN SUPERPOSITION de la barre de navigation (`position: absolute`, boîte de 40 px) ; seulement en onglets horizontaux (`:has(#tabbrowser-tabs[orient="horizontal"])`).
   **Champ** : `left` = `--uc-gauche + 47px`, largeur `clamp(220px, 22vw, 380px)`.
@@ -205,7 +200,7 @@ git add -A; git commit -m "…"; git push
   que quand le bouton compact était le deuxième) : symbole à 25 px du bord, « Précédent » à 51 px. Mesuré en profil jetable : bouton compact en tête, bouton latéral dans la palette,
   les deux ensemble possibles, bascule par clic, animations et mode Personnaliser inchangés. (Depuis le retrait de la disposition imposée par `user.js` le 2026-10-16 — ci-dessous —, un arrangement fait
   dans « Personnaliser » est désormais gardé au redémarrage.)
-- **Choix d'épinglage conservés au redémarrage** (corrigé le 2026-10-16 : « quand je clique sur épingler pour la désactiver, elle disparaît et réapparait au prochain démarrage ») : la ligne
+- **Choix d'épinglage conservés au redémarrage** (corrigé le 2026-10-16 : « quand je clique sur épingler pour la désactiver, elle disparaît et réapparaît au prochain démarrage ») : la ligne
   `browser.uiCustomization.state` de `user.js` ré-imposait un état GÉNÉRIQUE à chaque démarrage — les extensions absentes de sa liste « seen » y étaient replacées d'elles-mêmes dans la zone
   d'extensions, donc un « dépinglage » fait via l'icône de l'extension était annulé au redémarrage suivant, et de même tout arrangement de la barre (état enregistré du profil : le bouton uBlock posé
   en bout de barre du haut était perdu). La ligne est retirée : la disposition enregistrée par Firefox dans le profil (`prefs.js`) devient la source de vérité — boutons épinglés / dépinglés et leur
@@ -232,7 +227,7 @@ git add -A; git commit -m "…"; git push
   2 moments. Maintenant les cinq fondent ensemble (début à ~25 ms, fin à ~255 ms). Le texte et les icônes (attribut `uc-clair`) ne changent qu'à 100 ms (la luminance franchit alors 128), pas à l'instant 0 où ils
   étaient foncés sur une barre encore sombre. L'attribut `uc-fond-clair`, posé tout de suite, commande le calcul du creux de la bande et du champ actif (`--uc-creux-pct`, `--uc-actif-pct`) : si ce calcul suivait
   `uc-clair` (retardé), la couleur d'arrivée de la bande changerait en cours de route et sa transition repartirait (arrêt de 40 ms mesuré, fin à 377 ms au lieu de 255 ms). Le délai de 500 ms avant d'appliquer une
-  nouvelle couleur de page (`DELAI_TEINTE_MS`) est inchangé. Limite : mesure des VALEURS animées, pas de la fluidité réelle sur ta carte graphique (la fenêtre de test est hors écran).
+  nouvelle couleur de page (`DELAI_TEINTE_MS`) est inchangé. Limite : mesure des VALEURS animées, pas de la fluidité réelle sur votre carte graphique (la fenêtre de test est hors écran).
 - **Mode « Personnaliser la barre d'outils »** (corrigé le 2026-10-15) : Firefox pose l'attribut `customizing` sur la racine, chaque bouton est alors enveloppé dans un emplacement (`toolbarpaletteitem`) qu'on glisse-dépose.
   Les réglages de la feuille cassaient ce mode : la barre d'adresse (`#urlbar-container`) et « Actualiser » (`#stop-reload-button`) en `position: absolute` laissaient leurs emplacements vides ailleurs, en mode compact
   la bande d'onglets en superposition recouvrait les emplacements, « Actualiser » restait invisible (la page « Personnaliser » compte comme page vide) et la barre du haut est une zone de déplacement de la fenêtre. Maintenant, pendant
@@ -242,8 +237,8 @@ git add -A; git commit -m "…"; git push
   (fond `rgba(255, 255, 255, 0.07)`, contour de 28 %) avec l'étiquette « Barre d'adresse » (`::before` de `.urlbar-input-container`), dans ce mode seulement (fond, contour et absence d'étiquette hors du mode vérifiés identiques).
   Piège de test : la peinture rayée rouge de Marionette sur `.urlbar-background` masquait le défaut ; l'annuler (`background-image: none`) dans la fenêtre de test. NON vérifié : un vrai glisser-déposer à la souris (Marionette ne déclenche pas la session de glisser de Windows) et l'effet réel de `no-drag` (la valeur calculée n'est pas lisible depuis le test).
 - **Titre d'onglet estompé à tort** (signalé le 2026-10-15 : « Firefox » avec le « x » estompé dans une pastille très large) : Firefox estompe la fin du titre (`mask-image` sur
-  `.tab-label-container[textoverflow]`, `tabs.css`) et pose / retire l'attribut `textoverflow` avec les évènements `overflow` / `underflow` du conteneur (`tab.js`, `on_overflow` / `on_underflow`), donc seulement quand
-  l'état change : un évènement raté laisse l'attribut posé alors que le titre tient. `urlbar-domaine.uc.js` recalcule l'état réel (texte plus large que le conteneur de plus de 1 px) toutes les secondes et après
+  `.tab-label-container[textoverflow]`, `tabs.css`) et pose / retire l'attribut `textoverflow` avec les événements `overflow` / `underflow` du conteneur (`tab.js`, `on_overflow` / `on_underflow`), donc seulement quand
+  l'état change : un événement raté laisse l'attribut posé alors que le titre tient. `urlbar-domaine.uc.js` recalcule l'état réel (texte plus large que le conteneur de plus de 1 px) toutes les secondes et après
   chaque animation, changement d'onglet ou redimensionnement ; un vrai débordement garde son fondu, les onglets épinglés sont ignorés. NON reproduit spontanément (essais : ouverture / fermeture d'onglets, 132 titres,
   titre changé pendant l'animation d'ouverture, 200 largeurs de fenêtre, normal et compact : jamais de fondu à tort) : le correctif est vérifié sur un état périmé FORCÉ (attribut posé à la main sur deux onglets larges : retiré
   en moins de 1,6 s, les 6 titres réellement trop longs gardent leur fondu). Si le défaut revient, noter la page, le mode et ce qui précédait (ouverture, fermeture, changement de mode).
@@ -286,3 +281,7 @@ l'adresse, la masquer (`#remote-control-box { display: none !important }` inject
 - Capsules de verre derrière les boutons de la barre latérale et de précédent / suivant (refusées).
 - Boutons Partager et vue d'ensemble des onglets dans la barre du haut (refusés ; le script CustomizableUI est dans l'historique git).
 - Mica de Windows 11 sur les barres : remplacé par un gris plein `#23282e` pour avoir exactement la même couleur partout.
+
+## Licence
+
+Code sous licence MIT — voir [LICENSE](LICENSE) (Copyright (c) 2026 hugom).
