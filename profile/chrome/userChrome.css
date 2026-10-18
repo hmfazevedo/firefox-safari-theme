@@ -1,0 +1,1057 @@
+/* userChrome.css: Safari-style interface for Firefox 158 (see README.md) */
+
+/* One easing curve and shared durations for every interface animation. */
+:root {
+  --uc-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --uc-duration: 260ms;
+  --uc-duration-tint: 300ms;
+}
+
+/* Bookmarks bar: no padding on top, 7 px below (see the rule below). It fades in and out (opacity) and its height changes at
+ * once; it no longer slides open. Sliding it open (animated max-height) clipped the text of the bookmarks at the bottom, which, combined
+ * with the address bar and the tabs sliding when a new tab opens ("show the bookmarks bar only on the New Tab page"), looked like a
+ * collapsing panel. When collapsed ([collapsed]) the bar is transparent (rule at the end of the file); visibility switches to hidden at
+ * the END of the fade so nothing stays reachable by keyboard. Firefox adds the .instant class (no transition) when the bar appears
+ * because of a page change: it is ignored once the session is restored (nothing animates at startup). */
+#PersonalToolbar:not([collapsed]) {
+  padding-block: 0 var(--uc-bar-bottom) !important; /* 0 on top, 7 px below: there is already 7 px above the bookmarks (bottom of the top bar or of the tab strip) and the page must not touch them. Same height with one tab (New Tab page) or several. */
+  max-height: calc(3em + var(--uc-bar-bottom) - 8px) !important; /* ceiling, 4 px above the real height (31 px: 24 px pill + 7 px bottom margin) */
+}
+:root[sessionrestored] #PersonalToolbar {
+  transition: opacity var(--uc-duration) var(--uc-easing), visibility var(--uc-duration) linear, background-color var(--uc-duration-tint) var(--uc-easing) !important;
+}
+:root[sessionrestored] #PersonalToolbar[collapsed] {
+  visibility: hidden !important;
+}
+
+/* The three bars (tabs, navigation, bookmarks): one dark blue-grey, measured on a Safari dark-mode screenshot (#23282e). Opaque
+ * background: no Mica transparency. Firefox's own variables are left untouched because the selected tab uses them (--toolbar-background-color). */
+/* TINT (like Safari 26): safari-theme.uc.js publishes --uc-tint (the page colour, measured by tint-child.sys.mjs) on the root
+ * element; without it (internal page, before the first measure) the bars fall back to this grey. --uc-hollow is the "one notch darker"
+ * of the address field and of the tab strip (#1b1f22 on #23282e = 76% bar + 24% black, measured on Safari); --uc-active is the focused
+ * address field (#2b3036 on #23282e = 96% bar + 4% white). On a LIGHT bar (uc-light-bg, luma > 127.5) the hollow is barely darker
+ * than the bar and the focused field is white. */
+:root {
+  --uc-hollow-pct: 76%;
+  --uc-hollow: color-mix(in srgb, var(--uc-tint, #23282e) var(--uc-hollow-pct), black);
+  --uc-active-pct: 96%;
+  --uc-active: color-mix(in srgb, var(--uc-tint, #23282e) var(--uc-active-pct), white);
+}
+:root[uc-light-bg] {
+  --uc-hollow-pct: 92%;
+  --uc-active-pct: 0%;
+}
+#TabsToolbar,
+#nav-bar,
+#PersonalToolbar {
+  background-color: var(--uc-tint, #23282e) !important;
+}
+
+/* Tab height: the strip is 36 px high (8 px less than Firefox's 44 px) and each tab pill 28 px (--tab-min-height - 8 px), i.e. 4 px
+ * of margin above and below (= --tab-margin-block). The tab TOOLBAR is 43 px in normal mode (7 px of padding below only, --uc-bar-bottom:
+ * the top is already airy thanks to the address bar) and 40 px in compact mode. For bigger or smaller pills change both "8px" together
+ * (strip = pill + 2 x 4 px margin) and adjust the paddings / max-height of #TabsToolbar. */
+.tab-background {
+  margin-block: var(--tab-margin-block) !important;
+  min-height: calc(var(--tab-min-height) - 8px) !important;
+}
+/* VERTICAL tabs (sidebar): the rule above also shrank their pill (24 px measured), which was too thin; give 4 px back (28 px). Vertical only: the horizontal row keeps its 28 px. */
+/* VERTICAL tabs: the first pill was 5 px from the top of the card against 11 px on the other sides; move the list down by 6 px so the gap is the same everywhere. */
+#tabbrowser-tabs[orient="vertical"] {
+  padding-block-start: 6px;
+}
+/* COLLAPSED sidebar (icons only): the tab card (#tabbrowser-tabs) was 54 px wide in a 50 px bar (the 2 px side padding set for the
+ * horizontal row was added to the width), so it overflowed by 4 px and the icons looked 2 px too far right. Without that padding the card
+ * is 50 px and the icons are centred. Expanded, the card already fits. */
+#tabbrowser-tabs[orient="vertical"]:not([expanded]) {
+  padding-inline: 0;
+}
+#tabbrowser-tabs[orient="vertical"] .tab-background {
+  min-height: calc(var(--tab-min-height) - 4px) !important;
+}
+#tabbrowser-tabs[orient="horizontal"] {
+  min-height: calc(var(--tabstrip-min-height) - 8px) !important;
+}
+
+/* Capsule address bar. Two variables: the background reads --urlbarview-border-radius (computed by Firefox from the buttons' radius,
+ * not from --urlbar-border-radius), the inner container reads --urlbar-border-radius. 20px is more than half the height (~16 px): the
+ * browser caps it, so the ends are fully round. No huge value: the corners of the suggestions panel, higher up, would become oval. */
+:root {
+  --urlbar-border-radius: 20px !important;
+  --urlbarview-border-radius: 20px !important;
+}
+
+/* Empty space left of the tabs: Firefox puts a 40 px spacer there (window drag area, .titlebar-spacer). Hidden; there is still room to
+ * drag the window to the right of the tabs. */
+#TabsToolbar > .titlebar-spacer[type="pre-tabs"] {
+  display: none !important;
+}
+/* Flexible spring of the tab row: it took ~28 px to the right of the strip (36 px on the right against 8 px on the left). Hidden: the strip goes to the edge, like on the left. */
+#TabsToolbar toolbarspring {
+  display: none !important;
+}
+
+/* Bookmarks centred in the bar. */
+#PlacesToolbarItems {
+  justify-content: center;
+}
+
+/* ===== Light Safari: top bar (buttons + centred address + window buttons), tabs below. No circles or grey band: only the order of
+ * the bars, the centred address and softer tabs. #nav-bar and #TabsToolbar are siblings in #navigator-toolbox; their order is swapped
+ * (`order`, flex column). The window buttons belong to #TabsToolbar: they are hidden there and the copy that Firefox keeps in #nav-bar is shown. ===== */
+#navigator-toolbox {
+  display: flex !important;
+  flex-direction: column;
+}
+#toolbar-menubar { order: 0; }
+#nav-bar { order: 1; }
+#TabsToolbar { order: 2; }
+#PersonalToolbar { order: 3; }
+
+:root[customtitlebar]:not([inFullscreen], [popup-window], [taskbartab]) {
+  #TabsToolbar > .titlebar-buttonbox-container {
+    display: none !important;
+  }
+  #navigator-toolbox:not([tabs-hidden]) > #nav-bar > .titlebar-buttonbox-container {
+    display: flex !important;
+  }
+  /* The tab row is no longer the title bar: the top bar is used to drag the window. */
+  #nav-bar {
+    -moz-window-dragging: drag;
+    border-top: none !important;
+  }
+}
+
+/* Tabs: fully rounded ends (capsule), equal widths filling the row */
+#TabsToolbar {
+  padding: 0 8px var(--uc-bar-bottom) !important; /* strip of 36 + 7 = 43 px: 7 px under the strip (same air as under the address field), no margin on TOP because the bar above already has 7 px under the field; !important: Firefox's toolbar style (padding: 0) wins otherwise */
+}
+:root {
+  --tab-border-radius: 20px !important; /* more than half a tab's height (~16 px): fully round ends, capsule */
+}
+#tabbrowser-tabs[orient="horizontal"] {
+  --tab-max-width: 10000px !important; /* unreachable ceiling: 1000 px left a gap on the right of a 2560 px screen */
+}
+
+/* Address: text centred in EVERY state (resting, focused, typing, new tab, internal page), in normal and compact mode: as soon as it fits
+ * in the field it sits in the middle and grows on both sides; too long, it fills the field and starts on the left. The text is only
+ * centred if the space on both sides is equal: see the .urlbar-input-box rules below (with and without the globe). */
+#urlbar-input {
+  text-align: center !important;
+}
+
+/* Address field at rest: one notch darker than the bar (#1b1f22, measured on Safari). Once focused, Firefox keeps its own input colour, which is readable. */
+#urlbar:not([focused]) > #urlbar-background {
+  background-color: var(--uc-hollow) !important;
+}
+
+/* Only one tab open: hide the tab row, like Safari. It comes back as soon as a second tab opens. :has() looks inside the row: a single
+ * <tab> directly in the normal tab area. Exceptions so nothing is hidden wrongly: a pinned tab (separate container) or a tab group
+ * (<tab-group>). The window buttons are in the top bar, so they stay visible. New tab: Ctrl+T. */
+/* The row COLLAPSES in height (and opens the same way) instead of vanishing: display: none cannot be animated. Fixed height of
+ * 40 px = 2 + 36 strip + 2 (see above): max-height needs a numeric value to animate. overflow: clip is permanent, otherwise the content
+ * overflows while opening. Only [fadein] tabs are counted: a closing tab loses that attribute as soon as its animation starts but stays
+ * in the DOM until the end (the closing attribute only arrives at the end: the row collapsed 220 ms too late). visibility switches to
+ * hidden at the END of the collapse, so nothing is clickable or reachable by keyboard once collapsed. */
+#TabsToolbar {
+  max-height: calc(36px + var(--uc-bar-bottom)) !important;
+  overflow: clip !important;
+  transition: max-height var(--uc-duration) var(--uc-easing), padding-block var(--uc-duration) var(--uc-easing), opacity var(--uc-duration) var(--uc-easing), visibility var(--uc-duration) linear, background-color var(--uc-duration-tint) var(--uc-easing) !important;
+}
+#TabsToolbar:has(#tabbrowser-arrowscrollbox > .tabbrowser-tab[fadein]):not(:has(#tabbrowser-arrowscrollbox > .tabbrowser-tab[fadein] ~ .tabbrowser-tab[fadein])):not(:has(#pinned-tabs-container > .tabbrowser-tab, tab-group)) {
+  max-height: 0 !important;
+  min-height: 0 !important;
+  padding-block: 0 !important;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Icons in the address bar: none on the right except the Reload button. The action buttons (reader mode, translation,
+ * picture-in-picture...) are hidden, as is the bookmark star. The star is NOT removed: it stays in place, transparent and not clickable
+ * (opacity: 0). Neither display: none nor visibility: hidden, otherwise Firefox no longer opens the "Bookmark added" panel (Ctrl+D)
+ * because that panel anchors on the star and refuses a hidden anchor. The identity icon (lock / permissions) is not hidden: it shows
+ * nothing on a normal page but flags a granted permission (camera, location). */
+#page-action-buttons > :not(#star-button-box) {
+  display: none !important;
+}
+#star-button-box {
+  position: absolute;
+  inset-inline-end: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Shield moved out of the address bar, to its left. Firefox has two, depending on the "trust" feature: #trust-icon-container and
+ * #tracking-protection-icon-container. Firefox clips whatever overflows the inner container (overflow: clip): that clipping is lifted
+ * (.urlbar-input-container: the element has no id). The shield is then placed just left of the bar's edge (100% of the width + 6 px). */
+.urlbar-input-container {
+  overflow: visible !important;
+}
+#trust-icon-container,
+#tracking-protection-icon-container {
+  position: absolute;
+  inset-inline-end: calc(100% + 6px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Shorter address bar, centred on the WINDOW (like Safari). In the navigation bar it fills the free space between the left and right
+ * buttons, so its centre depends on their widths. It is taken out of that flow (position: absolute, reference = #nav-bar, which covers
+ * the whole window) and centred with auto margins (left/right 0 + fixed width): NO transform, because Firefox anchors the suggestions
+ * panel on the bar and a transform shifted it. top/bottom 0: the bar takes the row height and centres its field. */
+/* Address bar WIDTH: the single place to change (the height is never touched). clamp(minimum, share of the window, maximum). The
+ * Reload button below reuses it. */
+:root {
+  --uc-urlbar-width: clamp(320px, 30vw, 600px);
+}
+/* Field position and width: two REGISTERED variables (@property) so that switching to compact mode slides them instead of jumping
+ * (transition under [uc-anim], set by safari-theme.uc.js for the duration of the animation only: otherwise resizing the window would
+ * make the field "drag"). Normal: centred (50% - half the width). Compact: see below. */
+@property --uc-ux {
+  syntax: "<length-percentage>";
+  inherits: true;
+  initial-value: 0px;
+}
+@property --uc-uw {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 400px;
+}
+:root {
+  --uc-bar-bottom: 7px; /* space under the tab strip (normal mode), between it and the page */
+  --urlbar-height: 36px !important; /* address field = height of the tab strip (36 px); !important: Firefox sets its value (32 px) in an author-origin rule */
+  --uc-bar-extra: 6px; /* height added to the top bar (40 -> 46 px); the field stays centred in it */
+  --uc-ux: calc(50% - var(--uc-urlbar-width) / 2);
+  --uc-uw: var(--uc-urlbar-width);
+}
+:root[uc-anim] {
+  transition: --uc-ux 420ms cubic-bezier(0.4, 0, 0.2, 1), --uc-uw 420ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+#urlbar-container {
+  position: absolute;
+  inset: 0 auto 0 var(--uc-ux) !important;
+  margin: 0 !important; /* also replaces Firefox's 5 px margin */
+  width: var(--uc-uw) !important; /* !important: Firefox sets its own width with higher-priority rules */
+  min-width: 0 !important;
+  max-width: none !important;
+}
+/* Row height unchanged. Out of the flow, the address bar no longer sizes the row, which shrank (~8 px): it gets its original height
+ * back = bar height + its top and bottom spacing (32 + 2 x 4 = 40 px), computed with Firefox's variables. */
+#nav-bar {
+  min-height: calc(var(--urlbar-height) + 2 * var(--urlbar-padding-block) + var(--uc-bar-extra)) !important; /* + 6 px: the field has as much air above as below (7 px instead of 4), in both modes */
+}
+/* The address bar no longer fills the free space: the buttons area (#nav-bar-customization-target) must stretch instead, otherwise
+ * the right-hand buttons move to the middle of the bar instead of staying on the right. */
+#nav-bar-customization-target {
+  flex: 1 1 auto !important;
+}
+/* Firefox limits every flexible spacer (toolbarspring) to ~112 px: with the address bar out of the flow they no longer push the
+ * right-hand buttons to the window edge. */
+#nav-bar toolbarspring {
+  max-width: none !important;
+}
+
+/* ----- The tab rules below only apply to the HORIZONTAL row (#tabbrowser-tabs[orient="horizontal"]). With vertical tabs (sidebar) they
+ * broke the layout: the title container fell to 0 px wide (invisible titles), the close button moved over the icon and the separators
+ * became small marks on the edge of the bar. Vertical tabs keep Firefox's layout. ----- */
+/* Centred tab titles. .tab-label-container is a flexible column (vbox) whose XUL attribute align="start" pins the title to the left:
+ * align-items: center is ignored (the attribute wins). Auto margins on the title are applied before alignment in a flex container: the
+ * title centres when there is room, and when it is too long it takes all the space (margins 0) and stays cut with the usual fade at the
+ * end. The site icon stays on the left and the close button on the right: the title is centred between them. */
+#tabbrowser-tabs[orient="horizontal"] .tab-label {
+  margin-inline: auto !important;
+  text-align: center;
+}
+
+/* The "+" of the tab row is hidden: the "New Tab" button lives in the top bar, like in Safari (on a fresh profile the script moves it
+ * there once), so it stays available when the tab row is hidden (a single tab). */
+#tabs-newtab-button,
+#vertical-tabs-newtab-button {
+  display: none !important;
+}
+
+/* No more empty space on the right of the tabs after closing one. When a tab is closed with the mouse, Firefox freezes the max-width
+ * of every remaining tab (element style, !important) so that the next tab's close button stays under the cursor, and only releases it
+ * when the mouse leaves the row: the tabs no longer fill the row. A user-origin !important rule beats even that element style.
+ * [fadein]: tabs that are closing keep their shrinking animation. Trade-off: the next tab's close button no longer stays under the cursor. */
+.tabbrowser-tab[fadein]:not([pinned]) {
+  max-width: var(--tab-max-width) !important;
+}
+.closing-tabs-spacer {
+  width: 0 !important;
+}
+
+/* Tab open / close: the tab grows from its left edge to the right when opening and shrinks the same way when closing, neighbours
+ * sliding with it (--uc-duration). Why: Firefox animates min-width / max-width, but the --tab-max-width: 10000px ceiling set above (to fill
+ * the row) makes max-width, animated from 0.1 px to 10000 px in 100 ms, exceed the real width within a few milliseconds: the animation
+ * existed but was invisible. So flex-grow is animated instead (the tab's share of the width, flex: 100 100 in Firefox) and max-width is
+ * kept as a plain timer: it jumps immediately when opening (step-start) and at the END when closing (step-end), which keeps the
+ * max-width transitionend event that Firefox waits for before removing the closed tab. */
+.tabbrowser-tab:not([pinned]) {
+  transition: flex-grow var(--uc-duration) var(--uc-easing), min-width var(--uc-duration) var(--uc-easing), max-width var(--uc-duration) step-start !important;
+}
+.tabbrowser-tab:not([pinned]):not([fadein]) {
+  flex-grow: 0 !important;
+  transition: flex-grow var(--uc-duration) var(--uc-easing), min-width var(--uc-duration) var(--uc-easing), max-width var(--uc-duration) step-end !important;
+}
+
+/* "New Tab" button of the top bar: a plain "+" (instead of Firefox's tab + plus icon). Inline filled SVG, fixed colour #fbfbfe = that of
+ * the other bar icons (Firefox does not pass its colour to data: images). */
+#new-tab-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path fill='%23fbfbfe' d='M7.25 2.5h1.5v4.75h4.75v1.5H8.75v4.75h-1.5V8.75H2.5v-1.5h4.75z'/></svg>") !important;
+}
+
+/* Reload button at the right end of the address bar, like Safari. Firefox has none there: its button (#stop-reload-button, reload /
+ * stop while loading) is kept and positioned over the bar. The bar is centred on the window: its right edge is at 50% + (width / 2) of
+ * the navigation bar's edge. The width comes from --uc-urlbar-width, defined above: nothing else to change. */
+#stop-reload-button {
+  position: absolute !important;
+  left: calc(var(--uc-ux) + var(--uc-uw) - 34px) !important; /* 32 px button (28 px hover circle + 2 px margin on each side): -34 px = circle 4 px from the bar's right edge */
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  margin: 0 !important;
+}
+/* The address text does not go under the button. The left and right reserves are chosen so the text is centred in the bar (measured:
+ * 42 px on each side of the text area). */
+.urlbar-input-box {
+  margin-inline: 12px 40px !important; /* 40 px on the right for the button; 12 px on the left: Firefox already reserves ~28 px of invisible elements (measured) */
+}
+/* With the globe (attribute uc-centered): the text starts as far from the globe as it ends from the Reload button: --uc-text-gap.
+ * The globe, absolutely positioned 4 px from the edge, is drawn 10.7 -> 26.7 px from the field's edge, and Reload 10 -> 26 px from the
+ * right edge: the text therefore starts at 26.7 + gap from the left edge (margin = 25 px + gap, including 1.3 px of container padding)
+ * and ends at 26 + gap from the right edge (margin 20 px + gap, plus 4 px of field padding). Without this rule the text started 13 px
+ * from the edge, UNDER the globe. A short text (bare domain) is thereby exactly centred in the field. Without the globe (typing,
+ * internal page): the previous rule applies. TEST TRAP: a Firefox driven by Marionette adds the #remote-control-box icon (32 px, in the
+ * flow, left of the field), which shifts everything by 32 px and hides the problem; hide it when measuring. */
+#urlbar[uc-centered] .urlbar-input-box {
+  --uc-text-gap: 12px;
+  margin-inline: calc(25px + var(--uc-text-gap)) calc(20px + var(--uc-text-gap)) !important;
+}
+
+/* Favicon stuck to the left of the title, the "icon + title" group being centred in the tab (like Safari). In .tab-content (flex
+ * row): the icon, the title, then the close button. The title container no longer stretches (max-width: max-content, it can still
+ * shrink and cut a long title); the group is centred with justify-content (below). Pinned tabs excluded. */
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned]) .tab-label-container {
+  flex: 0 1 auto !important;
+  max-width: max-content !important; /* the XUL attribute flex="1" beats the flex above: this ceiling guarantees it never exceeds the title's width */
+}
+/* The "icon + title" group is centred in the tab (the close button is no longer in the row, see below). */
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned]) .tab-content {
+  justify-content: center !important;
+  /* Reserve on both sides (symmetric, so the group stays centred): the close button, on the left on hover, never covers the favicon of a long title. */
+  padding-inline: 28px !important;
+}
+
+/* Close button like Safari: invisible, it only appears when hovering the tab, on the LEFT. It leaves the row (absolute position in the
+ * tab, which is relative above) so the centred title does not move; visibility: hidden also makes it unclickable when not hovered.
+ * Middle-click still closes the tab. Pinned tabs excluded (no close button). */
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned]) .tab-close-button {
+  position: absolute !important;
+  inset-inline-start: 2px; /* 24 px hover circle in a 28 px pill: 2 px of air on the left as above and below, so it is concentric with the rounded end (at 0 px it was 2 px too far left) */
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned]):not(:hover) .tab-close-button {
+  visibility: hidden !important;
+}
+/* When tabs become narrow (under 140 px: browser.tabs.tabClipWidth), Firefox sets closebuttons="activetab" on the strip and hides
+ * (display: none) the close button of EVERY tab but the active one, so hovering an inactive tab showed nothing. The button, already hidden
+ * when not hovered by the previous rule, can be displayed again when hovering any tab. Pinned tabs keep their rule (no close button). */
+#tabbrowser-tabs[closebuttons="activetab"][orient="horizontal"] .tabbrowser-tab:not([pinned]) .tab-close-button {
+  display: flex !important;
+}
+
+/* Insecure site (http): same look as a secure one. Firefox shows a crossed-out shield, the text "Not secure" and a background badge
+ * that sticks out of the bar. The shield is replaced by the "secure" family one but with a "!" (trust-icon-warning.svg, same drawing and
+ * colour as the check), with no text or badge. The "!" prevents an insecure site from having the same icon as a safe one. */
+#trust-icon-container.insecure {
+  list-style-image: url("chrome://browser/skin/trust-icon-warning.svg") !important;
+  background-color: transparent !important;
+}
+#trust-label {
+  display: none !important;
+}
+
+/* Safari-style tab row: the tabs live in a darker capsule strip (#1b1f22, the same grey as the address field, measured on Safari), the
+ * active tab is a lighter pill inside it, and thin vertical separators sit between inactive tabs (not next to the active tab, nor after
+ * the last one). The strip is #tabbrowser-tabs: the "list all tabs" chevron stays on the right, outside the strip. */
+#tabbrowser-tabs {
+  background-color: var(--uc-hollow) !important;
+  border-radius: 22px;
+  padding-inline: 2px; /* the tab pills at both ends do not touch the strip's rounded edge */
+}
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned]) {
+  position: relative;
+}
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected])::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: 0;
+  top: 50%;
+  height: 16px;
+  width: 1px;
+  transform: translateY(-50%);
+  background-color: rgba(255, 255, 255, 0.18);
+  pointer-events: none;
+}
+/* No separator after the last tab, nor right before the active tab (its left neighbour). */
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:last-of-type::after,
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:has(+ .tabbrowser-tab[selected])::after {
+  display: none;
+}
+
+/* Breathing room of the pills around the separators: 5 px, only on the side of a separator. The separators stay at the edge of each
+ * tab, only the pills shrink. A tab has a separator on its right edge unless it is active, last, or right before the active tab (the
+ * same condition as the ::after rules above): that tab's pill then loses 5 px on the right and its right neighbour's pill 5 px on the
+ * left. Two side effects are compensated: the close button, 2 px from the tab edge, follows the pill's edge (7 px) when the pill lost
+ * 5 px on the left; the title, centred in the tab, is re-centred on the pill by adding 5 px of padding on the side where it shrank. */
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) .tab-background {
+  margin-inline-end: 5px !important;
+}
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab:not([pinned]) .tab-background {
+  margin-inline-start: 5px !important;
+}
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab:not([pinned]) .tab-close-button {
+  inset-inline-start: 7px;
+}
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])):not(.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab) .tab-content {
+  padding-inline: 28px 33px !important;
+}
+#tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected])) + .tabbrowser-tab:not([pinned]):not(.tabbrowser-tab:not([pinned], [selected], :last-of-type):not(:has(+ .tabbrowser-tab[selected]))) .tab-content {
+  padding-inline: 33px 28px !important;
+}
+
+/* ===== Address bar height and hairlines (like Safari) ===== */
+/* Thin hairline around the address bar (at rest, not while typing). The bar's background has no id, only the .urlbar-background class. */
+#urlbar:not([focused], [popover-open]) > .urlbar-background {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.13) !important;
+}
+/* ... and around the tab strip. outline with a negative offset: the line is drawn inside the edge, shifts nothing, changes no height and follows the rounded corner. */
+#tabbrowser-tabs {
+  outline: 1px solid rgba(255, 255, 255, 0.13);
+  outline-offset: -1px;
+}
+
+/* Safari-style Reload icon ("arrow.clockwise"): a thin ring starting on the right (3 o'clock), going clockwise and ending at the top
+ * with an arrow head, with a wide opening (~95 degrees) between the head and the start, in white. Measured on a Safari screenshot:
+ * opening ~90 degrees, head in the direction of travel. Inline thin-stroke SVG (data:): Firefox does not pass its colour to data:
+ * images, so the colour is fixed here (#fbfbfe, the white of the other bar icons). Ring of 5 px radius in a 16 px icon, 1.25 px stroke. */
+/* Hover / press of Reload and Stop: a 28 px CIRCLE instead of Firefox's 32 px square, whose corners stuck out of the rounded end of
+ * the address bar (32 px high, 1 px hairline). 28 px = 2 px of air above and below. The icon stays 16 px (6 px padding). */
+#stop-reload-button > .toolbarbutton-1 > .toolbarbutton-icon {
+  width: 28px !important;
+  height: 28px !important;
+  padding: 6px !important;
+  border-radius: 50% !important;
+}
+
+#reload-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><path d='M12.98 7.56A5 5 0 1 1 7.13 3.08'/><path d='M6.77 1.27 8.9 2.76 7.41 4.89'/></g></svg>") !important;
+}
+
+/* Back / Forward: thin white chevrons like Safari. White fixed in the drawing (#fbfbfe): Firefox does not pass its colour to data:
+ * images. The greyed state (no history) is still handled by Firefox. */
+#back-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M10 2.8 4.8 8 10 13.2' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/></svg>") !important;
+}
+#forward-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M6 2.8 11.2 8 6 13.2' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/></svg>") !important;
+}
+
+/* Address drop-down, like Safari: a FLOATING panel, rounded, translucent and blurred, detached from the bar. Firefox paints the open
+ * menu as ONE surface in two halves: the bar grows (8 px overflow, square bottom corners, extended 24 px below it) and
+ * .urlbarView-background (the panel's background, a separate element) comes up under it; a clip-path trims them at the join. The bar gets
+ * its exact capsule back (inset 0, round corners, resting hairline) and the panel starts below it, with all its corners rounded, no
+ * trimming, a translucent dark veil, a blur of the content behind (backdrop-filter) and a light hairline. */
+#urlbar[popover-open] > .urlbar-background {
+  inset: 0 !important;
+  clip-path: none !important; /* Firefox trims the bottom 24 px of the bar here (join with the panel) */
+  border: none !important;
+  border-radius: var(--urlbar-border-radius) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.13) !important;
+}
+/* Panel (background + rows) moved down 10 px: the gap with the capsule goes from 4 to 14 px. translate rather than a margin: the panel
+ * is anchored to the bar by Firefox (position-area), a margin would also change its maximum height. */
+#urlbar > .urlbarView {
+  translate: 0 10px;
+}
+/* The thin line at the very top of the panel: the top border of #urlbar-results (0.67 px, grey #52525e), which separated the bar from
+ * the list when they were joined. Detached, it separates nothing. Found by removing in turn the background's shadow, #urlbar-results'
+ * border and the rows' border: only removing #urlbar-results' border makes the line disappear. */
+#urlbar-results {
+  border-top: none !important;
+}
+#urlbar > .urlbarView > .urlbarView-background {
+  inset-block-start: 0 !important;
+  clip-path: none !important;
+  border: none !important;
+  border-radius: 22px !important;
+  background-color: rgba(38, 42, 48, 0.94) !important; /* almost opaque: the blur (backdrop-filter) does not always act on the page content, and at 0.78 the site's text showed through the rows */
+  backdrop-filter: blur(24px) saturate(1.5) !important;
+  box-shadow: 0 16px 24px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) !important; /* negative spread + downward offset: the shadow does not rise under the capsule (a 30 px shadow blackened it) */
+}
+
+/* Menu and extensions: same thin stroke (1.25) as the other icons. The address bar's shield is not redrawn: Firefox changes it
+ * depending on the state (secure, certificate error...) and its own already has a similar stroke. */
+#PanelUI-menu-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M2.8 4.5h10.4M2.8 8h10.4M2.8 11.5h10.4' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round'/></svg>") !important;
+}
+#unified-extensions-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M1.8 5.5H4.9a1.6 1.6 0 1 1 2.4 0H11.6V8.1a1.6 1.6 0 1 1 0 2.4V13.1H1.8Z' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/></svg>") !important;
+}
+
+/* Downloads: circle with a down arrow, like Safari, in white. The drawing is used for the button AND for #downloads-indicator-icon
+ * (Firefox gives it back by inheritance). The start and end download animations keep their own. */
+#downloads-button,
+#downloads-indicator-icon {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 -1 18 18' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'><circle cx='8' cy='8' r='8.3'/><path d='M8 3.72v7.65M4.76 8.39 8 11.63l3.24-3.24'/></g></svg>") !important;
+}
+/* The three states of the button must have the same diameter (measured on screenshots at 150%: arrow 14.7 px, progress ring 18.7 px,
+ * finish check 18.7 px): the arrow is enlarged to ~16.7 px (circle of radius 8.3 in an 18 px frame, 1.25 px stroke once scaled to 16) and
+ * Firefox's progress ring and finish animation (20 px frames, Firefox's colours and stroke) are scaled down by the same ratio
+ * (16.7 / 18.7 = 0.89). */
+#downloads-indicator-progress-outer,
+#downloads-indicator-start-box,
+#downloads-indicator-finish-box {
+  scale: 0.89;
+  translate: 0 0.7px; /* measured: their centre was 0.7 px higher than the arrow's (dy -1.0 against -0.3) */
+}
+/* The blue of the ring, the check and the indicator is Safari's blue (#0a84ff, like the rest of the file), not Firefox's turquoise. */
+#downloads-button {
+  --toolbarbutton-icon-fill-attention: #0a84ff !important;
+}
+
+/* Stop button (it replaces Reload while loading): a thin, smaller cross (7 px wide instead of the 16 px solid cross of Firefox, which
+ * looked too big), same stroke as the other icons. */
+#stop-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M4.9 4.9l6.2 6.2M11.1 4.9l-6.2 6.2' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round'/></svg>") !important;
+}
+
+/* While typing, Firefox shows the "Go" button (arrow) on the right of the bar, EXACTLY where Reload is placed (absolute position,
+ * above): the two icons overlapped into a circle crossed by an arrow. Reload is therefore hidden while typing (it makes no sense: the
+ * page is about to change) and "Go" is kept, redrawn as a thin white arrow in a 28 px circle like the hover of the other buttons. */
+#nav-bar:has(#urlbar[usertyping]) #stop-reload-button {
+  visibility: hidden !important;
+}
+/* New Tab page (and blank page): the bar is empty and Firefox marks it pageproxystate="invalid" (the displayed address is no page's);
+ * reloading is pointless there, so the button is hidden, only there. */
+#nav-bar:has(#urlbar[pageproxystate="invalid"]) #stop-reload-button {
+  visibility: hidden !important;
+}
+#urlbar .urlbar-go-button {
+  content: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M3.4 8h9.2M8.8 4.2 12.6 8l-3.8 3.8' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/></svg>") !important;
+  width: 16px !important;
+  height: 16px !important;
+  padding: 6px !important;
+  border-radius: 50% !important;
+}
+
+/* Panels and menus (main menu, downloads, shield, permissions, extensions...): EXACTLY the card of the address drop-down: grey #262a30,
+ * 16 px corners, 1 px light hairline, drop shadow downwards, and like it moved about ten pixels below their button. One variable
+ * drives the background of all panels (--panel-background-color), others the radius, border and shadow; Firefox sets them on :root and
+ * on the panels themselves, hence the three targets. The shadow overflows the content: the transparent area around it
+ * (--panel-box-shadow-margin) goes to 20 px to contain it. To offset: the panel's margin is already -1 x that area (it compensates it);
+ * 14 px are added on top. Context menus (menupopup): same colours, no enlarged shadow or offset (they open under the cursor). */
+:root,
+panel,
+menupopup {
+  --panel-background-color: rgba(38, 42, 48, 0.94) !important; /* same translucent veil as the address drop-down (rgba(38, 42, 48, 0.94)): the page shows faintly through. No background blur here: a panel is a separate window, backdrop-filter cannot see the page. */
+  --panel-border-radius: 22px !important; /* Safari's corners on macOS 26, rounder than the previous 16 px */
+  --panel-border-color: rgba(255, 255, 255, 0.1) !important;
+  /* Inside of the panels (fields, primary buttons, checkboxes, switches, links): Safari's blue instead of Firefox's turquoise, and
+ * fields darker than the card (instead of the grey-violet --background-color-box). */
+  --color-accent-primary: #0a84ff !important;
+  --color-accent-primary-hover: #2b95ff !important;
+  --color-accent-primary-active: #0067d6 !important;
+  --color-accent-primary-selected: #0a84ff !important;
+  --button-text-color-primary: #fff !important;
+  --background-color-box: #1b1f22 !important;
+}
+menupopup {
+  --panel-border-radius: 12px !important;
+}
+panel {
+  --input-text-background-color: #1b1f22 !important; /* input fields of the panels (bookmark name...); only in panels: the address bar reads the same variable */
+  --panel-box-shadow: 0 16px 24px -12px rgba(0, 0, 0, 0.5) !important;
+  --panel-box-shadow-margin: 20px !important;
+}
+panel[type="arrow"] {
+  margin-top: calc(-1 * var(--panel-box-shadow-margin) + 14px) !important; /* measured: +10 px gave ~6 px under the menu button, whereas the address drop-down is 10 px under the bar; +14 px puts both cards at the same level */
+}
+
+/* Magnifier + arrow on the left of the address when it is empty: it is the search engine picker (choose Google, Wikipedia... for ONE
+ * search). Safari has none; hidden. The shortcuts typed in the bar (@wiki, @google...) do the same. */
+#urlbar .searchmode-switcher {
+  display: none !important; /* a moz-button with a class and no id: the first attempt targeted #urlbar-searchmode-switcher, which does not exist */
+}
+
+/* Find in page (Ctrl+F), like Safari: a floating pill at the top right of the page instead of a full-width bar stuck at the bottom.
+ * .browserContainer is already position: relative. No display here: it must stay hideable by Firefox's hidden attribute. */
+findbar {
+  position: absolute !important;
+  grid-area: 1 / 1 !important; /* .browserContainer is a GRID: without this the bar goes into an implicit second row, under the page, and top/right are counted from there */
+  inset-block: 12px auto !important;
+  inset-inline: auto 18px !important;
+  width: 460px !important;
+  max-width: calc(100% - 36px) !important;
+  padding: 4px 6px !important;
+  background: rgba(38, 42, 48, 0.94) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45) !important;
+  z-index: 10;
+}
+
+/* Bookmarks bar: hover as a rounded pill (Firefox: small rectangle). margin-block: 0: Firefox puts 2 px of margin above and below
+ * each bookmark (24 px pill in a 28 px row); without it the bar is 4 px shorter. The pill keeps its 24 px. */
+#PersonalToolbar .bookmark-item:not(.subviewbutton) {
+  border-radius: 9px !important;
+  padding-inline: 8px !important;
+  margin-block: 0 !important;
+}
+
+/* Link address on hover (bottom left of the page): a dark rounded pill instead of Firefox's rectangle */
+#statuspanel-label {
+  background: rgba(38, 42, 48, 0.94) !important;
+  color: #f5f5f7 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 10px !important;
+  padding: 4px 11px !important;
+  margin: 0 10px 10px !important;
+}
+
+/* Sidebar toolbar strip (clock, star, settings...) and frame around the page: Firefox sets no colour there, the strip is transparent
+ * and shows #browser, which carries a 20% white veil (oklch(1 0 0 / 0.2)) over Windows 11's Mica: a light grey tinted by the wallpaper,
+ * different from the top bars. It gets the opaque grey of the three bars (#23282e), without Mica. */
+#browser {
+  background-color: var(--uc-tint, #23282e) !important;
+  transition: background-color var(--uc-duration-tint) var(--uc-easing);
+}
+
+/* Sidebar: already a dark rounded card in the palette; only the focus outline (bookmarks search field, tabs, buttons) goes from
+ * Firefox's turquoise to Safari's blue, for the whole window. */
+:root {
+  --focus-outline-color: #0a84ff !important;
+}
+
+/* Shield (and tracking protection) placed OUTSIDE the address bar: the whole top bar is a window drag area
+ * (-moz-window-dragging: drag, above) and Firefox only removes that status inside the address bar. A real click on the shield, which is
+ * outside, was taken for the start of a window drag and opened nothing (simulated clicks went through). no-drag gives its clicks back. */
+#trust-icon-container,
+#tracking-protection-icon-container {
+  -moz-window-dragging: no-drag !important;
+}
+
+/* ===== LIGHT bar (attribute uc-light set by safari-theme.uc.js: Rec. 709 luma of the page colour > 127.5, Safari's rule for choosing
+ * dark text) =====
+ * 1. color-scheme: light on the bars block only: Firefox colours written as light-dark() (text, native icons, active tab, address
+ *    field...) switch to their light version by themselves. Not on :root, otherwise the panels and the address drop-down (fixed dark
+ *    grey) would get dark text on a dark background.
+ * 2. The icons drawn by this file are data: images with FIXED white (#fbfbfe), which do not follow the theme: an "invert" filter on EACH
+ *    icon, once (a filter on the button AND its icon would cancel out). Tab favicons are not touched.
+ * 3. Translucent white separators and hairlines: black version. */
+:root[uc-light] #navigator-toolbox {
+  color-scheme: light !important;
+}
+/* The address drop-down is INSIDE the toolbar but keeps its fixed dark grey background: without this it inherited color-scheme: light
+ * and its text turned black on that dark background. */
+:root[uc-light] #urlbar .urlbarView {
+  color-scheme: dark !important;
+  /* History and bookmark rows have no colour of their own: they inherit #urlbar's, already computed as BLACK (light theme);
+ * color-scheme does not recompute it, hence this explicit white. */
+  color: #fbfbfe !important;
+}
+/* The menu's action buttons ("Search with Wikipedia") have a fixed black text in Firefox: black on dark grey. */
+#urlbar .urlbarView-action-btn {
+  color: #fbfbfe !important;
+}
+:root[uc-light] :is(#back-button, #forward-button, #reload-button, #stop-button, #new-tab-button, #PanelUI-menu-button,
+    #unified-extensions-button, #downloads-button, #uc-compact-button) .toolbarbutton-icon,
+:root[uc-light] #downloads-indicator-icon,
+:root[uc-light] #urlbar[uc-centered] #identity-icon,
+:root[uc-light] #urlbar[uc-web] #permissions-granted-icon,
+:root[uc-light] #urlbar .urlbar-go-button {
+  filter: invert(1) !important;
+}
+:root[uc-light] #urlbar:not([focused], [popover-open]) > .urlbar-background {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12) !important;
+}
+:root[uc-light] #tabbrowser-tabs {
+  outline-color: rgba(0, 0, 0, 0.12);
+}
+/* Tab text: Firefox sets it to a fixed white (#fbfbfe), not light-dark(); the active tab full, the inactive ones a bit softer.
+ * !important: userChrome.css is a "user" sheet and loses against Firefox's rules without it. */
+:root[uc-light] #tabbrowser-tabs .tabbrowser-tab {
+  color: rgba(21, 20, 26, 0.7) !important;
+}
+:root[uc-light] #tabbrowser-tabs .tabbrowser-tab[selected] {
+  color: #15141a !important;
+}
+:root[uc-light] #tabbrowser-tabs :is(.tab-label, .tab-text, .tab-label-container, .tab-content) {
+  color: inherit !important;
+}
+:root[uc-light] #tabbrowser-tabs[orient="horizontal"] .tabbrowser-tab:not([pinned], [selected])::after {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Page dialogs (alert, confirm, prompt, "leave this page?") as a "sheet" like Safari: attached to the top of the page instead of
+ * centred, bottom corners rounded, soft shadow downwards. Firefox structure (content-area.css): .dialogStack > ... > .dialogOverlay
+ * (centred grid) > .dialogBox > .dialogFrame (the dialog itself). */
+.content-prompt-dialog > .dialogOverlay {
+  align-content: start !important;
+}
+.dialogBox:not(.spotlightBox) {
+  border-radius: 0 0 22px 22px !important;
+  box-shadow: 0 16px 24px -12px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* PRIVATE window recognisable, like Safari: darker bars (the page tint is switched off in these windows by safari-theme.uc.js) and
+ * the "Private Browsing" label ALWAYS visible, with Firefox's purple mask, just left of the flame (#reset-pbm-toolbar-button, the "Exit
+ * private browsing" button, only present in these windows), in normal and compact mode and on any page. The label is part of the
+ * button (::before), so it follows the flame wherever it is in the bar, and the script includes it in the width of the right-hand
+ * buttons (the compact tab strip does not cover it). Before: soft purple inside the address field, only on a displayed page. */
+:root[privatebrowsingmode] {
+  --uc-tint: #161618;
+}
+:root[privatebrowsingmode] #reset-pbm-toolbar-button::before {
+  content: var(--uc-label-private, "Private Browsing");
+  align-self: center;
+  padding-inline-start: 22px;
+  margin-inline-end: 6px;
+  background: url("chrome://global/skin/icons/indicator-private-browsing.svg") no-repeat left center / 16px 16px; /* Firefox's native indicator icon */
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  color: #fbfbfe;
+}
+
+/* Firefox's native indicator (same mask and text) lives in the tab row, which is hidden while there is a single tab: that is why the
+ * label used to disappear. It is hidden here to avoid a duplicate. */
+:root[privatebrowsingmode] .private-browsing-indicator-with-label {
+  display: none !important;
+}
+
+/* ===== COMPACT MODE ("Compact mode" button of the top bar): tabs and address field on ONE row, like Safari's "Compact" layout. The
+ * choice is stored in the extensions.uc.compact preference; safari-theme.uc.js sets the uc-compact attribute on the root (preference
+ * true), uc-multi (two tabs or more: with a single tab the tab row is hidden anyway and nothing changes) and measures --uc-left
+ * (right edge of the "forward" button) and --uc-right (width of the right-hand buttons). Layout: [Compact mode, back, forward]
+ * [address field] [tabs] [right-hand buttons]. The tab row is laid OVER the navigation bar (position: absolute, same 40 px height);
+ * horizontal tabs only. ===== */
+:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) {
+  --uc-field: clamp(220px, 22vw, 380px);
+  --uc-ux: calc(var(--uc-left, 150px) + 47px); /* shield (32 px, 16 px symbol) to the LEFT of the field: its symbol is 25.7 px (visible) from the "forward" arrow and ~20 px from the field (shield rule below) */
+  --uc-uw: var(--uc-field);
+}
+:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #navigator-toolbox {
+  position: relative;
+}
+:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) :is(#trust-icon-container, #tracking-protection-icon-container) {
+  inset-inline-end: calc(100% + 13px); /* shield container ~12 px from the field = ~20 px visible (symbol inset by 8 px); in normal mode: 6 px */
+}
+:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #TabsToolbar {
+  position: absolute !important;
+  top: calc((var(--urlbar-height) + 2 * var(--urlbar-padding-block) + var(--uc-bar-extra) - 40px) / 2); /* centred in the bar (its height, minus the 40 px of the strip's box) */
+  height: 40px; /* the strip keeps its normal size (36 px in a 40 px row, hence the padding and max-height restored); the address FIELD is what grows to match it, see above */
+  left: calc(var(--uc-ux) + var(--uc-uw) + 25px); /* 25 px gap with the address field = the visible gap between the "forward" arrow and the field (25.4 px measured); also during the slide (--uc-ux and --uc-uw are animated) */
+  right: calc(var(--uc-right, 260px) + 9px); /* --uc-right includes 6 px of margin and the button has 10 px of empty space around its icon: 25 px visible gap, like on the left */
+  padding: 2px 0 !important; /* the tab bar's 8 px added to the gap; 2 px above and below: the strip is centred in its 40 px box (no bar above here) */
+  max-height: 40px !important;
+  z-index: 3;
+  background-color: transparent !important;
+}
+
+/* Animation between normal <-> compact (the button toggle, or a second tab opening / closing in compact mode): during [uc-anim] the
+ * tab strip fades in while sliding from the right (compact) or from the top (normal), the field slides (variables --uc-ux / --uc-uw
+ * above) and safari-theme.uc.js animates the bar's height (80 -> 40 px). The bar is only clipped during these 0.4 s. */
+@keyframes uc-tabs-compact {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes uc-tabs-normal {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: none; }
+}
+:root[uc-anim] #navigator-toolbox {
+  overflow: clip;
+  background-color: var(--uc-tint, #23282e) !important;
+}
+:root[uc-anim] #TabsToolbar {
+  transition: none !important;
+}
+:root[uc-anim] #tabbrowser-arrowscrollbox::part(scrollbutton-up),
+:root[uc-anim] #tabbrowser-arrowscrollbox::part(scrollbutton-down) {
+  display: none !important;
+}
+:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"])[uc-anim] #TabsToolbar {
+  animation: uc-tabs-compact 420ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+:root[uc-anim][uc-multi]:not([uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"])) #TabsToolbar {
+  animation: uc-tabs-normal 420ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+/* Back to a single tab: the row disappears at once (otherwise it reappeared as a second row while collapsing). */
+:root[uc-anim]:not([uc-multi]) #TabsToolbar {
+  opacity: 0 !important;
+  transition: none !important;
+}
+
+/* The "Compact mode" button: two rows (normal mode) or a single one (compact mode), thin stroke like the other icons. */
+#uc-compact-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linejoin='round'><rect x='2' y='2.8' width='12' height='4' rx='1.6'/><rect x='2' y='9.2' width='12' height='4' rx='1.6'/></g></svg>") !important;
+}
+/* Left margin of the first button of the bar, whichever it is (the Compact mode button, or another one if they are moved): the
+ * leftmost button must not touch the window edge. 9 px, because Firefox already adds 6 px of left padding to the first button (8 px
+ * instead of 2): the symbol stays 25 px from the window edge (= the gap between the symbol and the "back" arrow, 25.7 px visible)
+ * and "back" at 51 px. */
+#nav-bar-customization-target {
+  padding-inline-start: 9px !important;
+}
+:root[uc-compact] #uc-compact-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linejoin='round'><rect x='2' y='6' width='12' height='4' rx='1.6'/></g></svg>") !important;
+}
+
+/* Window buttons: three 30 px CIRCLES (90 px wide instead of 138), thin rounded glyphs like the other icons; hover is a light circle,
+ * red for close. These are the buttons Firefox keeps a copy of in #nav-bar (the one shown by the "Light Safari" block above). The
+ * Windows symbol is the button's ::before (content: "\e8bb", Segoe Fluent Icons font): it is replaced by a drawing, !important
+ * everywhere (Firefox rule, "author" origin). "Restore" and "maximize" (only one is visible at a time) have their own drawing. Light
+ * bar: drawings inverted (rule below). */
+#nav-bar > .titlebar-buttonbox-container {
+  align-items: center;
+  margin-inline: 4px 8px;
+}
+#nav-bar .titlebar-buttonbox {
+  align-items: center;
+}
+#nav-bar .titlebar-button {
+  flex: none !important;
+  width: 30px !important;
+  min-width: 0 !important;
+  height: 30px !important;
+  padding: 0 !important;
+  margin: 0 2px !important;
+  border-radius: 50% !important;
+  appearance: none !important;
+  background-color: transparent !important;
+  position: relative;
+}
+#nav-bar .titlebar-button:hover {
+  background-color: rgba(255, 255, 255, 0.16) !important;
+}
+#nav-bar .titlebar-button:hover:active {
+  background-color: rgba(255, 255, 255, 0.24) !important;
+}
+#nav-bar .titlebar-close:hover {
+  background-color: #e5484d !important;
+}
+#nav-bar .titlebar-close:hover:active {
+  background-color: #c93a3f !important;
+}
+#nav-bar .titlebar-button > .toolbarbutton-icon {
+  display: none !important;
+}
+#nav-bar .titlebar-button::before {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  pointer-events: none !important;
+}
+#nav-bar .titlebar-min::before { content: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><path d='M3.5 8h9'/></g></svg>") !important; }
+#nav-bar .titlebar-max::before { content: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><rect x='3.5' y='3.5' width='9' height='9' rx='2.2'/></g></svg>") !important; }
+#nav-bar .titlebar-restore::before { content: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><path d='M5.5 5.5v-.7a1.8 1.8 0 0 1 1.8-1.8h4a1.8 1.8 0 0 1 1.8 1.8v4a1.8 1.8 0 0 1-1.8 1.8h-.7'/><rect x='2.9' y='5.5' width='7.6' height='7.6' rx='2'/></g></svg>") !important; }
+#nav-bar .titlebar-close::before { content: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><path d='M4 4l8 8M12 4l-8 8'/></g></svg>") !important; }
+:root[uc-light] #nav-bar .titlebar-button::before {
+  filter: invert(1);
+}
+:root[uc-light] #nav-bar .titlebar-button:hover {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+:root[uc-light] #nav-bar .titlebar-close:hover {
+  background-color: #e5484d !important;
+}
+:root[uc-light] #nav-bar .titlebar-close:hover::before {
+  filter: none;
+}
+
+/* Globe stuck to the left edge of the field, the text alone centred, like Safari: at rest (bare domain) as with the active bar (full
+ * address selected). The safari-theme.uc.js script sets the uc-centered attribute (a site's address displayed, not typing). White fixed in
+ * the drawing (#fbfbfe): Firefox does not pass its colour to data: images. None of this on an internal page or while typing a search.
+ * 
+ * The globe is a REAL Firefox button, so clickable: #identity-icon-box (opens the site panel) when the site has no permission, or
+ * #identity-permission-box (opens the permissions panel) when it has some (the other is then hidden: a single globe). */
+:root {
+  --uc-globe: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.1' stroke-linecap='round'><circle cx='8' cy='8' r='6.2'/><ellipse cx='8' cy='8' rx='2.7' ry='6.2'/><path d='M1.9 8h12.2M2.8 4.7h10.4M2.8 11.3h10.4'/></g></svg>");
+}
+#urlbar[uc-centered] #urlbar-input {
+  padding-inline-start: 0 !important; /* no room reserved for the globe: it is stuck to the left edge of the field, the text alone is centred */
+  padding-inline-end: 4px !important; /* the text box (between the globe and Reload) is 2 px right of the field's centre: 4 px bring the text, measured, back to the centre */
+}
+#urlbar[uc-centered] #identity-box {
+  position: absolute;
+  inset-inline-start: 4px; /* globe ALWAYS on the left, like Reload is on the right: 28 px circle 4 px from the edge */
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3; /* the input field comes after it in the DOM: without this it covers it and the click never reaches the button */
+}
+#urlbar[uc-centered] #identity-box {
+  align-items: center; /* in compact mode the field is 36 px: the identity box (field height - 4 px) exceeds the button's 28 px, which stuck to the top */
+}
+#urlbar[uc-centered] #identity-icon-box {
+  display: flex !important; /* Firefox hides it when there is nothing to report; here it is the globe */
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+}
+#urlbar[uc-centered] #identity-icon {
+  list-style-image: var(--uc-globe) !important;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+#urlbar[uc-centered]:has(#identity-permission-box[hasPermissions]) #identity-icon-box {
+  display: none !important;
+}
+/* Insecure page (http): Firefox gives the globe a LIGHT BACKGROUND (warning badge) and shows "Not secure" next to it, which the
+ * narrow bar cuts into "...". The globe stays like the others (transparent circle, background on hover only), with no text; the shield
+ * left of the field flags the insecure page ("!", .insecure rule above). */
+#urlbar[uc-centered] #identity-icon-label {
+  display: none !important;
+}
+#urlbar[uc-centered] #identity-box.notSecureText #identity-icon-box {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+#urlbar[uc-centered] #identity-box.notSecureText #identity-icon-box:hover {
+  background-color: color-mix(in srgb, currentColor 22%, transparent) !important;
+}
+/* The permissions button (a site that has some: YouTube...) was a PILL (globe + block icon, 8 px margin on each side, 19 px
+ * corners): same 28 px circle as the other globe and as Reload. BLOCKED permission icons (autoplay, popups...) are no longer shown next
+ * to it (they would turn it back into a pill): they stay in the panel that opens on click. Active SHARING icons (camera, microphone,
+ * screen) stay visible: it is a privacy indicator, the area then widens. */
+#urlbar[uc-centered] #identity-permission-box {
+  box-sizing: border-box !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 14px !important; /* !important: Firefox sets 8 px of margin and a 19 px corner the same way */
+  align-items: center !important;
+  justify-content: center !important;
+}
+#urlbar[uc-centered] #blocked-permissions-container {
+  display: none !important;
+}
+#urlbar[uc-web] #permissions-granted-icon {
+  list-style-image: var(--uc-globe) !important; /* also outside the centring: without it Firefox's "settings" icon came back */
+}
+
+/* The placeholder text of the empty bar ("Search with Google or enter address") is centred too (rule above), but the text cursor (the
+ * blinking vertical line) fell IN THE MIDDLE of the letters: on a new tab Firefox focuses the empty bar. It is hidden while the field is
+ * empty (New Tab page or emptied field: pageproxystate="invalid"); as soon as you type, the placeholder disappears and the cursor
+ * comes back. A normal page (address displayed) keeps its cursor. */
+#urlbar[pageproxystate="invalid"] #urlbar-input:placeholder-shown {
+  caret-color: transparent !important;
+}
+/* Without the globe (typing, new tab, internal page, placeholder): the text area is absolutely positioned, 40 px from both edges of
+ * the field, so its middle is ALWAYS the field's middle, whatever Firefox puts in the flow next to it (the internal page's 77 px icon,
+ * the 28 px "Go" button while typing, nothing on a new tab): with the old 12 / 40 px margins the text could be up to 58 px off. Long
+ * text only goes under these elements when it is long enough to approach the edges. Not in search mode (the engine chip is then in the
+ * flow, left of the text). */
+#urlbar:not([uc-centered], [searchmode]) .urlbar-input-box {
+  position: absolute !important;
+  inset: 0 40px !important;
+  margin: 0 !important;
+}
+/* The internal page's icon (and its text) stays above the text area: a click on it still opens its panel. */
+#urlbar:not([uc-centered], [searchmode]) #identity-box {
+  position: relative;
+  z-index: 2;
+}
+/* The text area, out of the flow, no longer pushes the "Go" button (arrow, while typing) to the right: it would have stuck to the left. */
+#urlbar:not([uc-centered], [searchmode]) .urlbar-go-button {
+  margin-inline-start: auto;
+}
+
+/* Active bar colours, Safari's rather than Firefox's: a 3 px translucent blue outline INSIDE the field (it must not overflow or look like
+ * a bigger field; Firefox: 2 px turquoise outside), blue selection, grey background one notch above the resting one (Firefox: grey-violet
+ * #42414d). The blue is macOS's system blue (#0a84ff). */
+#urlbar[focused] > .urlbar-background {
+  outline: 3px solid rgba(10, 132, 255, 0.55) !important;
+  outline-offset: -3px !important;
+}
+#urlbar:is([focused], [open]) > .urlbar-background {
+  background-color: var(--uc-active) !important;
+}
+#urlbar-input::selection {
+  background-color: #0b5bd3 !important; /* opaque: with transparency, Firefox painted a dull turquoise */
+  color: #fff !important;
+}
+
+/* ===== "CUSTOMIZE TOOLBAR" MODE (Firefox sets the customizing attribute on the root) =====
+ * The settings of this file take the address bar and the Reload button out of the flow (position: absolute) and make the top bar a window
+ * drag area: in customize mode every button is wrapped in a slot you drag and drop, and these settings made the slots overlap (address bar
+ * and Reload placed in the wrong spot) and let the window capture the drag. During this mode only, they are put back in the flow; compact
+ * layout is suspended by safari-theme.uc.js (the overlaid tab strip covered the slots). Nothing changes outside this mode. */
+:root[customizing] #urlbar-container {
+  position: relative !important;
+  inset: auto !important;
+  width: var(--uc-urlbar-width) !important;
+  min-width: 200px !important;
+}
+:root[customizing] #stop-reload-button {
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+:root[customizing] #nav-bar,
+:root[customizing] #TabsToolbar,
+:root[customizing] toolbarpaletteitem {
+  -moz-window-dragging: no-drag !important;
+}
+/* Reload is hidden on the New Tab / blank page (rule above): the Customize page counts as one, so its slot would stay invisible and
+ * impossible to find. Visible during this mode (selector more specific than the hiding rule). */
+:root[customizing] #nav-bar:has(#urlbar) #stop-reload-button {
+  visibility: visible !important;
+}
+/* In customize mode the address bar is empty (disabled) and its background is a 30% black veil over the bar: it was almost invisible,
+ * only an barely perceptible hairline. It is drawn more clearly (light translucent background, stronger outline) and labelled
+ * "Address bar" so it can be recognised and one knows where to drop it. Only in this mode. */
+:root[customizing] #urlbar > .urlbar-background {
+  background-color: rgba(255, 255, 255, 0.07) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28) !important;
+}
+:root[customizing] #urlbar .urlbar-input-container::before {
+  content: var(--uc-label-address-bar, "Address bar");
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+
+/* Tint: ALL tinted surfaces change colour together (before: the top bar and the tab strip changed at once, the tab row, the bookmarks
+ * and the background faded over 350 ms). */
+#nav-bar,
+#tabbrowser-tabs {
+  transition: background-color var(--uc-duration-tint) var(--uc-easing);
+}
+
+/* Collapsed bookmarks: transparent, so they fade in and out (see the comment at the top of the file). */
+#PersonalToolbar[collapsed] {
+  opacity: 0 !important;
+}

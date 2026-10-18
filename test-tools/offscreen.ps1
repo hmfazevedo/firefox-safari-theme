@@ -12,6 +12,6 @@ public class OS { public delegate bool EP(IntPtr h, IntPtr l);
 '@
 for ($i = 0; $i -lt 60; $i++) {
   $pids = @(Get-CimInstance Win32_Process -Filter "Name='firefox.exe'" | Where-Object { $_.CommandLine -match $Marker } | ForEach-Object { [uint32]$_.ProcessId })
-  if ($pids.Count) { $h = [OS]::Find($pids) | Select-Object -First 1; if ($h) { if ([OS]::IsIconic($h)) { [void][OS]::SendMessage($h,0x112,[IntPtr]0xF120,[IntPtr]0) }; [void][OS]::SetWindowPos($h,[IntPtr]::Zero,-6000,0,0,0,0x0015); "deplace hors ecran"; break } }
+  if ($pids.Count) { $h = [OS]::Find($pids) | Select-Object -First 1; if ($h) { if ([OS]::IsIconic($h)) { [void][OS]::SendMessage($h,0x112,[IntPtr]0xF120,[IntPtr]0) }; [void][OS]::SetWindowPos($h,[IntPtr]::Zero,-6000,0,0,0,0x0015); "moved off screen"; break } }
   Start-Sleep -Milliseconds 500
 }

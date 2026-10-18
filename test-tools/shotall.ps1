@@ -1,5 +1,5 @@
 ﻿param([string]$Prefix = 'p', [string]$Marker = 'ffclean')
-# Capture CHAQUE fenêtre Firefox du profil de test (fenêtre principale + panneaux / menus, qui sont des fenêtres à part)
+# Captures EVERY Firefox window of the test profile (main window + panels / menus, which are separate windows)
 Add-Type -AssemblyName System.Drawing
 Add-Type @'
 using System; using System.Text; using System.Collections.Generic; using System.Runtime.InteropServices;
@@ -16,7 +16,7 @@ public class SA { [StructLayout(LayoutKind.Sequential)] public struct R{public i
 '@
 [void][SA]::SetProcessDPIAware()
 $pids = @(Get-CimInstance Win32_Process -Filter "Name='firefox.exe'" | Where-Object { $_.CommandLine -match $Marker } | ForEach-Object { [uint32]$_.ProcessId })
-if (-not $pids.Count) { 'aucun processus'; exit 1 }
+if (-not $pids.Count) { 'no process found'; exit 1 }
 $i = 0
 foreach ($h in [SA]::Find($pids)) {
   $r = New-Object SA+R; [void][SA]::GetWindowRect($h, [ref]$r)
