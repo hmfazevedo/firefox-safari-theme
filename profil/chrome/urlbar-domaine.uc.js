@@ -267,11 +267,11 @@
 })();
 
 // ---- Chaînes du thème adaptées à la langue de Firefox (Services.locale) ----
-// Les 3 chaînes visibles du thème sont traduites dans la langue de l'utilisateur ; langue non listée : on garde le français.
+// Les 2 chaînes visibles du thème sont traduites dans la langue de l'utilisateur ; langue non listée : on garde le français.
 //  - bouton « Mode compact » (label + infobulle) : posé sur le widget ci-dessous ;
-//  - mention « Navigation privée » (fenêtre privée) et étiquette « Barre d'adresse » (mode Personnaliser) : posées en variables CSS sur la
-//    racine, lues par userChrome.css avec var() (repli français si la variable n'est pas posée). Les valeurs sont posées en chaînes CSS
-//    (JSON.stringify) : l'apostrophe de « Barre d'adresse » resterait un jeton invalide en valeur nue.
+//  - étiquette « Barre d'adresse » (mode Personnaliser) : posée en variable CSS sur la racine, lue par userChrome.css avec var() (repli
+//    français si la variable n'est pas posée). La valeur est posée en chaîne CSS (JSON.stringify) : l'apostrophe de « Barre d'adresse »
+//    resterait un jeton invalide en valeur nue.
 (() => {
   try {
     const LANGUE = (Services.locale.appLocaleAsBCP47 || "fr").split("-")[0].toLowerCase();
@@ -298,22 +298,22 @@
         tr: "Sıkıştırılmış mod: sekmeler ve adres tek satırda",
         sv: "Kompakt läge: flikar och adress i en rad",
       },
-      "nav-privee": {
-        fr: "Navigation privée", en: "Private Browsing", de: "Privater Modus", es: "Navegación privada", it: "Navigazione privata",
-        pt: "Navegação privada", nl: "Privé browsen", pl: "Tryb prywatny", ru: "Секретный режим", ja: "プライベートブラウジング",
-        ko: "개인정보 보호", zh: "隐私浏览", ar: "التصفح الخاص", tr: "Gizli gezinme", sv: "Privat webbläsning",
-      },
       "barre-adresse": {
         fr: "Barre d'adresse", en: "Address bar", de: "Adressleiste", es: "Barra de direcciones", it: "Barra degli indirizzi",
         pt: "Barra de endereço", nl: "Adresbalk", pl: "Pasek adresu", ru: "Строка адреса", ja: "アドレスバー",
         ko: "주소창", zh: "地址栏", ar: "شريط العنوان", tr: "Adres çubuğu", sv: "Adressfält",
       },
+      "nav-privee": {
+        fr: "Navigation privée", en: "Private Browsing", de: "Privater Modus", es: "Navegación privada", it: "Navigazione privata",
+        pt: "Navegação privada", nl: "Privé browsen", pl: "Tryb prywatny", ru: "Секретный режим", ja: "プライベートブラウジング",
+        ko: "개인정보 보호", zh: "隐私浏览", ar: "التصفح الخاص", tr: "Gizli gezinme", sv: "Privat webbläsning",
+      },
     };
     const chaine = (cle) => TRADUCTIONS[cle][LANGUE] || TRADUCTIONS[cle].fr;
     Services.__ucChaines = { compact: chaine("compact"), "compact-desc": chaine("compact-desc") };
     const racine = document.documentElement;
-    racine.style.setProperty("--uc-navigation-privee", JSON.stringify(chaine("nav-privee")));
     racine.style.setProperty("--uc-barre-adresse", JSON.stringify(chaine("barre-adresse")));
+    racine.style.setProperty("--uc-navigation-privee", JSON.stringify(chaine("nav-privee")));
   } catch (e) {
     console.error("localisation des chaînes :", e);
   }
@@ -370,10 +370,19 @@
       const suivant = document.getElementById("forward-button");
       const gauche = suivant ? Math.ceil(suivant.getBoundingClientRect().right) : 150;
       let min = Infinity;
-      for (const id of ["downloads-button", "unified-extensions-button", "new-tab-button", "PanelUI-menu-button"]) {
+      for (const id of ["reset-pbm-toolbar-button", "downloads-button", "unified-extensions-button", "new-tab-button", "PanelUI-menu-button"]) {
         const el = document.getElementById(id);
         const r = el && el.getBoundingClientRect();
         if (r && r.width > 0 && r.left < min) {
+          min = r.left;
+        }
+      }
+      // Tout autre bouton de la moitié droite de la zone des boutons (bouton du compte Firefox, bouton d'un module…) : un bouton que cette liste ne connaît pas
+      // serait recouvert par la bande d'onglets (le bouton du compte, visible dans les fenêtres privées, l'était).
+      const zone = document.getElementById("nav-bar-customization-target");
+      for (const el of zone ? zone.children : []) {
+        const r = el.getBoundingClientRect();
+        if (!/spring|spacer/.test(el.id) && r.width > 0 && r.left > window.innerWidth / 2 && r.left < min) {
           min = r.left;
         }
       }
@@ -455,9 +464,12 @@
     setTimeout(appliquer, 800);
     setTimeout(appliquer, 2500);
     window.addEventListener("resize", mesurer);
-    const boutonTelechargements = document.getElementById("downloads-button");
-    if (boutonTelechargements) {
-      new ResizeObserver(mesurer).observe(boutonTelechargements);
+    // Boutons qui apparaissent ou disparaissent (téléchargements ; flamme + mention « Navigation privée » des fenêtres privées) : remesure à chaque changement de taille.
+    for (const id of ["downloads-button", "reset-pbm-toolbar-button", "fxa-toolbar-menu-button"]) {
+      const bouton = document.getElementById(id);
+      if (bouton) {
+        new ResizeObserver(mesurer).observe(bouton);
+      }
     }
   } catch (e) {
     console.error("mode compact :", e);

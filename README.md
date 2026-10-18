@@ -107,9 +107,13 @@ Même procédure pour une installation neuve, après une mise à jour de Firefox
   content-prompt-dialog > div.dialogTemplate.dialogOverlay[topmost] > div.dialogBox > browser.dialogFrame`. Vérifié sur une structure SYNTHÉTIQUE
   aux vraies classes : Marionette ferme toute vraie boîte `confirm()` dès la commande suivante et la capture ne la montre pas, donc l'aspect
   d'une vraie boîte n'a pas été photographié.
-- **Fenêtre privée reconnaissable** : `:root[privatebrowsingmode]` barres `#161618` ; `urlbar-domaine.uc.js` n'y active pas la teinte de la page ;
-  mention « Navigation privée » en violet (`#b9a3ff`) à gauche du champ, seulement quand une page est affichée (`pageproxystate="valid"`) : sur
-  un nouvel onglet vide le texte d'invite centré la recouvrait. Mention et couleurs inspirées de Safari, non vérifiées sur Safari 27.
+- **Fenêtre privée reconnaissable** : `:root[privatebrowsingmode]` barres `#161618` (plus sombres que la teinte de la page) ; `urlbar-domaine.uc.js` n'y active pas la teinte de la page. La mention « Navigation privée »
+  est TOUJOURS visible (demandé le 2026-10-19), avec le masque violet de Firefox (`chrome://global/skin/icons/indicator-private-browsing.svg`, 12 px, `#fbfbfe`), juste à gauche de la flamme (`#reset-pbm-toolbar-button`) : c'est
+  le `::before` de ce bouton, donc elle suit la flamme dans la barre et compte dans sa largeur. Avant, elle était dans le champ d'adresse, seulement sur une page affichée sans focus ; Firefox a aussi un indicateur natif
+  (`.private-browsing-indicator-with-label`) mais dans la rangée d'onglets, masquée avec un seul onglet : il est maintenant caché (`display: none`) pour éviter le doublon. En mode compact la bande d'onglets s'arrête avant la
+  flamme : `mesurer()` (`urlbar-domaine.uc.js`) compte `reset-pbm-toolbar-button`, remesuré par `ResizeObserver`, et désormais TOUT bouton de la moitié droite de `#nav-bar-customization-target` (le bouton du compte
+  Firefox, visible dans les fenêtres privées, était recouvert). Mesuré en fenêtre privée de test, mode compact : flamme [900-1057], bande [478-848], aucun chevauchement. Chaîne traduite selon la langue de Firefox
+  (`--uc-navigation-privee`).
 - **Mode compact** (bouton « Mode compact » tout à gauche de la barre, un bouton à part entière ; deux rangées / une rangée) : onglets et champ d'adresse sur UNE seule rangée,
   comme la disposition « Compact » de Safari : [Mode compact, précédent, suivant] [bouclier] [champ d'adresse] [onglets] [boutons de droite]. Le choix est la
   préférence `extensions.uc.compact` (modifiable aussi dans about:config), observée par chaque fenêtre. `urlbar-domaine.uc.js` crée le bouton

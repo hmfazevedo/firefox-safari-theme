@@ -782,20 +782,30 @@ findbar {
 }
 
 /* Fenêtre PRIVÉE reconnaissable, comme Safari : barres plus noires (la teinte de la page est coupée dans ces fenêtres par
- * urlbar-domaine.uc.js) et la mention « Navigation privée » en violet doux à gauche du champ d'adresse au repos, seulement quand une page est affichée (sur un nouvel onglet vide le texte d'invite, long et
- * centré, l'aurait recouverte). */
+ * urlbar-domaine.uc.js) et la mention « Navigation privée » TOUJOURS visible (demandé le 2026-10-19), avec le masque violet de Firefox, juste à
+ * gauche de la flamme (#reset-pbm-toolbar-button, le bouton « Quitter la navigation privée », seulement présent dans ces fenêtres), en mode normal
+ * comme en compact et sur n'importe quelle page. La mention est dans le bouton (::before), donc elle suit la flamme où qu'elle soit dans la barre
+ * et le script l'inclut dans la largeur des boutons de droite (la bande d'onglets du mode compact ne la recouvre pas). Avant : en violet doux dans le
+ * champ d'adresse, seulement sur une page affichée et sans focus. */
 :root[privatebrowsingmode] {
   --uc-teinte: #161618;
 }
-:root[privatebrowsingmode] #urlbar[pageproxystate="valid"]:not([focused]) .urlbar-input-container::before {
+:root[privatebrowsingmode] #reset-pbm-toolbar-button::before {
   content: var(--uc-navigation-privee, "Navigation privée");
-  position: absolute;
-  inset-inline-start: 40px; /* à droite du globe (rond de 28 px posé à 4 px, il finit à 32 px) : 14 px la plaçait sous le globe, illisible */
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 11px;
-  color: #b9a3ff;
-  pointer-events: none;
+  align-self: center;
+  padding-inline-start: 22px;
+  margin-inline-end: 6px;
+  background: url("chrome://global/skin/icons/indicator-private-browsing.svg") no-repeat left center / 16px 16px; /* l'icône de l'indicateur natif de Firefox */
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  color: #fbfbfe;
+}
+
+/* L'indicateur natif de Firefox (mêmes masque et texte) vit dans la rangée d'onglets, masquée tant qu'il n'y a qu'un onglet : c'est pourquoi la mention
+ * disparaissait. On le cache pour ne pas l'avoir en double. */
+:root[privatebrowsingmode] .private-browsing-indicator-with-label {
+  display: none !important;
 }
 
 /* ===== MODE COMPACT (bouton « Mode compact » de la barre du haut) : onglets et champ d'adresse sur UNE seule rangée, comme la
