@@ -882,10 +882,11 @@ findbar {
  * address selected). The safari-theme.uc.js script sets the uc-centered attribute (a site's address displayed, not typing). White fixed in
  * the drawing (#fbfbfe): Firefox does not pass its colour to data: images. None of this on an internal page or while typing a search.
  * 
+ * (The "globe" of the comments below is this icon, two thin lines like Safari's page menu; the variable kept its first name.)
  * The globe is a REAL Firefox button, so clickable: #identity-icon-box (opens the site panel) when the site has no permission, or
  * #identity-permission-box (opens the permissions panel) when it has some (the other is then hidden: a single globe). */
 :root {
-  --uc-globe: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.1' stroke-linecap='round'><circle cx='8' cy='8' r='6.2'/><ellipse cx='8' cy='8' rx='2.7' ry='6.2'/><path d='M1.9 8h12.2M2.8 4.7h10.4M2.8 11.3h10.4'/></g></svg>");
+  --uc-globe: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M3.5 6h9M3.5 10h9' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round'/></svg>");
 }
 #urlbar[uc-centered] #urlbar-input {
   padding-inline-start: 0 !important; /* no room reserved for the globe: it is stuck to the left edge of the field, the text alone is centred */
