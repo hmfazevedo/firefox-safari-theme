@@ -966,8 +966,9 @@ findbar {
  * the field, so its middle is ALWAYS the field's middle, whatever Firefox puts in the flow next to it (the internal page's 77 px icon,
  * the 28 px "Go" button while typing, nothing on a new tab): with the old 12 / 40 px margins the text could be up to 58 px off. Long
  * text only goes under these elements when it is long enough to approach the edges. Not in search mode (the engine chip is then in the
- * flow, left of the text). */
-#urlbar:not([uc-centered], [searchmode]) .urlbar-input-box {
+ * flow, left of the text), nor on an extension page: its "Extension (name)" label is wide and its address long, so the text, left-aligned,
+ * went under the label; there the text stays in the flow, after the label. */
+#urlbar:not([uc-centered], [searchmode]):not(:has(#identity-box.extensionPage)) .urlbar-input-box {
   position: absolute !important;
   inset: 0 40px !important;
   margin: 0 !important;
