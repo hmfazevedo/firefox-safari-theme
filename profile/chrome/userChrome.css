@@ -203,18 +203,15 @@
   list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%230a84ff' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='2' width='10' height='12' rx='2'/><path d='M5.6 6h4.8M5.6 8.5h4.8M5.6 11h2.6'/></g></svg>") !important;
 }
 
-/* Shield moved out of the address bar, to its left. Firefox has two, depending on the "trust" feature: #trust-icon-container and
- * #tracking-protection-icon-container. Firefox clips whatever overflows the inner container (overflow: clip): that clipping is lifted
- * (.urlbar-input-container: the element has no id). The shield is then placed just left of the bar's edge (100% of the width + 6 px). */
+/* No shield: Firefox has two, depending on the "trust" feature (#trust-icon-container and #tracking-protection-icon-container); both
+ * are hidden (redundant). Firefox clips whatever overflows the inner container (overflow: clip);
+ * that clipping stays lifted (.urlbar-input-container: the element has no id), as when the shield hung out of it. */
 .urlbar-input-container {
   overflow: visible !important;
 }
 #trust-icon-container,
 #tracking-protection-icon-container {
-  position: absolute;
-  inset-inline-end: calc(100% + 6px);
-  top: 50%;
-  transform: translateY(-50%);
+  display: none !important;
 }
 
 /* Shorter address bar, centred on the WINDOW (like Safari). In the navigation bar it fills the free space between the left and right
@@ -385,17 +382,6 @@
   display: flex !important;
 }
 
-/* Insecure site (http): same look as a secure one. Firefox shows a crossed-out shield, the text "Not secure" and a background badge
- * that sticks out of the bar. The shield is replaced by the "secure" family one but with a "!" (trust-icon-warning.svg, same drawing and
- * colour as the check), with no text or badge. The "!" prevents an insecure site from having the same icon as a safe one. */
-#trust-icon-container.insecure {
-  list-style-image: url("chrome://browser/skin/trust-icon-warning.svg") !important;
-  background-color: transparent !important;
-}
-#trust-label {
-  display: none !important;
-}
-
 /* Safari-style tab row: the tabs live in a darker capsule strip (#1b1f22, the same grey as the address field, measured on Safari), the
  * active tab is a lighter pill inside it, and thin vertical separators sit between inactive tabs (not next to the active tab, nor after
  * the last one). The strip is #tabbrowser-tabs: the "list all tabs" chevron stays on the right, outside the strip. */
@@ -515,8 +501,7 @@
   box-shadow: 0 16px 24px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) !important; /* negative spread + downward offset: the shadow does not rise under the capsule (a 30 px shadow blackened it) */
 }
 
-/* Menu and extensions: same thin stroke (1.25) as the other icons. The address bar's shield is not redrawn: Firefox changes it
- * depending on the state (secure, certificate error...) and its own already has a similar stroke. */
+/* Menu and extensions: same thin stroke (1.25) as the other icons. */
 #PanelUI-menu-button {
   list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M2.8 4.5h10.4M2.8 8h10.4M2.8 11.5h10.4' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round'/></svg>") !important;
 }
@@ -570,7 +555,7 @@
   border-radius: 50% !important;
 }
 
-/* Panels and menus (main menu, downloads, shield, permissions, extensions...): EXACTLY the card of the address drop-down: grey #262a30,
+/* Panels and menus (main menu, downloads, permissions, extensions...): EXACTLY the card of the address drop-down: grey #262a30,
  * 16 px corners, 1 px light hairline, drop shadow downwards, and like it moved about ten pixels below their button. One variable
  * drives the background of all panels (--panel-background-color), others the radius, border and shadow; Firefox sets them on :root and
  * on the panels themselves, hence the three targets. The shadow overflows the content: the transparent area around it
@@ -656,14 +641,6 @@ findbar {
  * Firefox's turquoise to Safari's blue, for the whole window. */
 :root {
   --focus-outline-color: #0a84ff !important;
-}
-
-/* Shield (and tracking protection) placed OUTSIDE the address bar: the whole top bar is a window drag area
- * (-moz-window-dragging: drag, above) and Firefox only removes that status inside the address bar. A real click on the shield, which is
- * outside, was taken for the start of a window drag and opened nothing (simulated clicks went through). no-drag gives its clicks back. */
-#trust-icon-container,
-#tracking-protection-icon-container {
-  -moz-window-dragging: no-drag !important;
 }
 
 /* ===== LIGHT bar (attribute uc-light set by safari-theme.uc.js: Rec. 709 luma of the page colour > 127.5, Safari's rule for choosing
@@ -764,14 +741,11 @@ findbar {
  * horizontal tabs only. ===== */
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) {
   --uc-field: clamp(220px, 22vw, 380px);
-  --uc-ux: calc(var(--uc-left, 150px) + 47px); /* shield (32 px, 16 px symbol) to the LEFT of the field: its symbol is 25.7 px (visible) from the "forward" arrow and ~20 px from the field (shield rule below) */
+  --uc-ux: calc(var(--uc-left, 150px) + 15px); /* the "forward" button has ~10 px of empty space around its icon: 15 px give a 25 px visible gap with the field, like the tab strip's gaps */
   --uc-uw: var(--uc-field);
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #navigator-toolbox {
   position: relative;
-}
-:root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) :is(#trust-icon-container, #tracking-protection-icon-container) {
-  inset-inline-end: calc(100% + 13px); /* shield container ~12 px from the field = ~20 px visible (symbol inset by 8 px); in normal mode: 6 px */
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"]) #TabsToolbar {
   position: absolute !important;
@@ -943,8 +917,7 @@ findbar {
   display: none !important;
 }
 /* Insecure page (http): Firefox gives the globe a LIGHT BACKGROUND (warning badge) and shows "Not secure" next to it, which the
- * narrow bar cuts into "...". The globe stays like the others (transparent circle, background on hover only), with no text; the shield
- * left of the field flags the insecure page ("!", .insecure rule above). */
+ * narrow bar cuts into "...". The globe stays like the others (transparent circle, background on hover only), with no text. */
 #urlbar[uc-centered] #identity-icon-label {
   display: none !important;
 }

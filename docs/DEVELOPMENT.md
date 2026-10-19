@@ -34,7 +34,7 @@ The loader registers `safari-theme.manifest` (`content safari-theme ./`) so that
   transparent (`opacity: 0`) instead.
 - A `transform` on `#urlbar-container` breaks the anchoring of the address dropdown: centre with auto margins.
 - The whole top bar is a window drag area (`-moz-window-dragging: drag`): a button placed outside the address field (the
-  shield) needs `no-drag`, otherwise a real click does nothing.
+  former shield did) needs `no-drag`, otherwise a real click does nothing.
 - `.browserContainer` is a grid: an `position: absolute` child (the find bar) lands in an implicit row without `grid-area: 1 / 1`.
 - Check the real selector before claiming an element is hidden (`findbar`, `.searchmode-switcher`... may lack an id).
 - The New Tab page remembers its last render: after a change, press F5 or restart completely.
@@ -78,13 +78,13 @@ Scrollbars: thin and translucent everywhere (`userContent.css`). The *page's* sc
 
 ### Compact mode
 
-Tabs and address field on one row: [Compact button, back, forward] [shield] [address] [tabs] [right-hand buttons]. The preference
+Tabs and address field on one row: [Compact button, back, forward] [address] [tabs] [right-hand buttons]. The preference
 `extensions.uc.compact` is observed by every window. The script creates the button (`CustomizableUI.createWidget`, placed
 leftmost only if it has no placement yet), sets `uc-compact`, `uc-multi` (two tabs or more; with one tab nothing changes) and
 measures `--uc-left` / `--uc-right`. The CSS overlays the tab row on the navigation bar (`position: absolute`, 40 px box), only
 with horizontal tabs.
 
-- Address field: `left = --uc-left + 47px`, width `clamp(220px, 22vw, 380px)`.
+- Address field: `left = --uc-left + 15px`, width `clamp(220px, 22vw, 380px)`.
 - Tab strip: `left: calc(var(--uc-ux) + var(--uc-uw) + 25px)`, `right: calc(var(--uc-right) + 9px)`.
 - Normal <-> compact is animated over 0.42 s with `cubic-bezier(0.4, 0, 0.2, 1)`: the field slides and shrinks (`--uc-ux` /
   `--uc-uw`, registered with `@property`, transitions only under `uc-anim`, set AFTER the change in the same task and only if the
@@ -103,7 +103,7 @@ with horizontal tabs.
   The address text is centred in every state (`#urlbar-input { text-align: center }`); with the globe, margins are
   `calc(25px + var(--uc-text-gap)) calc(20px + var(--uc-text-gap))` with `--uc-text-gap: 12px`. Without the globe the text area is
   `position: absolute; inset: 0 40px`. A text longer than the field is left-aligned on purpose.
-- Insecure (http) pages: the globe keeps a transparent background and no "Not secure" label; the shield switches to "!".
+- Insecure (http) pages: the globe keeps a transparent background and no "Not secure" label.
 - The three downloads icons (arrow, progress ring, done check) share a 16 px diameter; the Firefox ones get `scale: 0.89` and
   `translate: 0 0.7px`; the accent colour is `#0a84ff`.
 - Window buttons are round (30 px, thin SVG glyphs in `::before`; the Windows symbol is a font), red hover for close.
