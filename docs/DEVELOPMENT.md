@@ -131,6 +131,12 @@ Values were measured per frame with `requestAnimationFrame`; real smoothness on 
 - No startup skeleton (`browser.startup.preXulSkeletonUI=false`): Firefox's mock-up of its own layout flashes for ~0.5 s.
 - A stale `textoverflow` attribute can fade a tab title that fits; the script recomputes the real state every second and after
   animations, tab changes and resizes.
+- Measured and deliberately left alone (Firefox 158): the two safety-net timers cost about 0.0003 ms (centring, every 400 ms)
+  and 0.05 ms with 40 tabs (title fade, every second) per tick; writing an attribute or a custom property again with the same
+  value restyles nothing (`windowUtils.restyleGeneration` stays put), so caching in `measure()` / `updateCentering()` would gain
+  nothing. In `tint-child.sys.mjs`, `load` and `scroll` are captured, so sub-resource loads and inner-scroller scrolls also re-arm
+  the measure timers (a few `clearTimeout` / `setTimeout` calls each, not profiled). Filtering them to the document would change when pages are re-measured, so it was
+  not done.
 - Customize mode: the address bar and Reload are put back in the flow, drag is disabled, the address field gets an "Address bar"
   label and a stronger outline, so the slots can be dragged.
 - The New Tab page: dark gradient background (a CSS gradient: the page's CSP only allows https:, data: and blob: images), no
