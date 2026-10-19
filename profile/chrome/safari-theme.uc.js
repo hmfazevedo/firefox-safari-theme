@@ -438,6 +438,10 @@
         }
       }, true);
       measure();
+      // The buttons settle a moment after the layout switch (springs resizing): measure again once they have.
+      requestAnimationFrame(() => requestAnimationFrame(measure));
+      setTimeout(measure, 150);
+      setTimeout(measure, 600);
     };
     const mutationWatcher = { observe: apply };
     Services.prefs.addObserver(PREF_KEY, mutationWatcher);
@@ -476,6 +480,14 @@
       const button = document.getElementById(id);
       if (button) {
         new ResizeObserver(measure).observe(button);
+      }
+    }
+    // The right-hand buttons also move (without resizing) when the flexible spaces around the address bar change size.
+    const buttonsArea = document.getElementById("nav-bar-customization-target");
+    if (buttonsArea) {
+      const observer = new ResizeObserver(measure);
+      for (const el of buttonsArea.querySelectorAll("toolbarspring")) {
+        observer.observe(el);
       }
     }
   } catch (e) {
