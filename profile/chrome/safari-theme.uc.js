@@ -396,6 +396,13 @@
       root.style.setProperty("--uc-left", left + "px");
       root.style.setProperty("--uc-right", right + "px");
     };
+    // The buttons settle a moment after a layout switch (springs resizing): measure now, then again once they have.
+    const measureSoon = () => {
+      measure();
+      requestAnimationFrame(() => requestAnimationFrame(measure));
+      setTimeout(measure, 150);
+      setTimeout(measure, 600);
+    };
     // EFFECTIVE compact layout: preference true, two tabs or more, horizontal tabs (see userChrome.css).
     const isEffective = () =>
       root.hasAttribute("uc-compact") && root.hasAttribute("uc-multi") && gBrowser.tabContainer.getAttribute("orient") === "horizontal";
@@ -408,6 +415,7 @@
     const change = (mutate, animateHeight) => {
       if (!ready) {
         mutate();
+        measureSoon();
         return;
       }
       const wasEffective = isEffective();
@@ -417,6 +425,7 @@
       if (isEffective() === wasEffective) {
         return; // nothing changes: no animation, normal mode keeps its own transitions
       }
+      measureSoon();
       root.setAttribute("uc-anim", "");
       // The bar's height is only animated for the button toggle: when a tab opens, Firefox's own tab row is opening, the starting
       // measure would be wrong (dark band under the bookmarks bar).
@@ -437,11 +446,7 @@
           root.removeAttribute("uc-compact");
         }
       }, true);
-      measure();
-      // The buttons settle a moment after the layout switch (springs resizing): measure again once they have.
-      requestAnimationFrame(() => requestAnimationFrame(measure));
-      setTimeout(measure, 150);
-      setTimeout(measure, 600);
+      measureSoon();
     };
     const mutationWatcher = { observe: apply };
     Services.prefs.addObserver(PREF_KEY, mutationWatcher);
@@ -502,7 +507,8 @@
 (() => {
   try {
     if (CustomizableUI.getPlacementOfWidget("new-tab-button")?.area !== "nav-bar") {
-      if (!Services.prefs.getBoolPref("extensions.uc.newTabMoved", false)) {
+      // (extensions.uc.nouvelOngletDeplace: the flag's former name, kept so that existing installs do not move the button again)
+      if (!Services.prefs.getBoolPref("extensions.uc.newTabMoved", false) && !Services.prefs.getBoolPref("extensions.uc.nouvelOngletDeplace", false)) {
         CustomizableUI.addWidgetToArea("new-tab-button", "nav-bar");
         Services.prefs.setBoolPref("extensions.uc.newTabMoved", true);
       }
