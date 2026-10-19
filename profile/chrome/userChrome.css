@@ -167,12 +167,12 @@
   pointer-events: none;
 }
 
-/* Icons in the address bar: none on the right except the Reload button. The action buttons (reader mode, translation,
- * picture-in-picture...) are hidden, as is the bookmark star. The star is NOT removed: it stays in place, transparent and not clickable
+/* Icons in the address bar: none on the right except the Reload button. The action buttons (translation,
+ * picture-in-picture...) are hidden, as is the bookmark star; the Reader button is the exception (rule below). The star is NOT removed: it stays in place, transparent and not clickable
  * (opacity: 0). Neither display: none nor visibility: hidden, otherwise Firefox no longer opens the "Bookmark added" panel (Ctrl+D)
  * because that panel anchors on the star and refuses a hidden anchor. The identity icon (lock / permissions) is not hidden: it shows
  * nothing on a normal page but flags a granted permission (camera, location). */
-#page-action-buttons > :not(#star-button-box) {
+#page-action-buttons > :not(#star-button-box, #reader-mode-button) {
   display: none !important;
 }
 #star-button-box {
@@ -182,6 +182,25 @@
   transform: translateY(-50%);
   opacity: 0;
   pointer-events: none;
+}
+
+/* Reader button (like Safari): Firefox only shows it on a page that can be read (it keeps its own "hidden" attribute), so it appears
+ * only then. Placed at the right end of the field, left of Reload (where the invisible star sits: 40 px from the edge), as a 28 px circle
+ * like the other round buttons; thin page-with-lines drawing in the white of the other icons, Safari's blue while Reader view is
+ * active (readeractive). Firefox's own icon follows its fill colour: not usable with the fixed white of this theme. */
+#reader-mode-button {
+  position: absolute;
+  inset-inline-end: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  border-radius: 50%;
+}
+#reader-mode-button > .urlbar-icon {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='2' width='10' height='12' rx='2'/><path d='M5.6 6h4.8M5.6 8.5h4.8M5.6 11h2.6'/></g></svg>") !important;
+}
+#reader-mode-button[readeractive] > .urlbar-icon {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%230a84ff' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='2' width='10' height='12' rx='2'/><path d='M5.6 6h4.8M5.6 8.5h4.8M5.6 11h2.6'/></g></svg>") !important;
 }
 
 /* Shield moved out of the address bar, to its left. Firefox has two, depending on the "trust" feature: #trust-icon-container and
@@ -526,6 +545,11 @@
   --toolbarbutton-icon-fill-attention: #0a84ff !important;
 }
 
+/* Share button of the top bar (Firefox's "Share" toolbar widget, placed once by safari-theme.uc.js): same thin stroke, box with an arrow. */
+#share-tab-button {
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><path d='M8 9.5V2.2M5.4 4.7 8 2.1l2.6 2.6'/><path d='M5 6.5H4.2A1.7 1.7 0 0 0 2.5 8.2v4.1A1.7 1.7 0 0 0 4.2 14h7.6a1.7 1.7 0 0 0 1.7-1.7V8.2a1.7 1.7 0 0 0-1.7-1.7H11'/></g></svg>") !important;
+}
+
 /* Stop button (it replaces Reload while loading): a thin, smaller cross (7 px wide instead of the 16 px solid cross of Firefox, which
  * looked too big), same stroke as the other icons. */
 #stop-button {
@@ -671,7 +695,8 @@ findbar {
   color: #fbfbfe !important;
 }
 :root[uc-light] :is(#back-button, #forward-button, #reload-button, #stop-button, #new-tab-button, #PanelUI-menu-button,
-    #unified-extensions-button, #downloads-button, #uc-compact-button) .toolbarbutton-icon,
+    #unified-extensions-button, #downloads-button, #uc-compact-button, #share-tab-button) .toolbarbutton-icon,
+:root[uc-light] #reader-mode-button:not([readeractive]) > .urlbar-icon,
 :root[uc-light] #downloads-indicator-icon,
 :root[uc-light] #urlbar[uc-centered] #identity-icon,
 :root[uc-light] #urlbar[uc-web] #permissions-granted-icon,
