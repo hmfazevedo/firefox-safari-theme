@@ -54,7 +54,6 @@ param(
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
 $LoaderFiles = @('config.js', 'defaults\pref\config-prefs.js')
-$ThemeFiles = @('userChrome.css', 'userContent.css', 'safari-theme.uc.js', 'safari-theme.manifest', 'tint-child.sys.mjs', 'tint-parent.sys.mjs')
 
 function Find-Firefox {
   foreach ($key in 'HKLM:\SOFTWARE\Mozilla\Mozilla Firefox', 'HKLM:\SOFTWARE\WOW6432Node\Mozilla\Mozilla Firefox') {
@@ -160,13 +159,17 @@ function Invoke-Elevated([string]$extra) {
   if ($admin) { return $false }
   Write-Host "  administrator rights needed: accept the permission prompt..."
   $argList = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', "`"$PSCommandPath`"", '-Elevated', '-FirefoxPath', "`"$FirefoxPath`"") + $extra
-  Start-Process powershell.exe -Verb RunAs -Wait -ArgumentList ($argList | Where-Object { $_ })
+  try {
+    Start-Process powershell.exe -Verb RunAs -Wait -ArgumentList ($argList | Where-Object { $_ })
+  } catch {
+    Write-Warning "elevation refused or failed: $($_.Exception.Message)"   # the check below then reports what is missing
+  }
   return $true
 }
 
 if ($Uninstall) {
   Write-Host "`n1/2  Theme files in the profile"
-  foreach ($name in $ThemeFiles) {
+  foreach ($name in (Get-ChildItem (Join-Path $root 'profile\chrome') -File).Name) {
     $f = Join-Path $ProfilePath "chrome\$name"
     if (Test-Path $f) {
       if ($DryRun) { Write-Host "  [dry run] would remove $f" } else { Remove-Item $f -Force; Write-Host "  removed: $f" }

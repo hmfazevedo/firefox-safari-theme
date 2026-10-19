@@ -55,7 +55,6 @@
   margin-block: var(--tab-margin-block) !important;
   min-height: calc(var(--tab-min-height) - 8px) !important;
 }
-/* VERTICAL tabs (sidebar): the rule above also shrank their pill (24 px measured), which was too thin; give 4 px back (28 px). Vertical only: the horizontal row keeps its 28 px. */
 /* VERTICAL tabs: the first pill was 5 px from the top of the card against 11 px on the other sides; move the list down by 6 px so the gap is the same everywhere. */
 #tabbrowser-tabs[orient="vertical"] {
   padding-block-start: 6px;
@@ -66,6 +65,7 @@
 #tabbrowser-tabs[orient="vertical"]:not([expanded]) {
   padding-inline: 0;
 }
+/* VERTICAL tabs (sidebar): the .tab-background rule above also shrank their pill (24 px measured), which was too thin; give 4 px back (28 px). Vertical only: the horizontal row keeps its 28 px. */
 #tabbrowser-tabs[orient="vertical"] .tab-background {
   min-height: calc(var(--tab-min-height) - 4px) !important;
 }
@@ -766,7 +766,7 @@ findbar {
 }
 
 /* Animation between normal <-> compact (the button toggle, or a second tab opening / closing in compact mode): during [uc-anim] the
- * tab strip fades in while sliding from the right (compact) or from the top (normal), the field slides (variables --uc-ux / --uc-uw
+ * tab strip fades in (compact) or fades in while sliding down from the top (normal), the field slides (variables --uc-ux / --uc-uw
  * above) and safari-theme.uc.js animates the bar's height (80 -> 40 px). The bar is only clipped during these 0.4 s. */
 @keyframes uc-tabs-compact {
   from { opacity: 0; }

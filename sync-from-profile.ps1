@@ -29,13 +29,8 @@ if (-not $ProfilePath) {
 }
 Write-Host "Profile: $ProfilePath"
 
-$pairs = @(
-  @{ From = "$ProfilePath\chrome\userChrome.css";          To = "$root\profile\chrome\userChrome.css" },
-  @{ From = "$ProfilePath\chrome\userContent.css";         To = "$root\profile\chrome\userContent.css" },
-  @{ From = "$ProfilePath\chrome\safari-theme.uc.js";      To = "$root\profile\chrome\safari-theme.uc.js" },
-  @{ From = "$ProfilePath\chrome\safari-theme.manifest";   To = "$root\profile\chrome\safari-theme.manifest" },
-  @{ From = "$ProfilePath\chrome\tint-child.sys.mjs";      To = "$root\profile\chrome\tint-child.sys.mjs" },
-  @{ From = "$ProfilePath\chrome\tint-parent.sys.mjs";     To = "$root\profile\chrome\tint-parent.sys.mjs" },
+# Every file already in profile\chrome (a new file is added to the repository once, by hand), then user.js and the loader.
+$pairs = @(Get-ChildItem "$root\profile\chrome" -File | ForEach-Object { @{ From = "$ProfilePath\chrome\$($_.Name)"; To = $_.FullName } }) + @(
   @{ From = "$ProfilePath\user.js";                        To = "$root\profile\user.js" },
   @{ From = "$FirefoxPath\config.js";                      To = "$root\loader\config.js" },
   @{ From = "$FirefoxPath\defaults\pref\config-prefs.js";  To = "$root\loader\defaults\pref\config-prefs.js" }

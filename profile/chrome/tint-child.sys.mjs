@@ -16,7 +16,7 @@
 // These are re-implementations of WebKit's logic in JavaScript (WebKit is BSD / LGPL licensed): check the licences before redistributing.
 
 const XHTML = "http://www.w3.org/1999/xhtml";
-const MARGE = 4; // sampleRectMargin: the touched point is 4 px from the window edge
+const MARGIN = 4; // sampleRectMargin: the touched point is 4 px from the window edge
 const THIN_BORDER = 10; // thinBorderWidth: a box of 10 px or less has no colour
 const NEARLY_ZERO_OPACITY = 0.1;
 const MIN_OPACITY_TO_CLAMP = 0.75; // minimumOpacityThresholdToClampToSolidColor
@@ -35,6 +35,7 @@ export class UcTintChild extends JSWindowActorChild {
   #hasScrolled = false; // Page::updateFixedContainerEdges: no more sampling of the top edge after the first scroll
   #edge = undefined; // last result for the top edge: { color, container, kind }
   #sheet = null; // scrollbar sheet currently loaded in this page
+  #colorCtx = null; // 1 x 1 canvas shared by #parseColor
 
   handleEvent(evt) {
     if (evt.type === "DOMContentLoaded") {
@@ -93,7 +94,6 @@ export class UcTintChild extends JSWindowActorChild {
     try {
       color = this.#compute();
     } catch (e) {
-      color = null;
       this.sendAsyncMessage("UcTint:Error", String(e) + " | " + (e && e.stack));
     }
     const key = color ? color.join(",") : "";
@@ -111,9 +111,13 @@ export class UcTintChild extends JSWindowActorChild {
       const a = m[4] === undefined ? 1 : m[4].endsWith("%") ? parseFloat(m[4]) / 100 : parseFloat(m[4]);
       return [Math.round(+m[1]), Math.round(+m[2]), Math.round(+m[3]), a];
     }
-    const cv = this.document.createElementNS(XHTML, "canvas");
-    cv.width = cv.height = 1;
-    const ctx = cv.getContext("2d", { willReadFrequently: true });
+    if (!this.#colorCtx) {
+      const cv = this.document.createElementNS(XHTML, "canvas");
+      cv.width = cv.height = 1;
+      this.#colorCtx = cv.getContext("2d", { willReadFrequently: true });
+    }
+    const ctx = this.#colorCtx;
+    ctx.reset(); // back to a fresh canvas: transparent pixel, default fill style (a colour the canvas cannot parse is then black, as before)
     ctx.fillStyle = css;
     ctx.fillRect(0, 0, 1, 1);
     const d = ctx.getImageData(0, 0, 1, 1).data;
@@ -192,7 +196,7 @@ export class UcTintChild extends JSWindowActorChild {
     return ![...el.childNodes].some((n) => n.nodeType === 1 || (n.nodeType === 3 && n.data.trim()));
   }
 
-  #hasBackground(el, cs) {
+  #hasBackground(cs) {
     return this.#parseColor(cs.backgroundColor)[3] > 0 || cs.backgroundImage !== "none";
   }
 
@@ -206,7 +210,7 @@ export class UcTintChild extends JSWindowActorChild {
     if (cs.visibility !== "visible" || !(opacityValue >= NEARLY_ZERO_OPACITY)) {
       return true;
     }
-    return !this.#hasBackground(el, cs) && !this.#hasBackdropFilter(cs) && this.#isEmpty(el) && !REPLACED_ELEMENTS.test(el.localName);
+    return !this.#hasBackground(cs) && !this.#hasBackdropFilter(cs) && this.#isEmpty(el) && !REPLACED_ELEMENTS.test(el.localName);
   }
 
   // primaryBackgroundColorForRenderer: a box's background colour, only if it is more than 10 px in both directions, neither hidden nor
@@ -228,16 +232,16 @@ export class UcTintChild extends JSWindowActorChild {
     const L = doc.documentElement.clientWidth;
     const H = win.innerHeight;
     // fixedRect shrunk by 4 px on each side: it is the reference length of compareWithViewportSize
-    const vw = Math.max(1, L - 2 * MARGE);
-    const vh = Math.max(1, H - 2 * MARGE);
+    const vw = Math.max(1, L - 2 * MARGIN);
+    const vh = Math.max(1, H - 2 * MARGIN);
     const bucket = (v, ref) => (v < 0.9 * ref ? "P" : v < 1.05 * ref ? "M" : "G"); // Smaller / Similar / Larger
     const parent = (el) => el.parentElement || (el.getRootNode && el.getRootNode().host) || null;
 
     // Touched point: middle of the top edge, 4 px below the edge. Open shadow roots are descended into.
     const x = L / 2;
-    let touched = doc.elementsFromPoint(x, MARGE)[0];
+    let touched = doc.elementsFromPoint(x, MARGIN)[0];
     while (touched && touched.shadowRoot) {
-      const inner = touched.shadowRoot.elementsFromPoint(x, MARGE)[0];
+      const inner = touched.shadowRoot.elementsFromPoint(x, MARGIN)[0];
       if (!inner || inner === touched) {
         break;
       }
@@ -270,7 +274,7 @@ export class UcTintChild extends JSWindowActorChild {
               multiple = true;
             }
           }
-          if (this.#hasBackground(el, cs)) {
+          if (this.#hasBackground(cs)) {
             backgroundSeen = true;
           }
         }
@@ -283,7 +287,7 @@ export class UcTintChild extends JSWindowActorChild {
       const adj = bucket(r.height, vh); // adjacent (right) side = height
       const c = this.#primaryColor(el, cs, r, vw);
       const translucent = parseFloat(cs.opacity) < 1 || (c && c[3] < 1);
-      const dimming = side !== "P" && adj !== "P" && this.#hasBackground(el, cs) && this.#isEmpty(el) && translucent;
+      const dimming = side !== "P" && adj !== "P" && this.#hasBackground(cs) && this.#isEmpty(el) && translucent;
       if (side === "P" && adj !== "P") {
         container = el;
         kind = "sidebar"; // IsSidebar
@@ -345,13 +349,13 @@ export class UcTintChild extends JSWindowActorChild {
       cv.width = L;
       cv.height = h;
       const ctx = cv.getContext("2d", { willReadFrequently: true });
-      ctx.drawWindow(win, 0, MARGE, L, h, "rgba(0,0,0,0)");
+      ctx.drawWindow(win, 0, MARGIN, L, h, "rgba(0,0,0,0)");
       const d = ctx.getImageData(0, 0, L, h).data;
       const n = L * h;
-      const pas = Math.max(1, Math.floor(n / 28));
+      const step = Math.max(1, Math.floor(n / 28));
       const counts = new Map();
-      for (let i = 0; i < 29 && i * pas < n; i++) {
-        const k = i * pas * 4;
+      for (let i = 0; i < 29 && i * step < n; i++) {
+        const k = i * step * 4;
         if (d[k + 3] === 0) {
           continue; // invisible pixel
         }

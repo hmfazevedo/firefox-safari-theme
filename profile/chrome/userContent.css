@@ -50,19 +50,15 @@
 /* Thin, discreet scrollbars on ALL pages (Safari: a thin translucent rounded thumb, no track). Windows 11 already renders them as
  * "overlay" (they only appear while scrolling); they are thinned and greyed translucently (visible on light and dark backgrounds,
  * transparent track). !important: a page may set one, ours wins. */
-@-moz-document regexp(".*") {
-  * {
-    scrollbar-width: thin !important;
-    scrollbar-color: rgba(142, 148, 156, 0.6) transparent !important;
-  }
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(142, 148, 156, 0.6) transparent !important;
 }
 
 /* Safari-style focus ring on the fields and buttons of pages: a 3 px translucent blue halo, hugging the element and rounded like it
  * (the same as the address bar's). WITHOUT !important: a site that draws its own outline (or removes it) keeps its own, because an
  * author rule beats a non-important user rule; it only replaces Firefox's default outline. */
-@-moz-document regexp(".*") {
-  :focus-visible {
-    outline: 3px solid rgba(10, 132, 255, 0.5);
-    outline-offset: 0;
-  }
+:focus-visible {
+  outline: 3px solid rgba(10, 132, 255, 0.5);
+  outline-offset: 0;
 }
