@@ -13,6 +13,18 @@ It is made of native Firefox mechanisms only, no extension:
 
 > This is an unofficial fan project. It is not affiliated with Apple or Mozilla. "Safari" is a trademark of Apple Inc.
 
+## Screenshots
+
+The bars take the colour of the page, and the text turns dark on a light bar:
+
+![Dark page, three tabs](docs/images/dark.png)
+![Page with a coloured fixed header](docs/images/tinted.png)
+![White page, light bar](docs/images/light.png)
+
+Compact mode, tabs and address on a single row:
+
+![Compact mode](docs/images/compact.png)
+
 ## Requirements
 
 - **Firefox 158.** This is the version the theme was measured on. Other versions may work, but Firefox renames interface
