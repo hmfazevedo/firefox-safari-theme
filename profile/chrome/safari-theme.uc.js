@@ -6,7 +6,7 @@
 //     always use the whole address. It relies on Firefox's native mechanism that shortens the address (removal of "http://", see
 //     UrlbarInput.setValue): the reduction to the domain is added on top, reusing its _protocolIsTrimmed / _untrimmedValue flags so
 //     that restoring the full address on focus stays Firefox's own.
-//  2. Sidebar splitter handle.  3. Page tint.  4. Localised strings.  5. Compact mode.  6. New Tab button.  7. Tab-title fade fix.  8. Share button.
+//  2. Sidebar splitter handle.  3. Page tint.  4. Localised strings.  5. Compact mode.  6. New Tab button.  7. Tab-title fade fix.
 (() => {
   const bar = window.gURLBar;
   if (!bar || bar.__domainOnly) {
@@ -518,21 +518,18 @@
   }
 })();
 
-// ---- "Share" button left of the New Tab button (Firefox's own "Share" toolbar widget, drawn by userChrome.css) ----
-// Same rule as the New Tab button: placed once on a profile that does not have it in the bar, afterwards the user's choice is kept.
-// The widget only exists while browser.toolbars.share-button.enabled is true (Firefox's default).
+// ---- Clean-up: a short-lived version of this script placed Firefox's "Share" button in the bar; take it out once and forget it ----
 (() => {
   try {
-    if (!CustomizableUI.getPlacementOfWidget("share-tab-button", false) && !Services.prefs.getBoolPref("extensions.uc.shareMoved", false)) {
-      const widgets = CustomizableUI.getWidgetIdsInArea("nav-bar");
-      const at = widgets.indexOf("new-tab-button");
-      CustomizableUI.addWidgetToArea("share-tab-button", "nav-bar", at === -1 ? undefined : at);
-      Services.prefs.setBoolPref("extensions.uc.shareMoved", true);
+    if (Services.prefs.getBoolPref("extensions.uc.shareMoved", false)) {
+      CustomizableUI.removeWidgetFromArea("share-tab-button");
+      Services.prefs.clearUserPref("extensions.uc.shareMoved");
     }
   } catch (e) {
-    console.error("Share button (placement):", e);
+    console.error("Share button (clean-up):", e);
   }
 })();
+
 
 // ---- Tab title faded by mistake ----
 // Firefox fades the end of a tab title (textoverflow attribute, mask-image in tabs.css) when the title container overflows; the

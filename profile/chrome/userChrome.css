@@ -545,11 +545,6 @@
   --toolbarbutton-icon-fill-attention: #0a84ff !important;
 }
 
-/* Share button of the top bar (Firefox's "Share" toolbar widget, placed once by safari-theme.uc.js): same thin stroke, box with an arrow. */
-#share-tab-button {
-  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><g fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'><path d='M8 9.5V2.2M5.4 4.7 8 2.1l2.6 2.6'/><path d='M5 6.5H4.2A1.7 1.7 0 0 0 2.5 8.2v4.1A1.7 1.7 0 0 0 4.2 14h7.6a1.7 1.7 0 0 0 1.7-1.7V8.2a1.7 1.7 0 0 0-1.7-1.7H11'/></g></svg>") !important;
-}
-
 /* Stop button (it replaces Reload while loading): a thin, smaller cross (7 px wide instead of the 16 px solid cross of Firefox, which
  * looked too big), same stroke as the other icons. */
 #stop-button {
@@ -695,7 +690,7 @@ findbar {
   color: #fbfbfe !important;
 }
 :root[uc-light] :is(#back-button, #forward-button, #reload-button, #stop-button, #new-tab-button, #PanelUI-menu-button,
-    #unified-extensions-button, #downloads-button, #uc-compact-button, #share-tab-button) .toolbarbutton-icon,
+    #unified-extensions-button, #downloads-button, #uc-compact-button) .toolbarbutton-icon,
 :root[uc-light] #reader-mode-button:not([readeractive]) > .urlbar-icon,
 :root[uc-light] #downloads-indicator-icon,
 :root[uc-light] #urlbar[uc-centered] #identity-icon,
