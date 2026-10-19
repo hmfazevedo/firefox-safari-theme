@@ -170,7 +170,7 @@
     if (isPrivateWindow) {
       return; // private window: fixed black bars (userChrome.css), no page tint
     }
-    const TINT_DELAY_MS = 300;
+    const TINT_DELAY_MS = 200;
     let timer = null;
     let appliedKey = "";
     const cancel = () => {
