@@ -62,8 +62,8 @@ address field (`--uc-hollow`: 76 % of the bar + 24 % black, matching the #1b1f22
 Rec. 709 luma > 127.5 (rule described by andesco/safari-color-tinting, not read in WebKit): attribute `uc-light`
 (`color-scheme: light` on the bars, inverted icons, dark tab text).
 
-**500 ms delay** (`TINT_DELAY_MS`): a loading page often goes through the default white before turning dark. A new colour is
-applied only after 500 ms without another measure, so the pending colour is replaced and the bar does not flash white. Tab
+**300 ms delay** (`TINT_DELAY_MS`): a loading page often goes through the default white before turning dark. A new colour is
+applied only after 300 ms without another measure, so the pending colour is replaced and the bar does not flash white. Tab
 switches stay immediate. A page that stays white longer than the delay still flashes: raise the value.
 
 Not verifiable (Safari's code is closed): how Safari picks its bar colour from the top edge and the page background, what it
