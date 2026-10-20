@@ -954,7 +954,7 @@ findbar {
 }
 :root[uc-mac-left] #nav-bar#nav-bar > .titlebar-buttonbox-container {
   order: -1 !important; /* Firefox puts the group last with a high order */
-  margin-inline: 16px 6px;
+  margin-inline: 16px -5px; /* negative: the first button has 9 px of padding and its icon 8 px of its own; measured, -5 px gives the same 24 px visible gap between the green button and the first icon as between the icons that follow */
 }
 :root[uc-mac-buttons] #nav-bar#nav-bar .titlebar-button {
   width: 12px !important;
