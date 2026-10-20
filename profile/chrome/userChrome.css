@@ -503,7 +503,7 @@
 
 /* Menu and extensions: same thin stroke (1.25) as the other icons. */
 #PanelUI-menu-button {
-  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M2.8 4.5h10.4M2.8 8h10.4M2.8 11.5h10.4' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round'/></svg>") !important;
+  list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><circle cx='8' cy='8' r='6.4' fill='none' stroke='%23fbfbfe' stroke-width='1.25'/><g fill='%23fbfbfe'><circle cx='5' cy='8' r='.95'/><circle cx='8' cy='8' r='.95'/><circle cx='11' cy='8' r='.95'/></g></svg>") !important;
 }
 #unified-extensions-button {
   list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M1.8 5.5H4.9a1.6 1.6 0 1 1 2.4 0H11.6V8.1a1.6 1.6 0 1 1 0 2.4V13.1H1.8Z' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/></svg>") !important;
