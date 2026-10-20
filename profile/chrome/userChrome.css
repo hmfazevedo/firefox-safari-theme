@@ -477,6 +477,12 @@
 tab-group:is([style*="--tab-group-yellow)"], [style*="--tab-group-cyan)"], [style*="--tab-group-orange)"]) .tab-group-label {
   color: #1c1c1e !important;
 }
+/* No halo around the label: Firefox lights a pale ring (background and 2 px shadow) around it while hovering a collapsed group or while its
+ * preview is open. */
+.tab-group-label-hover-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
 .tab-group-label::before {
   content: "";
   display: inline-block;
