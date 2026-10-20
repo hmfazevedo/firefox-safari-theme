@@ -467,6 +467,7 @@
   --tab-group-gray: #8e8e93;
   --tab-group-gray-pale: #8e8e93;
   --tab-group-label-height: 26px;
+  --tab-group-line-toolbar-border-distance: 4px; /* the line sits inside the strip, not on its border */
   --tab-group-label-padding: 10px;
 }
 .tab-group-label {
@@ -482,6 +483,11 @@ tab-group:is([style*="--tab-group-yellow)"], [style*="--tab-group-cyan)"], [styl
 .tab-group-label-hover-highlight {
   background-color: transparent !important;
   box-shadow: none !important;
+}
+/* The coloured line under a group (label, tabs, "+N" counter) runs along the bottom edge of the strip: clipped to the strip's rounded
+ * corners it follows them instead of sticking out at both ends. */
+#tabbrowser-tabs[orient="horizontal"] {
+  overflow: clip;
 }
 .tab-group-label::before {
   content: "";
