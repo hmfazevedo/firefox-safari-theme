@@ -87,7 +87,7 @@ or delete `config.js` and `defaults\pref\config-prefs.js` from Firefox's folder,
 ## Using it
 
 - **Options menu**: the button at the left of the toolbar (sliders icon; it can be moved or removed in "Customize Toolbar")
-  opens a menu. Its "Compact mode" checkbox puts tabs and address on one row, like Safari's "Compact" layout. The setting is the
+  opens a small panel. Its "Compact mode" switch puts tabs and address on one row, like Safari's "Compact" layout. The setting is the
   preference `extensions.uc.compact`.
 - **Address bar**: shows only the domain (`mail.google.com`) at rest. Click it, `Ctrl+L` or `F6` shows the full address;
   copy, reload and bookmark always use the full address.

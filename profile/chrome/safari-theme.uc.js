@@ -263,7 +263,7 @@
 
 // ---- Theme strings adapted to Firefox's language (Services.locale) ----
 // The visible strings of the theme are translated into the user's language; a language that is not listed falls back to English.
-//  - Options button (label + tooltip) and its "Compact mode" menu item: set on the widget below;
+//  - Options button (label + tooltip) and its "Compact mode" row: set on the widget below;
 //  - "Address bar" label (Customize mode) and "Private Browsing" mention: set as CSS variables on the root, read by userChrome.css with
 //    var() (English fallback if the variable is not set). The values are set as CSS strings (JSON.stringify): the apostrophe of a
 //    translation would otherwise be an invalid token in a bare value.
@@ -305,12 +305,13 @@
 
 // ---- Compact mode: tabs and address on a single row (see userChrome.css, "COMPACT MODE" block) ----
 // The Options button (created here; a button in its own right, like the others: it can be moved, removed, or placed next to the
-// sidebar button) opens a menu. Its first item, the "Compact mode" checkbox, toggles the extensions.uc.compact preference; every window
-// observes it and sets the uc-compact attribute on the root. Further options go in the same menu.
+// sidebar button) opens a small panel. Its first row, the "Compact mode" switch, toggles the extensions.uc.compact preference; every window
+// observes it and sets the uc-compact attribute on the root. Further options go in the same panel.
 (() => {
   try {
     const PREF_KEY = "extensions.uc.compact";
     const ID = "uc-compact-button";
+    const PANEL_ID = "uc-options-panel";
     const root = document.documentElement;
     const isActive = () => {
       try {
@@ -327,26 +328,34 @@
         type: "custom",
         defaultArea: "nav-bar",
         onBuild(doc) {
+          const XHTML = "http://www.w3.org/1999/xhtml";
           const button = doc.createXULElement("toolbarbutton");
           button.id = ID;
           button.className = "toolbarbutton-1 chromeclass-toolbar-additional";
-          button.setAttribute("type", "menu");
           button.setAttribute("label", strings.options || "Options");
           button.setAttribute("tooltiptext", strings.options || "Options");
-          const popup = doc.createXULElement("menupopup");
-          const compact = doc.createXULElement("menuitem");
-          compact.setAttribute("type", "checkbox");
-          compact.setAttribute("label", strings.compact || "Compact mode");
-          compact.addEventListener("command", () => Services.prefs.setBoolPref(PREF_KEY, !isActive()));
-          popup.addEventListener("popupshowing", () => {
-            if (isActive()) {
-              compact.setAttribute("checked", "true");
-            } else {
-              compact.removeAttribute("checked");
-            }
-          });
-          popup.appendChild(compact);
-          button.appendChild(popup);
+          // The panel lives in the window's popup set (one per window; the palette of "Customize Toolbar" builds the button again).
+          let panel = doc.getElementById(PANEL_ID);
+          if (!panel) {
+            panel = doc.createXULElement("panel");
+            panel.id = PANEL_ID;
+            panel.setAttribute("type", "arrow");
+            // One row per option: a label and a switch. Add further options as more rows.
+            const row = doc.createElementNS(XHTML, "label");
+            row.className = "uc-option";
+            const text = doc.createElementNS(XHTML, "span");
+            text.textContent = strings.compact || "Compact mode";
+            const toggle = doc.createElementNS(XHTML, "input");
+            toggle.type = "checkbox";
+            toggle.className = "uc-switch";
+            toggle.setAttribute("role", "switch");
+            toggle.addEventListener("change", () => Services.prefs.setBoolPref(PREF_KEY, toggle.checked));
+            row.append(text, toggle);
+            panel.appendChild(row);
+            panel.addEventListener("popupshowing", () => (toggle.checked = isActive()));
+            doc.getElementById("mainPopupSet").appendChild(panel);
+          }
+          button.addEventListener("command", () => panel.openPopup(button, "after_start"));
           return button;
         },
       });
