@@ -21,3 +21,6 @@ user_pref("browser.startup.preXulSkeletonUI", false);
 user_pref("browser.nova.enabled", false);
 user_pref("ui.systemUsesDarkTheme", 1);
 user_pref("browser.theme.toolbar-theme", 0);
+
+// Thumbnails in the card that appears when hovering a tab (Firefox shows title and address only without them).
+user_pref("browser.tabs.hoverPreview.showThumbnails", true);

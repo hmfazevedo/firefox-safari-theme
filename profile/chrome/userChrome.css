@@ -442,6 +442,60 @@
   outline-offset: -1px;
 }
 
+/* Tab groups, Safari style: the group label is a saturated pill (macOS system colours instead of Firefox's pastels, which also colour the
+ * line under the group's tabs) with white text, dark on the light colours, and a small chevron that turns when the group is collapsed.
+ * Firefox gives every group the colours of its --tab-group-<name> variables through an inline style: they are redefined on the strip. */
+#tabbrowser-tabs {
+  --tab-group-blue: #0a84ff;
+  --tab-group-blue-pale: #0a84ff;
+  --tab-group-purple: #bf5af2;
+  --tab-group-purple-pale: #bf5af2;
+  --tab-group-pink: #ff375f;
+  --tab-group-pink-pale: #ff375f;
+  --tab-group-red: #ff453a;
+  --tab-group-red-pale: #ff453a;
+  --tab-group-orange: #ff9f0a;
+  --tab-group-orange-pale: #ff9f0a;
+  --tab-group-yellow: #ffd60a;
+  --tab-group-yellow-pale: #ffd60a;
+  --tab-group-green: #30d158;
+  --tab-group-green-pale: #30d158;
+  --tab-group-cyan: #64d2ff;
+  --tab-group-cyan-pale: #64d2ff;
+  --tab-group-gray: #8e8e93;
+  --tab-group-gray-pale: #8e8e93;
+  --tab-group-label-height: 26px;
+  --tab-group-label-padding: 10px;
+}
+.tab-group-label {
+  color: #fff !important;
+  font-size: 13px;
+  font-weight: 500 !important;
+}
+tab-group:is([style*="--tab-group-yellow)"], [style*="--tab-group-cyan)"], [style*="--tab-group-orange)"]) .tab-group-label {
+  color: #1c1c1e !important;
+}
+.tab-group-label::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-inline-end: 4px;
+  vertical-align: -1px;
+  background-color: currentColor;
+  mask: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><path d='M2.2 3.6 5 6.4l2.8-2.8' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/></svg>") center / contain no-repeat;
+  transition: rotate var(--uc-duration) var(--uc-easing);
+}
+tab-group[collapsed] .tab-group-label::before {
+  rotate: -90deg;
+}
+/* Collapsed group: Firefox draws it hollow (dark tint, coloured text and outline); here it stays a filled pill, the chevron alone says it is
+ * collapsed. */
+tab-group[collapsed] > .tab-group-label-container .tab-group-label {
+  background-color: var(--tab-group-color) !important;
+  outline: none !important;
+}
+
 /* Safari-style Reload icon ("arrow.clockwise"): a thin ring starting on the right (3 o'clock), going clockwise and ending at the top
  * with an arrow head, with a wide opening (~95 degrees) between the head and the start, in white. Measured on a Safari screenshot:
  * opening ~90 degrees, head in the direction of travel. Inline thin-stroke SVG (data:): Firefox does not pass its colour to data:
