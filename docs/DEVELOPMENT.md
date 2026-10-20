@@ -78,8 +78,8 @@ Scrollbars: thin and translucent everywhere (`userContent.css`). The *page's* sc
 
 ### Compact mode
 
-Tabs and address field on one row: [Compact button, back, forward] [address] [tabs] [right-hand buttons]. The preference
-`extensions.uc.compact` is observed by every window. The script creates the button (`CustomizableUI.createWidget`, placed
+Tabs and address field on one row: [Options button, back, forward] [address] [tabs] [right-hand buttons]. The preference
+`extensions.uc.compact` is observed by every window. The script creates the Options button (`CustomizableUI.createWidget`, a custom `toolbarbutton` of type `menu` whose first item is the "Compact mode" checkbox; placed
 leftmost only if it has no placement yet), sets `uc-compact`, `uc-multi` (two tabs or more; with one tab nothing changes) and
 measures `--uc-left` / `--uc-right`. The CSS overlays the tab row on the navigation bar (`position: absolute`, 40 px box), only
 with horizontal tabs.

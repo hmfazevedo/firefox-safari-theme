@@ -262,8 +262,8 @@
 })();
 
 // ---- Theme strings adapted to Firefox's language (Services.locale) ----
-// The 3 visible strings of the theme are translated into the user's language; a language that is not listed falls back to English.
-//  - "Compact mode" button (label + tooltip): set on the widget below;
+// The visible strings of the theme are translated into the user's language; a language that is not listed falls back to English.
+//  - Options button (label + tooltip) and its "Compact mode" menu item: set on the widget below;
 //  - "Address bar" label (Customize mode) and "Private Browsing" mention: set as CSS variables on the root, read by userChrome.css with
 //    var() (English fallback if the variable is not set). The values are set as CSS strings (JSON.stringify): the apostrophe of a
 //    translation would otherwise be an invalid token in a bare value.
@@ -277,22 +277,10 @@
         pt: "Modo compacto", nl: "Compacte modus", pl: "Tryb kompaktowy", ru: "Компактный режим", ja: "コンパクトモード",
         ko: "컴팩트 모드", zh: "紧凑模式", ar: "وضع مدمج", tr: "Sıkıştırılmış mod", sv: "Kompakt läge",
       },
-      "compact-desc": {
-        fr: "Mode compact : onglets et adresse sur une seule rangée",
-        en: "Compact mode: tabs and address on a single row",
-        de: "Kompakter Modus: Tabs und Adresse in einer Reihe",
-        es: "Modo compacto: pestañas y dirección en una sola fila",
-        it: "Modalità compatta: schede e indirizzo su una sola riga",
-        pt: "Modo compacto: abas e endereço em uma única linha",
-        nl: "Compacte modus: tabs en adres op één rij",
-        pl: "Tryb kompaktowy: karty i adres w jednym wierszu",
-        ru: "Компактный режим: вкладки и адрес в один ряд",
-        ja: "コンパクトモード: タブとアドレスを1行に",
-        ko: "컴팩트 모드: 탭과 주소를 한 줄로",
-        zh: "紧凑模式：标签页和地址在单行",
-        ar: "وضع مدمج: علامات التبويب والعنوان في صف واحد",
-        tr: "Sıkıştırılmış mod: sekmeler ve adres tek satırda",
-        sv: "Kompakt läge: flikar och adress i en rad",
+      options: {
+        fr: "Options", en: "Options", de: "Optionen", es: "Opciones", it: "Opzioni",
+        pt: "Opções", nl: "Opties", pl: "Opcje", ru: "Параметры", ja: "オプション",
+        ko: "옵션", zh: "选项", ar: "خيارات", tr: "Seçenekler", sv: "Alternativ",
       },
       "address-bar": {
         fr: "Barre d'adresse", en: "Address bar", de: "Adressleiste", es: "Barra de direcciones", it: "Barra degli indirizzi",
@@ -306,7 +294,7 @@
       },
     };
     const localised = (key) => TRANSLATIONS[key][LANG] || TRANSLATIONS[key].en;
-    Services.__ucStrings = { compact: localised("compact"), "compact-desc": localised("compact-desc") };
+    Services.__ucStrings = { compact: localised("compact"), options: localised("options") };
     const root = document.documentElement;
     root.style.setProperty("--uc-label-address-bar", JSON.stringify(localised("address-bar")));
     root.style.setProperty("--uc-label-private", JSON.stringify(localised("private-browsing")));
@@ -316,8 +304,9 @@
 })();
 
 // ---- Compact mode: tabs and address on a single row (see userChrome.css, "COMPACT MODE" block) ----
-// The "Compact mode" button (created here; a button in its own right, like the others: it can be moved, removed, or placed next to
-// the sidebar button) toggles the extensions.uc.compact preference; every window observes it and sets the uc-compact attribute on the root.
+// The Options button (created here; a button in its own right, like the others: it can be moved, removed, or placed next to the
+// sidebar button) opens a menu. Its first item, the "Compact mode" checkbox, toggles the extensions.uc.compact preference; every window
+// observes it and sets the uc-compact attribute on the root. Further options go in the same menu.
 (() => {
   try {
     const PREF_KEY = "extensions.uc.compact";
@@ -335,12 +324,30 @@
       const strings = Services.__ucStrings || {};
       CustomizableUI.createWidget({
         id: ID,
-        type: "button",
+        type: "custom",
         defaultArea: "nav-bar",
-        label: strings.compact || "Compact mode",
-        tooltiptext: strings["compact-desc"] || "Compact mode: tabs and address on a single row",
-        onCommand() {
-          Services.prefs.setBoolPref(PREF_KEY, !isActive());
+        onBuild(doc) {
+          const button = doc.createXULElement("toolbarbutton");
+          button.id = ID;
+          button.className = "toolbarbutton-1 chromeclass-toolbar-additional";
+          button.setAttribute("type", "menu");
+          button.setAttribute("label", strings.options || "Options");
+          button.setAttribute("tooltiptext", strings.options || "Options");
+          const popup = doc.createXULElement("menupopup");
+          const compact = doc.createXULElement("menuitem");
+          compact.setAttribute("type", "checkbox");
+          compact.setAttribute("label", strings.compact || "Compact mode");
+          compact.addEventListener("command", () => Services.prefs.setBoolPref(PREF_KEY, !isActive()));
+          popup.addEventListener("popupshowing", () => {
+            if (isActive()) {
+              compact.setAttribute("checked", "true");
+            } else {
+              compact.removeAttribute("checked");
+            }
+          });
+          popup.appendChild(compact);
+          button.appendChild(popup);
+          return button;
         },
       });
     }
