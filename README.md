@@ -1,7 +1,7 @@
 # Firefox, Safari style
 
 A theme that makes **Firefox 158 on Windows 11** (dark mode) look like Safari on macOS: a centred address bar that only shows
-the domain next to a globe, capsule tabs, tab groups as coloured pills, rounded menus and panels, thin-line icons, open / close animations, a calm New Tab
+the domain next to a globe, capsule tabs, rounded menus and panels, thin-line icons, open / close animations, a calm New Tab
 page, a bar tinted with the page's colour, and an optional compact mode (tabs and address on a single row).
 
 It is made of native Firefox mechanisms only, no extension:
@@ -72,7 +72,7 @@ Firefox.
 `user.js` is applied at every start, so it overrides the same settings in `about:preferences`. It sets:
 `toolkit.legacyUserProfileCustomizations.stylesheets` (loads the CSS), `browser.download.autohideButton`,
 `browser.startup.preXulSkeletonUI` (no startup mock-up), `browser.nova.enabled=false` (the CSS targets the classic Firefox UI),
-`ui.systemUsesDarkTheme=1` and `browser.theme.toolbar-theme=0` (dark theme). It also turns on `browser.tabs.hoverPreview.showThumbnails` (thumbnails in the tab hover card). Use `-SkipUserJs` if you manage these yourself.
+`ui.systemUsesDarkTheme=1` and `browser.theme.toolbar-theme=0` (dark theme). Use `-SkipUserJs` if you manage these yourself.
 Your toolbar layout is never overwritten.
 
 ## Uninstall
