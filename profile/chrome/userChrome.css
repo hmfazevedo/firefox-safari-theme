@@ -292,8 +292,10 @@
 /* No more empty space on the right of the tabs after closing one. When a tab is closed with the mouse, Firefox freezes the max-width
  * of every remaining tab (element style, !important) so that the next tab's close button stays under the cursor, and only releases it
  * when the mouse leaves the row: the tabs no longer fill the row. A user-origin !important rule beats even that element style.
- * [fadein]: tabs that are closing keep their shrinking animation. Trade-off: the next tab's close button no longer stays under the cursor. */
-.tabbrowser-tab[fadein]:not([pinned]) {
+ * [fadein]: tabs that are closing keep their shrinking animation. Tabs of a collapsed group are left out: Firefox shrinks them to 0 with its
+ * own !important rule, which this one would otherwise beat (the group would not fold). Trade-off: the next tab's close button no longer stays
+ * under the cursor. */
+.tabbrowser-tab[fadein]:not([pinned], tab-group[collapsed] > .tabbrowser-tab) {
   max-width: var(--tab-max-width) !important;
 }
 .closing-tabs-spacer {
