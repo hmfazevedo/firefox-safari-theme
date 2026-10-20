@@ -282,6 +282,27 @@
         pt: "Opções", nl: "Opties", pl: "Opcje", ru: "Параметры", ja: "オプション",
         ko: "옵션", zh: "选项", ar: "خيارات", tr: "Seçenekler", sv: "Alternativ",
       },
+      "mac-buttons": {
+        fr: "Boutons de fenêtre macOS", en: "macOS window buttons", de: "Fensterknöpfe im macOS-Stil", es: "Botones de ventana de macOS",
+        it: "Pulsanti finestra macOS", pt: "Botões de janela do macOS", nl: "macOS-vensterknoppen", pl: "Przyciski okna w stylu macOS",
+        ru: "Кнопки окна в стиле macOS", ja: "macOSスタイルのウインドウボタン", ko: "macOS 스타일 창 버튼", zh: "macOS 风格窗口按钮",
+        ar: "أزرار نافذة بنمط macOS", tr: "macOS pencere düğmeleri", sv: "Fönsterknappar i macOS-stil",
+      },
+      position: {
+        fr: "Position", en: "Position", de: "Position", es: "Posición", it: "Posizione",
+        pt: "Posição", nl: "Positie", pl: "Położenie", ru: "Расположение", ja: "位置",
+        ko: "위치", zh: "位置", ar: "الموضع", tr: "Konum", sv: "Placering",
+      },
+      left: {
+        fr: "Gauche", en: "Left", de: "Links", es: "Izquierda", it: "Sinistra",
+        pt: "Esquerda", nl: "Links", pl: "Lewo", ru: "Слева", ja: "左",
+        ko: "왼쪽", zh: "左", ar: "يسار", tr: "Sol", sv: "Vänster",
+      },
+      right: {
+        fr: "Droite", en: "Right", de: "Rechts", es: "Derecha", it: "Destra",
+        pt: "Direita", nl: "Rechts", pl: "Prawo", ru: "Справа", ja: "右",
+        ko: "오른쪽", zh: "右", ar: "يمين", tr: "Sağ", sv: "Höger",
+      },
       "address-bar": {
         fr: "Barre d'adresse", en: "Address bar", de: "Adressleiste", es: "Barra de direcciones", it: "Barra degli indirizzi",
         pt: "Barra de endereço", nl: "Adresbalk", pl: "Pasek adresu", ru: "Строка адреса", ja: "アドレスバー",
@@ -294,7 +315,7 @@
       },
     };
     const localised = (key) => TRANSLATIONS[key][LANG] || TRANSLATIONS[key].en;
-    Services.__ucStrings = { compact: localised("compact"), options: localised("options") };
+    Services.__ucStrings = Object.fromEntries(["compact", "options", "mac-buttons", "position", "left", "right"].map((key) => [key, localised(key)]));
     const root = document.documentElement;
     root.style.setProperty("--uc-label-address-bar", JSON.stringify(localised("address-bar")));
     root.style.setProperty("--uc-label-private", JSON.stringify(localised("private-browsing")));
@@ -312,6 +333,8 @@
     const PREF_KEY = "extensions.uc.compact";
     const ID = "uc-compact-button";
     const PANEL_ID = "uc-options-panel";
+    const MAC_PREF = "extensions.uc.macButtons"; // macOS-style window buttons (red / yellow / green)
+    const SIDE_PREF = "extensions.uc.macButtonsSide"; // "left" (default) or "right", only used with the macOS style
     const root = document.documentElement;
     const isActive = () => {
       try {
@@ -320,6 +343,8 @@
         return false;
       }
     };
+    const macOn = () => Services.prefs.getBoolPref(MAC_PREF, false);
+    const macSide = () => (Services.prefs.getStringPref(SIDE_PREF, "left") === "right" ? "right" : "left");
     if (!Services.__ucCompactButton) {
       Services.__ucCompactButton = true;
       const strings = Services.__ucStrings || {};
@@ -340,19 +365,51 @@
             panel = doc.createXULElement("panel");
             panel.id = PANEL_ID;
             panel.setAttribute("type", "arrow");
-            // One row per option: a label and a switch. Add further options as more rows.
-            const row = doc.createElementNS(XHTML, "label");
-            row.className = "uc-option";
-            const text = doc.createElementNS(XHTML, "span");
-            text.textContent = strings.compact || "Compact mode";
-            const toggle = doc.createElementNS(XHTML, "input");
-            toggle.type = "checkbox";
-            toggle.className = "uc-switch";
-            toggle.setAttribute("role", "switch");
-            toggle.addEventListener("change", () => Services.prefs.setBoolPref(PREF_KEY, toggle.checked));
-            row.append(text, toggle);
-            panel.appendChild(row);
-            panel.addEventListener("popupshowing", () => (toggle.checked = isActive()));
+            // One row per option. Add further options as more rows.
+            const make = (tag, className) => Object.assign(doc.createElementNS(XHTML, tag), { className });
+            const list = make("div", "uc-options");
+            panel.appendChild(list);
+            const switchRow = (label, pref) => {
+              const row = make("label", "uc-option");
+              const text = make("span", "");
+              text.textContent = label;
+              const toggle = Object.assign(make("input", "uc-switch"), { type: "checkbox" });
+              toggle.setAttribute("role", "switch");
+              toggle.addEventListener("change", () => {
+                Services.prefs.setBoolPref(pref, toggle.checked);
+                sync();
+              });
+              row.append(text, toggle);
+              list.appendChild(row);
+              return toggle;
+            };
+            const compactSwitch = switchRow(strings.compact || "Compact mode", PREF_KEY);
+            const macSwitch = switchRow(strings["mac-buttons"] || "macOS window buttons", MAC_PREF);
+            const sideRow = make("div", "uc-option uc-side");
+            const sideText = make("span", "");
+            sideText.textContent = strings.position || "Position";
+            const segments = make("div", "uc-seg");
+            const sides = ["left", "right"].map((side) => {
+              const b = make("button", "");
+              b.textContent = strings[side] || side;
+              b.addEventListener("click", () => {
+                Services.prefs.setStringPref(SIDE_PREF, side);
+                sync();
+              });
+              segments.appendChild(b);
+              return [side, b];
+            });
+            sideRow.append(sideText, segments);
+            list.appendChild(sideRow);
+            const sync = () => {
+              compactSwitch.checked = isActive();
+              macSwitch.checked = macOn();
+              panel.toggleAttribute("uc-mac", macOn());
+              for (const [side, b] of sides) {
+                b.setAttribute("aria-pressed", String(macSide() === side));
+              }
+            };
+            panel.addEventListener("popupshowing", sync);
             doc.getElementById("mainPopupSet").appendChild(panel);
           }
           button.addEventListener("command", () => panel.openPopup(button, "after_start"));
@@ -467,6 +524,20 @@
     const mutationWatcher = { observe: apply };
     Services.prefs.addObserver(PREF_KEY, mutationWatcher);
     window.addEventListener("unload", () => Services.prefs.removeObserver(PREF_KEY, mutationWatcher), { once: true });
+
+    // Window buttons: uc-mac-buttons (macOS style) and uc-mac-left (macOS style on the left) on the root; the CSS does the rest. The
+    // right-hand buttons move when the window buttons change side, so the compact layout is measured again.
+    const applyButtons = () => {
+      root.toggleAttribute("uc-mac-buttons", macOn());
+      root.toggleAttribute("uc-mac-left", macOn() && macSide() === "left");
+      measureSoon();
+    };
+    const buttonsWatcher = { observe: applyButtons };
+    for (const pref of [MAC_PREF, SIDE_PREF]) {
+      Services.prefs.addObserver(pref, buttonsWatcher);
+      window.addEventListener("unload", () => Services.prefs.removeObserver(pref, buttonsWatcher), { once: true });
+    }
+    applyButtons();
     new MutationObserver(apply).observe(root, { attributes: true, attributeFilter: ["customizing"] });
 
     // Two tabs or more: the only case where the layout changes.

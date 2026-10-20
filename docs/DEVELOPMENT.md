@@ -107,6 +107,10 @@ with horizontal tabs.
 - The three downloads icons (arrow, progress ring, done check) share a 16 px diameter; the Firefox ones get `scale: 0.89` and
   `translate: 0 0.7px`; the accent colour is `#0a84ff`.
 - Window buttons are round (30 px, thin SVG glyphs in `::before`; the Windows symbol is a font), red hover for close.
+  Optional macOS style (Options panel, preferences `extensions.uc.macButtons` / `extensions.uc.macButtonsSide`): attributes
+  `uc-mac-buttons` and `uc-mac-left` on the root; three 12 px circles in macOS order (close, minimise, maximise), glyphs shown while
+  the group is hovered, grey when the window is inactive. Firefox gives `.titlebar-buttonbox-container` a high `order`, so moving it
+  to the left needs `order: -1 !important`. Preference observers match a pref name exactly (no prefix): register each one.
 - Corners: 22 px on panels, the address dropdown and the find bar; 12 px on context menus.
 - Page dialogs hang from the top like Safari sheets (`.content-prompt-dialog > .dialogOverlay { align-content: start }`).
 - Blue focus ring is drawn *inside* the address field (`outline-offset: -3px`); on web pages it is

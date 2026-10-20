@@ -803,6 +803,11 @@ findbar {
 #uc-options-panel {
   --panel-padding: 12px 14px;
 }
+#uc-options-panel .uc-options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 #uc-options-panel .uc-option {
   display: flex;
   align-items: center;
@@ -841,6 +846,32 @@ findbar {
 }
 #uc-options-panel .uc-switch:checked::before {
   translate: 16px 0;
+}
+#uc-options-panel .uc-seg {
+  display: flex;
+  padding: 2px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.12);
+}
+#uc-options-panel .uc-seg button {
+  appearance: none;
+  margin: 0;
+  min-width: 0;
+  padding: 3px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #f5f5f7;
+  font: inherit;
+  font-size: 12px;
+  transition: background-color var(--uc-duration) var(--uc-easing);
+}
+#uc-options-panel .uc-seg button[aria-pressed="true"] {
+  background-color: rgba(255, 255, 255, 0.24);
+}
+#uc-options-panel:not([uc-mac]) .uc-side {
+  opacity: 0.4;
+  pointer-events: none;
 }
 /* Left margin of the first button of the bar, whichever it is (the Compact mode button, or another one if they are moved): the
  * leftmost button must not touch the window edge. 9 px, because Firefox already adds 6 px of left padding to the first button (8 px
@@ -913,6 +944,44 @@ findbar {
 :root[uc-light] #nav-bar .titlebar-close:hover::before {
   filter: none;
 }
+
+/* macOS-style window buttons (Options panel: "macOS window buttons", attribute uc-mac-buttons on the root, set by safari-theme.uc.js):
+ * three 12 px circles, red (close), yellow (minimise) and green (maximise / restore) in macOS's order, with the small glyph showing
+ * while the pointer is over the group; grey when the window is not active. With uc-mac-left the group goes to the left end of the bar.
+ * Selectors are made more specific (#nav-bar#nav-bar) than the round buttons above and their light-bar variants. */
+:root[uc-mac-buttons] #nav-bar#nav-bar > .titlebar-buttonbox-container {
+  margin-inline: 6px 16px;
+}
+:root[uc-mac-left] #nav-bar#nav-bar > .titlebar-buttonbox-container {
+  order: -1 !important; /* Firefox puts the group last with a high order */
+  margin-inline: 16px 6px;
+}
+:root[uc-mac-buttons] #nav-bar#nav-bar .titlebar-button {
+  width: 12px !important;
+  height: 12px !important;
+  margin: 0 4px !important;
+}
+:root[uc-mac-buttons] #nav-bar#nav-bar .titlebar-close { order: 1; background-color: #ff5f57 !important; }
+:root[uc-mac-buttons] #nav-bar#nav-bar .titlebar-min { order: 2; background-color: #febc2e !important; }
+:root[uc-mac-buttons] #nav-bar#nav-bar .titlebar-max,
+:root[uc-mac-buttons] #nav-bar#nav-bar .titlebar-restore { order: 3; background-color: #28c840 !important; }
+:root[uc-mac-buttons]:-moz-window-inactive #nav-bar#nav-bar .titlebar-button {
+  background-color: rgba(128, 132, 140, 0.45) !important;
+}
+:root[uc-mac-buttons] #nav-bar#nav-bar .titlebar-button:hover:active {
+  filter: brightness(0.85);
+}
+:root[uc-mac-buttons] #nav-bar#nav-bar .titlebar-button::before {
+  opacity: 0;
+  filter: none;
+}
+:root[uc-mac-buttons] #nav-bar#nav-bar .titlebar-buttonbox:hover .titlebar-button::before {
+  opacity: 1;
+}
+:root[uc-mac-buttons] #nav-bar#nav-bar .titlebar-close::before { content: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' width='8' height='8'><path d='M1.6 1.6l4.8 4.8M6.4 1.6L1.6 6.4' stroke='%234d0000' stroke-width='1.2' stroke-linecap='round' fill='none'/></svg>") !important; }
+:root[uc-mac-buttons] #nav-bar#nav-bar .titlebar-min::before { content: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' width='8' height='8'><path d='M1.3 4h5.4' stroke='%235a3a00' stroke-width='1.2' stroke-linecap='round' fill='none'/></svg>") !important; }
+:root[uc-mac-buttons] #nav-bar#nav-bar .titlebar-max::before,
+:root[uc-mac-buttons] #nav-bar#nav-bar .titlebar-restore::before { content: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' width='8' height='8'><path d='M1.6 1.6h3.2L1.6 4.8zM6.4 6.4H3.2l3.2-3.2z' fill='%23064d17'/></svg>") !important; }
 
 /* Globe stuck to the left edge of the field, the text alone centred, like Safari: at rest (bare domain) as with the active bar (full
  * address selected). The safari-theme.uc.js script sets the uc-centered attribute (a site's address displayed, not typing). White fixed in

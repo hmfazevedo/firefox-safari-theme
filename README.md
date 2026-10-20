@@ -88,11 +88,12 @@ or delete `config.js` and `defaults\pref\config-prefs.js` from Firefox's folder,
 
 - **Options menu**: the button at the left of the toolbar (sliders icon; it can be moved or removed in "Customize Toolbar")
   opens a small panel. Its "Compact mode" switch puts tabs and address on one row, like Safari's "Compact" layout. The setting is the
-  preference `extensions.uc.compact`.
+  preference `extensions.uc.compact`. A second switch turns the window buttons into macOS-style red / yellow / green circles, and
+  a "Position" control puts them on the left or the right (preferences `extensions.uc.macButtons` and `extensions.uc.macButtonsSide`).
 - **Address bar**: shows only the domain (`mail.google.com`) at rest. Click it, `Ctrl+L` or `F6` shows the full address;
   copy, reload and bookmark always use the full address.
 - **Tinted bars**: the toolbar takes the colour of the page (its fixed header, otherwise its background), like Safari 26.
-- **Languages**: the visible strings of the theme (Options, Compact mode, Address bar, Private Browsing) follow Firefox's language.
+- **Languages**: the visible strings of the theme (Options panel, Address bar, Private Browsing) follow Firefox's language.
   To add one, add its two-letter code in the `TRANSLATIONS` table of `safari-theme.uc.js`.
 - **Tuning**: spacing, durations and the address bar width are variables at the top of `userChrome.css` (`--uc-*`).
 
