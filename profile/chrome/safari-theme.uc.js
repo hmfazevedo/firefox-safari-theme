@@ -540,21 +540,24 @@
     applyButtons();
     new MutationObserver(apply).observe(root, { attributes: true, attributeFilter: ["customizing"] });
 
-    // Two tabs or more: the only case where the layout changes.
+        // "uc-multi" = the tab row is shown: two tabs or more, or a pinned tab, or a tab group (even a single tab in it). This is the same
+    // condition as the one that hides the row in userChrome.css; with a lone grouped tab the row used to be shown while the compact
+    // layout was off.
     const countTabs = (excluded) => {
-      const n = gBrowser.visibleTabs.filter((t) => !t.closing && t !== excluded).length;
-      if (n > 1 === root.hasAttribute("uc-multi")) {
+      const tabs = gBrowser.visibleTabs.filter((t) => !t.closing && t !== excluded);
+      const shown = tabs.length > 1 || tabs.some((t) => t.pinned) || gBrowser.tabGroups.length > 0;
+      if (shown === root.hasAttribute("uc-multi")) {
         return;
       }
       change(() => {
-        if (n > 1) {
+        if (shown) {
           root.setAttribute("uc-multi", "");
         } else {
           root.removeAttribute("uc-multi");
         }
       }, false);
     };
-    for (const ev of ["TabOpen", "TabClose", "TabPinned", "TabUnpinned", "TabHide", "TabShow"]) {
+    for (const ev of ["TabOpen", "TabClose", "TabPinned", "TabUnpinned", "TabHide", "TabShow", "TabGroupCreate", "TabGroupRemoved", "TabGrouped", "TabUngrouped"]) {
       gBrowser.tabContainer.addEventListener(ev, (e) => {
         countTabs(e.type === "TabClose" ? e.target : null); // the closing tab is still there: leave it out
         setTimeout(countTabs, 0);
