@@ -10,6 +10,7 @@ Usage (see docs/DEVELOPMENT.md, "Testing without touching your profile"):
     print(m.run("return document.title;"))
 
 Start the test Firefox with:  firefox.exe -no-remote -marionette -remote-allow-system-access -profile <throwaway profile>
+Firefox 159 and later: also set the environment variable MOZ_REMOTE_ALLOW_SYSTEM_ACCESS=1 (the flag alone is no longer enough).
 """
 import json
 import socket

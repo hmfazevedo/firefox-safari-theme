@@ -1,6 +1,6 @@
 # Development notes
 
-Measured on **Firefox 158, Windows 11, dark mode, 150 % scaling**. Names below refer to this repository's files.
+Measured on **Firefox 159 (and 158 before it), Windows 11, dark mode, 150 % scaling**. Names below refer to this repository's files.
 
 ## How the pieces fit
 
@@ -158,7 +158,9 @@ back / forward buttons; Share and tab-overview buttons in the top bar; Windows 1
 - `mkprofile.py <real profile> <throwaway folder>`: creates a test profile with your `user.js` (not a whole `prefs.js`: a
   copied one carries its `storeID` and registers the copy in your profile group). Then copy `profile\chrome\*` to
   `<throwaway folder>\chrome\`.
-- Start the test Firefox: `firefox.exe -no-remote -marionette -remote-allow-system-access -profile <throwaway folder> <url>`. The first
+- Start the test Firefox: `firefox.exe -no-remote -marionette -remote-allow-system-access -profile <throwaway folder> <url>`. **Firefox 159
+  ignores that flag**: set the environment variable `MOZ_REMOTE_ALLOW_SYSTEM_ACCESS=1` before starting it, otherwise every chrome-scope
+  command fails with "The command does not support browsing contexts in privileged scope". The first
   launch often fails; retry. To test the loader without administrator rights, copy Firefox's installation folder (~250 MB),
   install `loader\*` into the copy, and run the copy.
 - `offscreen.ps1`: moves the test window off screen. `shotall.ps1 -Prefix name`: screenshots every window of the test profile

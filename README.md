@@ -1,8 +1,9 @@
 # Firefox, Safari style
 
-A theme that makes **Firefox 158 on Windows 11** (dark mode) look like Safari on macOS: a centred address bar that only shows
-the domain next to a globe, capsule tabs, rounded menus and panels, thin-line icons, open / close animations, a calm New Tab
-page, a bar tinted with the page's colour, and an optional compact mode (tabs and address on a single row).
+A theme that makes **Firefox 159 on Windows 11** (dark mode) look like Safari on macOS: a centred address bar that only shows
+the domain, capsule tabs, rounded menus and panels, thin-line icons, open / close animations, a calm New Tab page, a bar tinted
+with the page's colour, a Reader button, optional macOS-style window buttons and an optional compact mode (tabs and address on
+a single row).
 
 It is made of native Firefox mechanisms only, no extension:
 
@@ -25,10 +26,25 @@ Compact mode, tabs and address on a single row:
 
 ![Compact mode](docs/images/compact.png)
 
+The Options panel (the sliders button at the left of the toolbar): Compact mode, macOS-style window buttons, and their side:
+
+![Options panel](docs/images/options.png)
+
+macOS-style window buttons, on the left or on the right:
+
+![macOS window buttons on the left](docs/images/mac-left.png)
+![macOS window buttons on the right](docs/images/mac-right.png)
+
+The Reader button appears in the address bar on pages Firefox can show in Reader view:
+
+![Reader button](docs/images/reader.png)
+
 ## Requirements
 
-- **Firefox 158.** This is the version the theme was measured on. Other versions may work, but Firefox renames interface
-  elements from time to time; an element that stops matching simply keeps its normal look.
+- **Firefox 159.** This is the version the theme is checked against (every selector of the CSS exists in it, and the script, the
+  page tint, the Options panel, the window buttons, the Reader button and tab groups were tested on it). 158 was checked before.
+  Other versions may work, but Firefox renames interface elements from time to time; an element that stops matching simply keeps
+  its normal look.
 - **Windows 11 with dark mode.** Colours and icons were tuned in dark mode at 150 % display scaling.
 - **Administrator rights, once**, to place a two-file loader in Firefox's installation folder. Without it the CSS still works,
   but the script (domain-only address, centring, tint, compact button) does not.
