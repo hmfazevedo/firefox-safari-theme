@@ -581,6 +581,13 @@ menupopup {
 menupopup {
   --panel-border-radius: 12px !important;
 }
+/* Drop-down of a web page's <select>: Firefox colours its text with the page's own select colour (--panel-text-color, inline style) and picks
+ * its light / dark scheme from the select's background, while the card above is always dark: a white select with black text gave black text
+ * on the dark card. Light text and the dark scheme here (an option that the page gives its own background and colour keeps both). */
+#ContentSelectDropdown > menupopup {
+  --panel-text-color: #fbfbfe !important;
+  color-scheme: dark !important;
+}
 panel {
   --input-text-background-color: #1b1f22 !important; /* input fields of the panels (bookmark name...); only in panels: the address bar reads the same variable */
   --panel-box-shadow: 0 16px 24px -12px rgba(0, 0, 0, 0.5) !important;
