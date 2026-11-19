@@ -1,6 +1,6 @@
 # Firefox, Safari style
 
-A theme that makes **Firefox 159 on Windows 11** (dark mode) look like Safari on macOS: a centred address bar that only shows
+A theme that makes **Firefox 160 on Windows 11** (dark mode) look like Safari on macOS: a centred address bar that only shows
 the domain, capsule tabs, rounded menus and panels, thin-line icons, open / close animations, a calm New Tab page, a bar tinted
 with the page's colour, a Reader button, optional macOS-style window buttons and an optional compact mode (tabs and address on
 a single row).
@@ -14,7 +14,27 @@ It is made of native Firefox mechanisms only, no extension:
 
 > This is an unofficial fan project. It is not affiliated with Apple or Mozilla. "Safari" is a trademark of Apple Inc.
 
-## Screenshots
+## New in v1.3.0
+
+- Selected tabs follow the page tint; Back/Forward share a uniform capsule, even when Forward is disabled.
+- Stable address text bounds when focusing or typing, with space reserved for Reader.
+- Consistent Segoe UI typography and coordinated light/dark menus, panels and web dropdowns.
+- Shorter transitions, no extra animated toolbox height, and support for reduced motion.
+- A floating zoom indicator with working minus/plus buttons.
+- Fixed overlapping menu-button hover backgrounds and centred its icon inside the capsule.
+
+Screenshots use a demonstration webpage in an isolated Firefox 160 profile at 150% display scaling.
+The page content is a preview fixture; the browser controls are the actual theme.
+
+![Dark appearance](docs/images/v1.3.0/dark.png)
+![Light palette on a coloured page](docs/images/v1.3.0/light.png)
+![Compact layout](docs/images/v1.3.0/compact.png)
+
+The zoom indicator after clicking its plus button:
+
+![Working zoom controls at 120%](docs/images/v1.3.0/zoom.png)
+
+## Earlier screenshots
 
 The bars take the colour of the page, and the text turns dark on a light bar:
 
@@ -41,8 +61,8 @@ The Reader button appears in the address bar on pages Firefox can show in Reader
 
 ## Requirements
 
-- **Firefox 159.** This is the version the theme is checked against (every selector of the CSS exists in it, and the script, the
-  page tint, the Options panel, the window buttons, the Reader button and tab groups were tested on it). 158 was checked before.
+- **Firefox 160.** The current appearance, address geometry, navigation, panel colours, compact layout and zoom controls were
+  checked in an isolated profile. Versions 159 and 158 were checked previously.
   Other versions may work, but Firefox renames interface elements from time to time; an element that stops matching simply keeps
   its normal look.
 - **Windows 11 with dark mode.** Colours and icons were tuned in dark mode at 150 % display scaling.

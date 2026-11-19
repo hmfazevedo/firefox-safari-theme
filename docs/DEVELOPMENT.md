@@ -1,6 +1,6 @@
 # Development notes
 
-Measured on **Firefox 159 (and 158 before it), Windows 11, dark mode, 150 % scaling**. Names below refer to this repository's files.
+Measured on **Firefox 160 (and 159 / 158 before it), Windows 11, dark mode, 150 % scaling**. Names below refer to this repository's files.
 
 ## How the pieces fit
 
@@ -86,9 +86,9 @@ with horizontal tabs.
 
 - Address field: `left = --uc-left + 15px`, width `clamp(220px, 22vw, 380px)`.
 - Tab strip: `left: calc(var(--uc-ux) + var(--uc-uw) + 25px)`, `right: calc(var(--uc-right) + 9px)`.
-- Normal <-> compact is animated over 0.42 s with `cubic-bezier(0.4, 0, 0.2, 1)`: the field slides and shrinks (`--uc-ux` /
+- Normal <-> compact is animated over 0.22 s with `cubic-bezier(0.4, 0, 0.2, 1)`: the field slides and shrinks (`--uc-ux` /
   `--uc-uw`, registered with `@property`, transitions only under `uc-anim`, set AFTER the change in the same task and only if the
-  layout changes). The bar height is animated with `element.animate` only for the button toggle. Tabs are counted synchronously on
+  layout changes). The toolbox height is not additionally animated; tabs fade without vertical translation. Tabs are counted synchronously on
   `TabOpen` / `TabClose`. No animation during the first 3 seconds of a window.
 - Customize mode suspends the compact layout (the overlaid strip would cover the slots being dragged); the preference stays true.
 - `measure()` counts every button of the right half of the buttons area (downloads, private-browsing flame, account button,
@@ -100,9 +100,8 @@ with horizontal tabs.
 - Normal mode: no top padding on `#TabsToolbar`, `--uc-bar-bottom` (7 px) below it. Compact: 2 px top and bottom, centred.
 - Bookmarks bar: no top margin, `--uc-bar-bottom` below, no margin around bookmarks, same height with one tab or many.
 - Globe (`#identity-box`) is always at the left of the field (`inset-inline-start: 4px`, 28 px circle), Reload at the right.
-  The address text is centred in every state (`#urlbar-input { text-align: center }`); with the globe, margins are
-  `calc(25px + var(--uc-text-gap)) calc(20px + var(--uc-text-gap))` with `--uc-text-gap: 12px`. Without the globe the text area is
-  `position: absolute; inset: 0 40px`. A text longer than the field is left-aligned on purpose.
+  Address text keeps the same symmetric absolute bounds at rest, on focus and while typing: 40 px on either side, or 72 px
+  when Reader is available. Native search chips and extension identity labels retain normal flow.
 - Insecure (http) pages: the globe keeps a transparent background and no "Not secure" label.
 - The three downloads icons (arrow, progress ring, done check) share a 16 px diameter; the Firefox ones get `scale: 0.89` and
   `translate: 0 0.7px`; the accent colour is `#0a84ff`.
@@ -124,11 +123,26 @@ is localised through `--uc-label-private`.
 
 ### Animations
 
-One curve `--uc-easing: cubic-bezier(0.4, 0, 0.2, 1)` and two durations on `:root` (`--uc-duration` 260 ms for everything that
-slides, `--uc-duration-tint` 300 ms for colours). The five tinted surfaces fade together. Text and icons switch at 100 ms
+One curve `--uc-easing: cubic-bezier(0.4, 0, 0.2, 1)` and three durations on `:root`: 180 ms for local effects,
+300 ms for tint changes and 220 ms for compact switches. Reduced motion uses 1 ms to preserve tab lifecycle events.
+The five tinted surfaces fade together. Text and icons switch at 100 ms
 (`uc-light`, when luminance crosses 128); `uc-light-bg` is set immediately so the hollow's destination colour never changes
 mid-transition. New Tab: the bookmarks bar changes height at once and fades in (`#PersonalToolbar[collapsed] { opacity: 0 }`).
 Values were measured per frame with `requestAnimationFrame`; real smoothness on your GPU is not measured.
+
+### Appearance and controls (v1.3.0)
+
+- Selected tabs mix the toolbar tint with white instead of inheriting Firefox's violet-grey.
+- Disabled Back/Forward controls dim only their glyphs. Both halves retain the same surface and share hover feedback.
+- Right-side surfaces are separate from icons, so the light-mode SVG filter never inverts the background.
+  The menu button has asymmetric 2px/8px padding; its surface centre moves 3px toward the start to align with the icon.
+- UI labels use Segoe UI Variable Text / Segoe UI / system-ui, preserving native sizes and weights.
+- Complete dark/light palettes colour menu surfaces, text, disabled options, Options controls and suggestions.
+  Native select popups override the site gradient and option colours together; the closed web field is unchanged.
+- The zoom pill uses `FullZoom.enlarge/reduce` on the selected browser and does not intercept clicks while hidden.
+- Validation: 37 appearance/interaction checks, 16 hover/open checks, 24 menu-centering/click checks (100%/150%, three
+  densities, LTR/RTL), and 64 navigation-style checks across disabled combinations, hover/rest and both palettes.
+  Release screenshots include a real plus-button click advancing the zoom label to 120%.
 
 ### Other
 

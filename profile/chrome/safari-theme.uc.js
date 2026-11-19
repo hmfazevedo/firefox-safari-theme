@@ -482,32 +482,24 @@
     let animTimer = null;
     let ready = false; // no animation while the window starts
     setTimeout(() => (ready = true), 3000);
-    // Makes the change and, if the effective layout changes, ANIMATES it: [uc-anim] enables the transitions and the tab strip's entrance
-    // (userChrome.css), and the bar's height (80 -> 40 px or the reverse) slides with the animation API. Set BEFORE the change: a transition
-    // takes the transition properties of the TARGET style.
-    const change = (mutate, animateHeight) => {
+    // Only the address position and tab opacity animate during a layout switch.
+    // Do not animate the toolbox height: that reflows the page for every frame.
+    const change = (mutate) => {
       if (!ready) {
         mutate();
         measureSoon();
         return;
       }
       const wasEffective = isEffective();
-      const box = document.getElementById("navigator-toolbox");
-      const h0 = box.getBoundingClientRect().height;
       mutate();
       if (isEffective() === wasEffective) {
         return; // nothing changes: no animation, normal mode keeps its own transitions
       }
       measureSoon();
       root.setAttribute("uc-anim", "");
-      // The bar's height is only animated for the button toggle: when a tab opens, Firefox's own tab row is opening, the starting
-      // measure would be wrong (dark band under the bookmarks bar).
-      const h1 = box.getBoundingClientRect().height;
-      if (animateHeight && h0 !== h1) {
-        box.animate([{ height: h0 + "px" }, { height: h1 + "px" }], { duration: 420, easing: "cubic-bezier(0.4, 0, 0.2, 1)" });
-      }
       clearTimeout(animTimer);
-      animTimer = setTimeout(() => root.removeAttribute("uc-anim"), 520);
+      const duration = parseFloat(getComputedStyle(root).getPropertyValue("--uc-duration-layout")) || 220;
+      animTimer = setTimeout(() => root.removeAttribute("uc-anim"), duration + 80);
     };
     // "Customize Toolbar" mode (customizing attribute set by Firefox on the root): no compact layout, the overlaid tab strip would cover
     // the slots of the buttons being moved. The preference stays true: compact mode comes back when leaving it.
@@ -518,7 +510,7 @@
         } else {
           root.removeAttribute("uc-compact");
         }
-      }, true);
+      });
       measureSoon();
     };
     const mutationWatcher = { observe: apply };
@@ -555,7 +547,7 @@
         } else {
           root.removeAttribute("uc-multi");
         }
-      }, false);
+      });
     };
     for (const ev of ["TabOpen", "TabClose", "TabPinned", "TabUnpinned", "TabHide", "TabShow", "TabGroupCreate", "TabGroupRemoved", "TabGrouped", "TabUngrouped"]) {
       gBrowser.tabContainer.addEventListener(ev, (e) => {
@@ -648,5 +640,75 @@
     window.addEventListener("resize", () => setTimeout(fixTitleFade, 200));
   } catch (e) {
     console.error("tab title:", e);
+  }
+})();
+
+// ---- Zoom control (Ctrl+ / Ctrl- / Ctrl+0): a Safari-style pill at the top centre of the page with
+// clickable − and + buttons that zoom the CURRENT tab. Appears on a zoom change, stays while hovered. ----
+(() => {
+  try {
+    const container = document.querySelector(".browserContainer");
+    if (!container) return;
+    const pill = document.createElement("div");
+    pill.id = "uc-zoom-indicator";
+    const btnOut = document.createElement("button");
+    btnOut.id = "uc-zoom-out";
+    btnOut.type = "button";
+    btnOut.textContent = "\u2212"; // minus sign
+    btnOut.setAttribute("title", "Zoom out");
+    const label = document.createElement("span");
+    label.id = "uc-zoom-label";
+    const btnIn = document.createElement("button");
+    btnIn.id = "uc-zoom-in";
+    btnIn.type = "button";
+    btnIn.textContent = "+";
+    btnIn.setAttribute("title", "Zoom in");
+    pill.appendChild(btnOut);
+    pill.appendChild(label);
+    pill.appendChild(btnIn);
+    container.appendChild(pill);
+    let hideTimer;
+    let lastTabSelect = 0;
+    const setLabel = () => {
+      label.textContent = Math.round(window.ZoomManager.zoom * 100) + "%";
+    };
+    setLabel();
+    const show = () => {
+      // FullZoomChange also fires when switching to a tab with a different zoom: ignore those.
+      if (Date.now() - lastTabSelect < 300) return;
+      setLabel();
+      if (!pill.classList.contains("show")) {
+        pill.classList.add("show");
+      }
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => { if (!pill.matches(":hover")) pill.classList.remove("show"); }, 900);
+    };
+    const zoomBy = (dir) => {
+      const browser = gBrowser.selectedBrowser;
+      if (!browser) return;
+      try {
+        if (typeof FullZoom !== "undefined" && FullZoom) {
+          if (dir > 0) FullZoom.enlarge(browser);
+          else FullZoom.reduce(browser);
+        } else {
+          browser.dispatchEvent(new CustomEvent(dir > 0 ? "DoZoomEnlarge" : "DoZoomReduce"));
+        }
+      } catch (e) {
+        console.error("zoom button:", e);
+      }
+    };
+    btnOut.addEventListener("click", (e) => { e.stopPropagation(); zoomBy(-1); });
+    btnIn.addEventListener("click", (e) => { e.stopPropagation(); zoomBy(1); });
+    // Keep the pill open while hovered so the buttons can be clicked.
+    pill.addEventListener("mouseenter", () => clearTimeout(hideTimer));
+    pill.addEventListener("mouseleave", () => {
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => pill.classList.remove("show"), 300);
+    });
+    gBrowser.tabContainer.addEventListener("TabSelect", () => { lastTabSelect = Date.now(); setLabel(); });
+    window.addEventListener("FullZoomChange", show);
+    window.addEventListener("unload", () => { clearTimeout(hideTimer); pill.remove(); }, { once: true });
+  } catch (e) {
+    console.error("zoom control:", e);
   }
 })();

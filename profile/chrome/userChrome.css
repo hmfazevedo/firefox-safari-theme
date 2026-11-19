@@ -3,8 +3,49 @@
 /* One easing curve and shared durations for every interface animation. */
 :root {
   --uc-easing: cubic-bezier(0.4, 0, 0.2, 1);
-  --uc-duration: 260ms;
+  --uc-duration: 180ms;
   --uc-duration-tint: 300ms;
+  --uc-duration-layout: 220ms;
+  --uc-font: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --uc-scheme: dark;
+  --uc-panel: rgba(38, 42, 48, 0.98);
+  --uc-panel-text: #fbfbfe;
+  --uc-panel-muted: #a5a8ad;
+  --uc-panel-field: #1b1f22;
+  --uc-panel-selected: #44484d;
+  --uc-panel-border: rgba(255, 255, 255, 0.12);
+  --uc-control: rgba(255, 255, 255, 0.07);
+  --uc-control-edge: rgba(255, 255, 255, 0.12);
+  --uc-selected-tab: color-mix(in srgb, var(--uc-tint, #23282e) 78%, white);
+}
+:root[uc-light] {
+  --uc-scheme: light;
+  --uc-panel: rgba(250, 250, 252, 0.98);
+  --uc-panel-text: #202124;
+  --uc-panel-muted: #666a70;
+  --uc-panel-field: #eceef1;
+  --uc-panel-selected: #dce1e7;
+  --uc-panel-border: rgba(0, 0, 0, 0.14);
+  --uc-control: rgba(255, 255, 255, 0.28);
+  --uc-control-edge: rgba(0, 0, 0, 0.12);
+  --uc-selected-tab: color-mix(in srgb, var(--uc-tint, #23282e) 62%, white);
+}
+/* Keep native sizes and weights, but use one Windows UI sans-serif family. */
+#navigator-toolbox,
+#urlbar-input,
+.tab-text,
+.bookmark-item,
+panel,
+menupopup,
+panel :is(button, input, label, description) {
+  font-family: var(--uc-font) !important;
+}
+/* Selected surfaces follow the page tint instead of Firefox's violet-grey. */
+#tabbrowser-tabs .tabbrowser-tab[selected] .tab-background {
+  background-color: var(--uc-selected-tab) !important;
+  background-image: none !important;
+  box-shadow: inset 0 0 0 1px var(--uc-control-edge) !important;
+  transition: background-color var(--uc-duration-tint) var(--uc-easing) !important;
 }
 
 /* Bookmarks bar: no padding on top, 7 px below (see the rule below). It fades in and out (opacity) and its height changes at
@@ -141,7 +182,7 @@
 }
 
 /* Address field at rest: one notch darker than the bar (#1b1f22, measured on Safari). Once focused, Firefox keeps its own input colour, which is readable. */
-#urlbar:not([focused]) > #urlbar-background {
+#urlbar:not([focused]) > .urlbar-background {
   background-color: var(--uc-hollow) !important;
 }
 
@@ -244,7 +285,7 @@
   --uc-uw: var(--uc-urlbar-width);
 }
 :root[uc-anim] {
-  transition: --uc-ux 420ms cubic-bezier(0.4, 0, 0.2, 1), --uc-uw 420ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: --uc-ux var(--uc-duration-layout) var(--uc-easing), --uc-uw var(--uc-duration-layout) var(--uc-easing) !important;
 }
 #urlbar-container {
   position: absolute;
@@ -338,16 +379,9 @@
 .urlbar-input-box {
   margin-inline: 12px 40px !important; /* 40 px on the right for the button; 12 px on the left: Firefox already reserves ~28 px of invisible elements (measured) */
 }
-/* With the globe (attribute uc-centered): the text starts as far from the globe as it ends from the Reload button: --uc-text-gap.
- * The globe, absolutely positioned 4 px from the edge, is drawn 10.7 -> 26.7 px from the field's edge, and Reload 10 -> 26 px from the
- * right edge: the text therefore starts at 26.7 + gap from the left edge (margin = 25 px + gap, including 1.3 px of container padding)
- * and ends at 26 + gap from the right edge (margin 20 px + gap, plus 4 px of field padding). Without this rule the text started 13 px
- * from the edge, UNDER the globe. A short text (bare domain) is thereby exactly centred in the field. Without the globe (typing,
- * internal page): the previous rule applies. TEST TRAP: a Firefox driven by Marionette adds the #remote-control-box icon (32 px, in the
- * flow, left of the field), which shifts everything by 32 px and hides the problem; hide it when measuring. */
+/* Both resting and editing address text use the same symmetric slots below. */
 #urlbar[uc-centered] .urlbar-input-box {
-  --uc-text-gap: 12px;
-  margin-inline: calc(25px + var(--uc-text-gap)) calc(20px + var(--uc-text-gap)) !important;
+  margin-inline: 0 !important;
 }
 
 /* Favicon stuck to the left of the title, the "icon + title" group being centred in the tab (like Safari). In .tab-content (flex
@@ -469,6 +503,71 @@
 #forward-button {
   list-style-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M6 2.8 11.2 8 6 13.2' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'/></svg>") !important;
 }
+/* Two adjacent halves form one capsule without moving Firefox's real buttons. */
+#nav-bar :is(#back-button, #forward-button) {
+  background-color: var(--uc-control) !important;
+  border-block: 1px solid var(--uc-control-edge) !important;
+  margin-inline: 0 !important;
+  padding-block: 0 !important;
+  align-self: center;
+  -moz-window-dragging: no-drag;
+}
+#nav-bar #back-button {
+  border-inline-start: 1px solid var(--uc-control-edge) !important;
+  border-radius: 18px 0 0 18px !important;
+}
+#nav-bar #forward-button {
+  border-inline-end: 1px solid var(--uc-control-edge) !important;
+  border-radius: 0 18px 18px 0 !important;
+}
+#nav-bar :is(#back-button, #forward-button) > .toolbarbutton-icon {
+  border-radius: 50% !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+/* Disabled navigation dims only the glyph, never half of the shared capsule. */
+#nav-bar :is(#back-button, #forward-button)[disabled] {
+  opacity: 1 !important;
+}
+#nav-bar :is(#back-button, #forward-button)[disabled] > .toolbarbutton-icon {
+  opacity: 0.4 !important;
+}
+/* Hover lights the complete capsule, including its disabled half. */
+#nav-bar:has(:is(#back-button, #forward-button):not([disabled]):hover) :is(#back-button, #forward-button) {
+  background-color: color-mix(in srgb, var(--uc-panel-text) 14%, transparent) !important;
+}
+#nav-bar :is(#new-tab-button, #PanelUI-menu-button, #unified-extensions-button, #downloads-button) {
+  position: relative;
+}
+/* The capsule below owns hover/open feedback. Firefox otherwise paints a second
+ * square surface on the icon or badge stack, overlapping our circular surface. */
+#nav-bar :is(#new-tab-button, #PanelUI-menu-button, #unified-extensions-button, #downloads-button) > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+/* Draw behind the icon, so the light-mode SVG inversion cannot invert its surface. */
+#nav-bar :is(#new-tab-button, #PanelUI-menu-button, #unified-extensions-button, #downloads-button)::before {
+  content: "";
+  position: absolute;
+  top: calc(50% - 16px);
+  left: calc(50% - 16px);
+  width: 32px;
+  height: 32px;
+  pointer-events: none;
+  background-color: var(--uc-control) !important;
+  border-radius: 18px !important;
+  box-shadow: inset 0 0 0 1px var(--uc-control-edge);
+  transition: background-color var(--uc-duration) var(--uc-easing);
+}
+#nav-bar :is(#new-tab-button, #PanelUI-menu-button, #unified-extensions-button, #downloads-button):is(:hover, [open])::before {
+  background-color: color-mix(in srgb, var(--uc-panel-text) 14%, transparent) !important;
+}
+/* Firefox pads the menu button 2px at the start and 8px at the end in all
+ * densities: its icon centre is 3px before the button centre. */
+#nav-bar #PanelUI-menu-button::before {
+  left: auto;
+  inset-inline-start: calc(50% - 19px);
+}
 
 /* Address drop-down, like Safari: a FLOATING panel, rounded, translucent and blurred, detached from the bar. Firefox paints the open
  * menu as ONE surface in two halves: the bar grows (8 px overflow, square bottom corners, extended 24 px below it) and
@@ -498,9 +597,9 @@
   clip-path: none !important;
   border: none !important;
   border-radius: 22px !important;
-  background-color: rgba(38, 42, 48, 0.94) !important; /* almost opaque: the blur (backdrop-filter) does not always act on the page content, and at 0.78 the site's text showed through the rows */
+  background-color: var(--uc-panel) !important;
   backdrop-filter: blur(24px) saturate(1.5) !important;
-  box-shadow: 0 16px 24px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) !important; /* negative spread + downward offset: the shadow does not rise under the capsule (a 30 px shadow blackened it) */
+  box-shadow: 0 16px 24px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--uc-panel-border) !important;
 }
 
 /* Menu and extensions: same thin stroke (1.25) as the other icons. */
@@ -566,9 +665,11 @@
 :root,
 panel,
 menupopup {
-  --panel-background-color: rgba(38, 42, 48, 0.94) !important; /* same translucent veil as the address drop-down (rgba(38, 42, 48, 0.94)): the page shows faintly through. No background blur here: a panel is a separate window, backdrop-filter cannot see the page. */
+  --panel-background-color: var(--uc-panel) !important;
+  --panel-color: var(--uc-panel-text) !important;
+  --panel-text-color: var(--uc-panel-text) !important;
   --panel-border-radius: 22px !important; /* Safari's corners on macOS 26, rounder than the previous 16 px */
-  --panel-border-color: rgba(255, 255, 255, 0.1) !important;
+  --panel-border-color: var(--uc-panel-border) !important;
   /* Inside of the panels (fields, primary buttons, checkboxes, switches, links): Safari's blue instead of Firefox's turquoise, and
  * fields darker than the card (instead of the grey-violet --background-color-box). */
   --color-accent-primary: #0a84ff !important;
@@ -576,20 +677,41 @@ menupopup {
   --color-accent-primary-active: #0067d6 !important;
   --color-accent-primary-selected: #0a84ff !important;
   --button-text-color-primary: #fff !important;
-  --background-color-box: #1b1f22 !important;
+  --background-color-box: var(--uc-panel-field) !important;
+}
+panel,
+menupopup {
+  color-scheme: var(--uc-scheme) !important;
+  color: var(--uc-panel-text) !important;
+  --text-color: var(--uc-panel-text) !important;
+  --text-color-disabled: var(--uc-panel-muted) !important;
+  --panel-separator-color: var(--uc-panel-border) !important;
 }
 menupopup {
   --panel-border-radius: 12px !important;
 }
-/* Drop-down of a web page's <select>: Firefox colours its text with the page's own select colour (--panel-text-color, inline style) and picks
- * its light / dark scheme from the select's background, while the card above is always dark: a white select with black text gave black text
- * on the dark card. Light text and the dark scheme here (an option that the page gives its own background and colour keeps both). */
+/* Web <select> popups: use a complete palette even when the closed field is white.
+ * SelectParent paints the site's background as a gradient on the arrowscrollbox,
+ * above --panel-background-color. Override that image AND the per-option colours
+ * together so every option stays readable in both palettes. */
 #ContentSelectDropdown > menupopup {
-  --panel-text-color: #fbfbfe !important;
-  color-scheme: dark !important;
+  --panel-text-color: var(--uc-panel-text) !important;
+  --content-select-background-image: linear-gradient(var(--uc-panel), var(--uc-panel)) !important;
+  color-scheme: var(--uc-scheme) !important;
+}
+#ContentSelectDropdown > menupopup > :is(menuitem, menucaption) {
+  color: var(--uc-panel-text) !important;
+  background-color: transparent !important;
+  text-shadow: none !important;
+}
+#ContentSelectDropdown > menupopup > menuitem:is([_moz-menuactive], [selected]):not([disabled="true"]) {
+  background-color: var(--uc-panel-selected) !important;
+}
+#ContentSelectDropdown > menupopup > :is(menuitem, menucaption)[disabled="true"] {
+  color: var(--uc-panel-muted) !important;
 }
 panel {
-  --input-text-background-color: #1b1f22 !important; /* input fields of the panels (bookmark name...); only in panels: the address bar reads the same variable */
+  --input-text-background-color: var(--uc-panel-field) !important;
   --panel-box-shadow: 0 16px 24px -12px rgba(0, 0, 0, 0.5) !important;
   --panel-box-shadow-margin: 20px !important;
 }
@@ -618,6 +740,58 @@ findbar {
   border-radius: 22px !important;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45) !important;
   z-index: 10;
+}
+
+/* Zoom control (Ctrl+ / Ctrl- / Ctrl+0): Safari-style pill at the top centre of the page, created by
+ * safari-theme.uc.js. Hidden by default; fades in on FullZoomChange, stays while hovered, out ~0.9 s later.
+ * Contains clickable − and + buttons that zoom the current tab. */
+#uc-zoom-indicator {
+  position: absolute !important;
+  grid-area: 1 / 1 !important; /* .browserContainer is a GRID (see the findbar rule) */
+  inset-block: 12px auto !important;
+  inset-inline: 50% auto !important;
+  transform: translateX(-50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 1px !important;
+  padding: 2px !important;
+  background: rgba(38, 42, 48, 0.94) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45) !important;
+  font-size: 12px !important;
+  color: #fff !important;
+  pointer-events: none !important;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity var(--uc-duration) var(--uc-easing);
+}
+#uc-zoom-indicator.show {
+  opacity: 1;
+  pointer-events: auto !important;
+}
+#uc-zoom-indicator button {
+  all: unset !important;
+  width: 24px !important;
+  height: 22px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
+  color: #fff !important;
+  border-radius: 9px !important;
+  cursor: pointer !important;
+  transition: background-color 0.12s ease;
+}
+#uc-zoom-indicator button:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
+}
+#uc-zoom-indicator button:active {
+  background: rgba(255, 255, 255, 0.28) !important;
+}
+#uc-zoom-label {
+  min-width: 42px !important;
+  text-align: center !important;
 }
 
 /* Bookmarks bar: hover as a rounded pill (Firefox: small rectangle). margin-block: 0: Firefox puts 2 px of margin above and below
@@ -663,17 +837,14 @@ findbar {
 :root[uc-light] #navigator-toolbox {
   color-scheme: light !important;
 }
-/* The address drop-down is INSIDE the toolbar but keeps its fixed dark grey background: without this it inherited color-scheme: light
- * and its text turned black on that dark background. */
-:root[uc-light] #urlbar .urlbarView {
-  color-scheme: dark !important;
-  /* History and bookmark rows have no colour of their own: they inherit #urlbar's, already computed as BLACK (light theme);
- * color-scheme does not recompute it, hence this explicit white. */
-  color: #fbfbfe !important;
+/* Suggestions and their actions follow the panel palette independently of the bar. */
+#urlbar .urlbarView {
+  color-scheme: var(--uc-scheme) !important;
+  color: var(--uc-panel-text) !important;
 }
 /* The menu's action buttons ("Search with Wikipedia") have a fixed black text in Firefox: black on dark grey. */
 #urlbar .urlbarView-action-btn {
-  color: #fbfbfe !important;
+  color: var(--uc-panel-text) !important;
 }
 :root[uc-light] :is(#back-button, #forward-button, #reload-button, #stop-button, #new-tab-button, #PanelUI-menu-button,
     #unified-extensions-button, #downloads-button, #uc-compact-button) .toolbarbutton-icon,
@@ -768,16 +939,15 @@ findbar {
   background-color: transparent !important;
 }
 
-/* Animation between normal <-> compact (the button toggle, or a second tab opening / closing in compact mode): during [uc-anim] the
- * tab strip fades in (compact) or fades in while sliding down from the top (normal), the field slides (variables --uc-ux / --uc-uw
- * above) and safari-theme.uc.js animates the bar's height (80 -> 40 px). The bar is only clipped during these 0.4 s. */
+/* Compact switches use a short address transition and an opacity-only tab entrance.
+ * No additional toolbox-height animation or vertical translation of the tabs. */
 @keyframes uc-tabs-compact {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 @keyframes uc-tabs-normal {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: none; }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 :root[uc-anim] #navigator-toolbox {
   overflow: clip;
@@ -791,10 +961,10 @@ findbar {
   display: none !important;
 }
 :root[uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"])[uc-anim] #TabsToolbar {
-  animation: uc-tabs-compact 420ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: uc-tabs-compact var(--uc-duration-layout) var(--uc-easing) both;
 }
 :root[uc-anim][uc-multi]:not([uc-compact][uc-multi]:has(#tabbrowser-tabs[orient="horizontal"])) #TabsToolbar {
-  animation: uc-tabs-normal 420ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: uc-tabs-normal var(--uc-duration-layout) var(--uc-easing) both;
 }
 /* Back to a single tab: the row disappears at once (otherwise it reappeared as a second row while collapsing). */
 :root[uc-anim]:not([uc-multi]) #TabsToolbar {
@@ -825,7 +995,7 @@ findbar {
   min-width: 220px;
   padding-block: 4px;
   font-size: 13px;
-  color: #f5f5f7;
+  color: var(--uc-panel-text);
 }
 #uc-options-panel .uc-switch {
   appearance: none;
@@ -836,7 +1006,7 @@ findbar {
   height: 24px;
   margin: 0;
   border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.22);
+  background-color: color-mix(in srgb, var(--uc-panel-text) 22%, transparent);
   transition: background-color var(--uc-duration) var(--uc-easing);
 }
 #uc-options-panel .uc-switch::before {
@@ -860,7 +1030,7 @@ findbar {
   display: flex;
   padding: 2px;
   border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.12);
+  background-color: color-mix(in srgb, var(--uc-panel-text) 12%, transparent);
 }
 #uc-options-panel .uc-seg button {
   appearance: none;
@@ -870,13 +1040,13 @@ findbar {
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: #f5f5f7;
+  color: var(--uc-panel-text);
   font: inherit;
   font-size: 12px;
   transition: background-color var(--uc-duration) var(--uc-easing);
 }
 #uc-options-panel .uc-seg button[aria-pressed="true"] {
-  background-color: rgba(255, 255, 255, 0.24);
+  background-color: var(--uc-panel-selected);
 }
 #uc-options-panel:not([uc-mac]) .uc-side {
   opacity: 0.4;
@@ -1002,9 +1172,8 @@ findbar {
 :root {
   --uc-globe: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16'><path d='M3.5 4.5h9M3.5 8h9M3.5 11.5h5.5' fill='none' stroke='%23fbfbfe' stroke-width='1.25' stroke-linecap='round'/></svg>");
 }
-#urlbar[uc-centered] #urlbar-input {
-  padding-inline-start: 0 !important; /* no room reserved for the globe: it is stuck to the left edge of the field, the text alone is centred */
-  padding-inline-end: 4px !important; /* the text box (between the globe and Reload) is 2 px right of the field's centre: 4 px bring the text, measured, back to the centre */
+#urlbar-input {
+  padding-inline: 0 !important;
 }
 #urlbar[uc-centered] #identity-box {
   position: absolute;
@@ -1076,16 +1245,21 @@ findbar {
 #urlbar[pageproxystate="invalid"] #urlbar-input:placeholder-shown {
   caret-color: transparent !important;
 }
-/* Without the globe (typing, new tab, internal page, placeholder): the text area is absolutely positioned, 40 px from both edges of
- * the field, so its middle is ALWAYS the field's middle, whatever Firefox puts in the flow next to it (the internal page's 77 px icon,
- * the 28 px "Go" button while typing, nothing on a new tab): with the old 12 / 40 px margins the text could be up to 58 px off. Long
- * text only goes under these elements when it is long enough to approach the edges. Not in search mode (the engine chip is then in the
- * flow, left of the text), nor on an extension page: its "Extension (name)" label is wide and its address long, so the text, left-aligned,
- * went under the label; there the text stays in the flow, after the label. */
-#urlbar:not([uc-centered], [searchmode]):not(:has(#identity-box.extensionPage)) .urlbar-input-box {
+/* Identical text bounds with or without the page icon; native search-mode chips
+ * and extension identity labels stay in the flow and retain their own layout. */
+#urlbar:not([searchmode]):not(:has(#identity-box.extensionPage)) .urlbar-input-box {
   position: absolute !important;
-  inset: 0 40px !important;
+  inset: 0 var(--uc-address-inset, 40px) !important;
   margin: 0 !important;
+}
+/* The same symmetric slots at rest, on focus and while typing. Reader reserves
+ * its extra slot on both sides, keeping the domain centred without overlap. */
+#urlbar:has(#reader-mode-button:not([hidden])) {
+  --uc-address-inset: 72px;
+}
+#urlbar > .urlbar-background {
+  inset: 0 !important;
+  border-radius: var(--urlbar-border-radius) !important;
 }
 /* The internal page's icon (and its text) stays above the text area: a click on it still opens its panel. */
 #urlbar:not([uc-centered], [searchmode]) #identity-box {
@@ -1169,4 +1343,14 @@ findbar {
 /* Collapsed bookmarks: transparent, so they fade in and out (see the comment at the top of the file). */
 #PersonalToolbar[collapsed] {
   opacity: 0 !important;
+}
+
+/* Keep tab lifecycle transitionend events, but remove perceptible motion when
+ * the user has requested reduced motion in Windows. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --uc-duration: 1ms;
+    --uc-duration-tint: 1ms;
+    --uc-duration-layout: 1ms;
+  }
 }
